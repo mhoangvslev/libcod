@@ -340,7 +340,7 @@ void gsc_player_printf(int id) {
 
 Scr_Method scriptMethods[] = {
 	{"printf", gsc_player_printf, 0}, // rather use sprintf() to re-use iprintlnbold() etc.?
-	
+
 	#if COMPILE_PLAYER == 1
 	{"getStance"             , gsc_player_stance_get         , 0},
 	{"setVelocity"           , gsc_player_velocity_set       , 0},
@@ -374,6 +374,7 @@ Scr_Method scriptMethods[] = {
 	{"setg_speed"            , gsc_player_setg_speed         , 0},
 	{"setg_gravity"          , gsc_player_setg_gravity       , 0},
 	{"setweaponfiremeleedelay", gsc_player_setweaponfiremeleedelay, 0},
+	{"disableitempickup"     , gsc_player_disable_item_pickup, 0},
 	#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},
@@ -401,8 +402,6 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev) {
 	
 	return NULL;
 }
-
-
 
 /*
 	In CoD2 this address can be found in every get-param-function

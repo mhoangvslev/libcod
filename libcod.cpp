@@ -2146,11 +2146,6 @@ int cmd_map()
 	return ret;
 }
 
-int hook_dummytrue(const char *src)
-{
-	return 1;
-}
-
 #define TOSTRING2(str) #str
 #define TOSTRING1(str) TOSTRING2(str) // else there is written "__LINE__"
 class cCallOfDuty2Pro
@@ -2252,6 +2247,19 @@ class cCallOfDuty2Pro
 		printf("> [INFO] value of closer=%.8x\n", *addressToCloserPointer);
 		*addressToCloserPointer = (int) cdecl_injected_closer/*_stack_debug*/;
 		//printf("after\n");
+		
+		#if COD_VERSION == COD2_1_0
+			int *addressToPickUpItemPointer = (int *)0x08167B34;
+		#elif COD_VERSION == COD2_1_2
+			int *addressToPickUpItemPointer = (int *)0x08186F94;
+		#elif COD_VERSION == COD2_1_3
+			int *addressToPickUpItemPointer = (int *)0x08187FB4;
+		#else
+			#warning int *addressToPickUpItemPointer = NULL;
+			int *addressToPickUpItemPointer = NULL;
+		#endif
+	
+		*addressToPickUpItemPointer = (int)hook_pickup_item;
 
 		/*
 		printf("> [INFO] recvfrom=%08x\n", dlsym(NULL, "recvfrom"));

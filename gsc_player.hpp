@@ -14,6 +14,7 @@ extern "C" {
 #include "gsc.hpp"
 
 int clientaddress_to_num(int address);
+int gentityaddress_to_num(int address);
 
 void gsc_player_velocity_set(int id);
 void gsc_player_velocity_add(int id);
@@ -58,6 +59,8 @@ void gsc_player_setmovespeedscale(int id);
 void gsc_player_setg_speed(int id);
 void gsc_player_setg_gravity(int id);
 void gsc_player_setweaponfiremeleedelay(int id);
+int hook_pickup_item(int weapon, int player, int message);
+void gsc_player_disable_item_pickup(int id);
 
 // entity functions
 void gsc_entity_setalive(int id);

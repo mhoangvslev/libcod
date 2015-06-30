@@ -95,8 +95,8 @@ int clientaddress_to_num(int address) {
 	return (address - playerStates) / sizeOfPlayer;
 }
 
-int gentityaddress_to_num(int client) {
-	return (client - gentities) / gentities_size;
+int gentityaddress_to_num(int address) {
+	return (address - gentities) / gentities_size;
 }
 
 void gsc_player_velocity_set(int id) {
@@ -705,6 +705,38 @@ void gsc_player_setweaponfiremeleedelay(int id) {
 	int* weapondelay = (int *)(state + 0x34);
 	*weapondelay = delay;
 	*(int *)(state + 216) = 11;
+}
+
+int disable_player_item_pickup[64] = {0};
+
+int hook_pickup_item(int weapon, int player, int message) {
+	int clientNum = gentityaddress_to_num(player);
+	if(disable_player_item_pickup[clientNum] != 1) {
+		typedef int (*Touch_Item_Auto_t)(int a1, int a2, int a3);
+		#if COD_VERSION == COD2_1_0
+			Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x081037F0;
+		#elif COD_VERSION == COD2_1_2
+			Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105B24;
+		#elif COD_VERSION == COD2_1_3
+			Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105C80;
+		#else
+			Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)NULL;
+		#endif
+		return Touch_Item_Auto(weapon, player, message);
+	}
+
+	return 1;
+}
+
+void gsc_player_disable_item_pickup(int id) {
+	int disabled;
+	if (!stackGetParams("i", &disabled)) {
+		printf("scriptengine> ERROR: gsc_player_disable_item_pickup(): param \"disabled\"[1] has to be an integer!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	disable_player_item_pickup[id] = disabled;
 }
 
 // entity functions (could be in own file, but atm not many pure entity functions)
