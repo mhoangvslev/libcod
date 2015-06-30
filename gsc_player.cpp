@@ -729,14 +729,11 @@ int hook_pickup_item(int weapon, int player, int message) {
 }
 
 void gsc_player_disable_item_pickup(int id) {
-	int disabled;
-	if (!stackGetParams("i", &disabled)) {
-		printf("scriptengine> ERROR: gsc_player_disable_item_pickup(): param \"disabled\"[1] has to be an integer!\n");
-		stackPushUndefined();
-		return;
-	}
+	disable_player_item_pickup[id] = 1;
+}
 
-	disable_player_item_pickup[id] = disabled;
+void gsc_player_enable_item_pickup(int id) {
+	disable_player_item_pickup[id] = 0;
 }
 
 // entity functions (could be in own file, but atm not many pure entity functions)
