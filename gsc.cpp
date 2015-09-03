@@ -1810,13 +1810,6 @@ typedef struct searchpath_s {
 	pack_t      *pack;      // only one of pack / dir will be non NULL
 	directory_t *dir;
 } searchpath_t;
-
-typedef struct aSearchPath_t{
-	struct aSearchPath_t *next;
-	pack_t *pack;
-	directory_t *dir;
-	int *d;
-} aSearchPath;
 #endif
 			searchpath_t *fs_searchpaths = (searchpath_t *)0x0849ECE8;
 			searchpath_t *search;
