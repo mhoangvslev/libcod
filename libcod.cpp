@@ -1618,6 +1618,32 @@ void hook_SV_WriteDownloadToClient(int cl, int msg)
 		SV_WriteDownloadToClient(cl, msg);
 }
 
+int clientaddress_to_num(int client);
+int custom_animation[64] = {0};
+cHook *hook_set_anim;
+int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
+{
+    int clientnum = clientaddress_to_num(a1);
+    extern int playerinfo_base, playerinfo_size;
+    
+    if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4 && custom_animation[clientnum])
+    {
+        a2 = custom_animation[clientnum];
+        a4 = 0;
+        a5 = 1;
+        a6 = 0;
+        a7 = 1;
+    }
+    
+    hook_set_anim->unhook();
+    int (*sig)(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7);
+    *(int *)&sig = hook_set_anim->from;
+    int ret = sig(a1, a2, a3, a4, a5, a6, a7);
+    hook_set_anim->hook();
+    
+    return ret;
+}
+
 #if COD_VERSION < COD4_1_7 && COMPILE_RATELIMITER == 1
 // ioquake3 rate limit connectionless requests
 // https://github.com/ioquake/ioq3/commits/dd82b9d1a8d0cf492384617aff4712a683e70007/code/server/sv_main.c
@@ -2431,6 +2457,8 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
 			cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
+			hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
+            hook_set_anim->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -2464,6 +2492,8 @@ class cCallOfDuty2Pro
 			//hook_cmd_map = new cHook(0x0808BC7A, (int)cmd_map);
 			//hook_cmd_map->hook();
 			cracking_hook_call(0x0809AD68, (int)hook_SV_WriteDownloadToClient);
+			hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
+            hook_set_anim->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -2490,6 +2520,8 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
 			cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
+			hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
+            hook_set_anim->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095C48, (int)hook_SVC_Info);

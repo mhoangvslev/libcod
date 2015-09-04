@@ -376,6 +376,7 @@ Scr_Method scriptMethods[] = {
 	{"setweaponfiremeleedelay", gsc_player_setweaponfiremeleedelay, 0},
 	{"disableitempickup"     , gsc_player_disable_item_pickup, 0},
 	{"enableitempickup"      , gsc_player_enable_item_pickup , 0},
+	{"setanim"               , gsc_player_set_anim           , 0},
 	#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},

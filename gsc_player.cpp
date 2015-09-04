@@ -736,6 +736,36 @@ void gsc_player_enable_item_pickup(int id) {
 	disable_player_item_pickup[id] = 0;
 }
 
+void gsc_player_set_anim(int id)
+{
+    char* animation;
+    
+    if ( ! stackGetParams("s", &animation)) {
+        printf("scriptengine> ERROR: gsc_player_set_anim(): param \"animation\"[1] has to be an string!\n");
+        stackPushUndefined();
+        return;
+    }
+    
+    #if COD_VERSION == COD2_1_0
+        int anim_offset = 0x080D46AC;
+    #elif COD_VERSION == COD2_1_2
+        int anim_offset = 0x080D6C8C;
+    #elif COD_VERSION == COD2_1_3
+        int anim_offset = 0x080D6DD0;
+    #endif
+    
+    int (*BG_AnimationIndexForString)(char *src);
+    *(int *)&BG_AnimationIndexForString = anim_offset;
+    
+    int animationIndex = 0;
+    extern int custom_animation[64];
+    
+    if(strcmp(animation, "none"))
+        animationIndex = BG_AnimationIndexForString(animation);
+    
+    custom_animation[id] = (animationIndex);
+}
+
 // entity functions (could be in own file, but atm not many pure entity functions)
 
 void gsc_entity_setalive(int id) { // as in isAlive?
