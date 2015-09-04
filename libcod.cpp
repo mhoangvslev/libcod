@@ -1644,6 +1644,128 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
     return ret;
 }
 
+int gsc_libcod_getAddressType(int id) {
+    extern int playerinfo_base;
+    extern int playerinfo_size;
+    
+    #if COD_VERSION == COD2_1_0
+        int info_addresstype_offset = 0x6E5C4;
+    #elif COD_VERSION == COD2_1_2
+        int info_addresstype_offset = 0x6E6D4;
+    #elif COD_VERSION == COD2_1_3
+        int info_addresstype_offset = 0x6E6D4;
+    #else
+        #warning getAddressType() got no working addresses
+        int info_addresstype_offset = 0x0;
+    #endif
+    
+    int addrtype = *(int*)(*(int*)playerinfo_base + id * playerinfo_size + info_addresstype_offset);
+}
+
+cHook *hook_set_bot_pings;
+void set_bot_pings()
+{
+    hook_set_bot_pings->unhook();
+    int (*sig)();
+    *(int *)&sig = hook_set_bot_pings->from;
+    int ret = sig();
+    hook_set_bot_pings->hook();
+    
+    extern int playerinfo_base;
+    extern int playerinfo_size;
+    int addrtype;
+    int i;
+    
+    #if COD_VERSION == COD2_1_0
+        int offset = 0x0848B1CC;
+        int p = 113001;
+    #elif COD_VERSION == COD2_1_2
+        int offset = 0x0849E6CC;
+        int p = 113069;
+    #elif COD_VERSION == COD2_1_3
+        int offset = 0x0849F74C;
+        int p = 113069;
+    #else
+        #warning set_bot_pings() got no working addresses
+        int offset = 0x0;
+        int p = 0;
+    #endif
+    
+    for (i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
+    {
+        if(*(int*)(*(int*)playerinfo_base + i * playerinfo_size) == 4)
+        {
+            addrtype = gsc_libcod_getAddressType(i);
+            if(addrtype == 0)
+                *(int*)(*(int*)playerinfo_base + i * playerinfo_size + (p*4)) = 0;
+        }
+    }
+} 
+
+int client_movement[64] = {0};
+int bot_shoot[64] = {0};
+int bot_wepType[64] = {0};
+int bot_throwNade[64] = {0};
+
+cHook *hook_play_movement;
+int play_movement(int a1, int a2)
+{
+    #if COD_VERSION == COD2_1_0
+        int offset = 0x841FB0C;
+    #elif COD_VERSION == COD2_1_2
+        int offset = 0x842200C;
+    #elif COD_VERSION == COD2_1_3
+        int offset = 0x842308C;
+    #else
+        #warning play_movement() got no working addresses
+        int offset = 0x0;
+    #endif
+    
+    extern int playerinfo_base, playerinfo_size;
+    int addrtype, clientnum;
+    
+    clientnum = (a1 - *(int*)offset) / playerinfo_size;
+    if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
+    {
+        addrtype = gsc_libcod_getAddressType(clientnum);
+        
+        if(addrtype == 0) //bot stuff here
+        {
+            if(!bot_throwNade[clientnum])
+            {
+                if(!bot_wepType[clientnum])
+                {
+                    if(bot_shoot[clientnum] == 4097)
+                        bot_shoot[clientnum] = 0;
+                    else
+                        bot_shoot[clientnum] = 4097;
+                } else
+                    bot_shoot[clientnum] = 4097;
+            } else {
+                bot_shoot[clientnum] = 65536;
+            }
+            
+            *(int *)(a2 + 4) = bot_shoot[clientnum];
+            
+            if(!client_movement[clientnum])
+                *(int *)(a2 + 24) = 0;
+            else
+                *(int *)(a2 + 24) = client_movement[clientnum];
+        } else { //player stuff here
+            if(client_movement[clientnum])
+                *(int *)(a2 + 24) = client_movement[clientnum];
+        }
+    }
+    
+    hook_play_movement->unhook();
+    int (*sig)(int a1, int a2);
+    *(int *)&sig = hook_play_movement->from;
+    int ret = sig(a1, a2);
+    hook_play_movement->hook();
+    
+    return ret;
+}  
+
 #if COD_VERSION < COD4_1_7 && COMPILE_RATELIMITER == 1
 // ioquake3 rate limit connectionless requests
 // https://github.com/ioquake/ioq3/commits/dd82b9d1a8d0cf492384617aff4712a683e70007/code/server/sv_main.c
@@ -2459,6 +2581,10 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
 			hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
             hook_set_anim->hook();
+			hook_set_bot_pings = new cHook(0x0809443E, (int)set_bot_pings);
+            hook_set_bot_pings->hook();
+			hook_play_movement = new cHook(0x0808F488, (int)play_movement);
+            hook_play_movement->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -2494,6 +2620,10 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x0809AD68, (int)hook_SV_WriteDownloadToClient);
 			hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
             hook_set_anim->hook();
+			hook_set_bot_pings = new cHook(0x0809630E, (int)set_bot_pings);
+            hook_set_bot_pings->hook();
+			hook_play_movement = new cHook(0x08090D18, (int)play_movement);
+            hook_play_movement->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -2522,6 +2652,10 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
 			hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
             hook_set_anim->hook();
+			hook_set_bot_pings = new cHook(0x080963C8, (int)set_bot_pings);
+            hook_set_bot_pings->hook();
+			hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
+            hook_play_movement->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
