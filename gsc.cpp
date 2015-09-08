@@ -386,6 +386,7 @@ Scr_Method scriptMethods[] = {
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},
 	{"isonladder"            , gsc_player_isonladder         , 0},
+	{"iscrouching"           , gsc_player_iscrouching        , 0},
 	#endif
 	#endif
 	
