@@ -580,15 +580,6 @@ void gsc_player_isonladder(int id) {
 		stackPushInt(0);
 }
 
-void gsc_player_iscrouching(int id) {
-	int flags = PLAYERSTATE(id) + 0xc;
-	
-	if(*(int*)flags & 2)
-		stackPushInt(1);
-	else 
-		stackPushInt(0);
-}
-
 typedef long double (*calc_player_speed_t)(int a1, int a2);
 #if COD_VERSION == COD2_1_0
 	calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080DF534;

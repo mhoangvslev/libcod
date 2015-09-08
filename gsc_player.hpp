@@ -53,7 +53,6 @@ void gsc_player_connectionlesspacket(int id);
 void gsc_player_resetNextReliableTime(int id);
 void gsc_player_ismantling(int id);
 void gsc_player_isonladder(int id);
-void gsc_player_iscrouching(int id);
 long double hook_player_setmovespeed(int client, int a2);
 void hook_player_g_speed(int client);
 void gsc_player_setmovespeedscale(int id);
