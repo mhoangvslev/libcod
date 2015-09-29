@@ -1762,9 +1762,9 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 	// }
 	
 	*(int *)(cl + 452008) = 25000; // Lock client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
-	*(int *)(cl + 452012) = 20; // Lock snaps. They will be equal to sv_fps anyway
+	*(int *)(cl + 452012) = 50; // Lock snaps. They will be equal to sv_fps anyway // Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
 	
-	blockspersnap = 1; // one block per snapshot with 1024 bytes provides best results
+	blockspersnap = 1; // one block per snapshot with above settings and 1024 bytes provides best results.
 
 	if (blockspersnap < 0)
 		blockspersnap = 1;
@@ -1817,22 +1817,10 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 
 void hook_SV_WriteDownloadToClient(int cl, int msg)
 {
-	#if COD_VERSION == COD2_1_0
-		int offset = 452008;
-	#else
-		int offset = 452280;
-	#endif
-
-	if((*(int*)(cl + 134248)) && (*(int*)(cl+offset)**(int*)(cl+offset+4)/2048000 > 6))
+	if((*(int*)(cl + 134248)) && (*(int*)(cl+452280)**(int*)(cl+452280+4)/2048000 > 6))
 		SV_DropClient(cl, "broken download");
 	else
-	{
-		#if COD_VERSION == COD2_1_0
-		    custom_SV_WriteDownloadToClient(cl, msg);
-	    #else
-		    SV_WriteDownloadToClient(cl, msg);
-	    #endif
-	}
+		SV_WriteDownloadToClient(cl, msg);
 }
 
 int clientaddress_to_num(int client);
@@ -2792,7 +2780,7 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 			cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 			cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
-			cracking_hook_call(0x08098CD0, (int)hook_SV_WriteDownloadToClient);
+			cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 			cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
 			cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
