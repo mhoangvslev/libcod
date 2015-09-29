@@ -1604,6 +1604,217 @@ char * hook_beginDownloadCopy(char *a1, char *a2, int a3) {
 	}
 }
 
+void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
+{
+    char errorMessage;
+    int iwdFile;
+    int blockspersnap;
+    // int rate;
+    int curindex;
+	
+	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
+	int MAX_DOWNLOAD_WINDOW = 8;
+  
+    int *svs_clients = (int *)0x841FB0C;
+	int *sv_allowDownload = (int *)0x848B1C8;
+	int *sv_pure = (int *)0x848B200;
+	// int *sv_maxRate = (int *)0x848B1E8;
+	int *svs_time = (int *)0x841FB04;
+	
+	int (*Z_Malloc)(size_t size);
+	*(int *)&Z_Malloc = 0x80A92FA;
+	
+	int (*FS_Read)(void *a1, size_t a2, signed int a3);
+	*(int *)&FS_Read = 0x809E328;
+	
+	// int (*Cvar_Set)(int a1, int a2);
+	// *(int *)&Cvar_Set = 0x80B248A;
+	
+	int (*Com_DPrintf)(char *format, ...);
+	*(int *)&Com_DPrintf = 0x8060B7C;
+	
+	int (*Com_Printf)(char *format, ...);
+	*(int *)&Com_Printf = 0x8060B2C;
+	
+	int (*MSG_WriteByte)(int a1, char a2);
+	*(int *)&MSG_WriteByte = 0x8067B4C;
+	
+	int (*MSG_WriteShort)(int a1, int16_t a2);
+	*(int *)&MSG_WriteShort = 0x8067BDA;
+	
+	int (*MSG_WriteLong)(int a1, int a2);
+	*(int *)&MSG_WriteLong = 0x8067C2A;
+	
+	int (*MSG_WriteString)(int a1, char *s);
+	*(int *)&MSG_WriteString = 0x8067CE4;
+	
+	int (*Com_sprintf)(char *s, size_t maxlen, char *format, ...);
+	*(int *)&Com_sprintf = 0x80B5932;
+	
+	int (*MSG_WriteData)(int a1, void *src, size_t n);
+	*(int *)&MSG_WriteData = 0x8067B84;
+	
+	int (*FS_SV_FOpenFileRead)(char *src, int a2);
+	*(int *)&FS_SV_FOpenFileRead = 0x8064100;
+	
+	int (*FS_iwdFile)(char *haystack, int a2);
+	*(int *)&FS_iwdFile = 0x8064ECC;
+	
+	int len;
+	char * file = (char *)(cl + 134248);
+	
+	if (!*(int *)(cl + 134248))
+		return;	// Nothing being downloaded
+
+	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
+		return; // Not a valid iwd file
+
+	if (!*(int *)(cl + 134312)) {
+		// We open the file here
+
+		Com_Printf("clientDownload: %d : begining \"%s\"\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+
+		iwdFile = FS_iwdFile((char *)(cl + 134248), (int)"main");
+
+		if ( !*(int *)(*sv_allowDownload + 8) || iwdFile || ( *(int *)(cl + 134316) = FS_SV_FOpenFileRead((char *)(cl + 134248), cl + 134312) ) <= 0 ) {
+			// cannot auto-download file
+			if (iwdFile) {
+				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+                Com_sprintf(&errorMessage, 1024, "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
+			} else if ( !*(int *)(*sv_allowDownload + 8) ) {
+				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+				if (*(int *)(*sv_pure + 8)) {
+					Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
+				} else {
+					Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
+				}
+			} else {
+				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+				Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
+			}
+			MSG_WriteByte(msg, 5);
+            MSG_WriteShort(msg, 0);
+            MSG_WriteLong(msg, -1);
+            MSG_WriteString(msg, &errorMessage);
+
+			*(int *)(cl + 134248) = 0;
+			return;
+		}
+ 
+		// Init
+		*(int *)(cl + 134332) = 0;
+        *(int *)(cl + 134324) = 0;
+        *(int *)(cl + 134328) = 0;
+        *(int *)(cl + 134320) = 0;
+        *(int *)(cl + 134400) = 0;
+	}
+
+	// Perform any reads that we need to
+	while ( *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW && *(int *)(cl + 134316) != *(int *)(cl + 134320) ) {
+
+		curindex = (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW);
+
+		if (!*(int *)(cl + 4 * curindex + 134336))
+			*(int *)(cl + 4 * curindex + 134336) = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
+
+		*(int *)(cl + 4 * curindex + 134368) = FS_Read(*(void **)(cl + 4 * curindex + 134336), MAX_DOWNLOAD_BLKSIZE, *(int *)(cl + 134312));
+
+		if ( *(int *)(cl + 4 * curindex + 134368) < 0 ) {
+			// EOF right now
+			*(int *)(cl + 134320) = *(int *)(cl + 134316);
+			break;
+		}
+
+		*(int *)(cl + 134320) += *(int *)(cl + 4 * curindex + 134368);
+
+		// Load in next block
+		( *(int *)(cl + 134328) )++;
+	}
+
+	// Check to see if we have eof condition and add the EOF block
+	if ( *(int *)(cl + 134320) == *(int *)(cl + 134316) && !*(int *)(cl + 134400) && *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW) {
+
+		*(int *)(cl + 4 * (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW) + 134368) = 0;
+		( *(int *)(cl + 134328) )++;
+
+		*(int *)(cl + 134400) = 1;  // We have added the EOF block
+	}
+
+	// Loop up to window size times based on how many blocks we can fit in the
+	// client snapMsec and rate
+
+	// based on the rate, how many bytes can we fit in the snapMsec time of the client
+	// normal rate / snapshotMsec calculation
+	// rate = *(int *)(cl + 452008);
+	// if ( *(int *)(*sv_maxRate + 8) ) {
+	//	if ( *(int *)(*sv_maxRate + 8) < 1000 ) {
+	//		Cvar_Set(*sv_maxRate, 1000);
+	//	}
+	//	if ( *(int *)(*sv_maxRate + 8) < rate ) {
+	//		rate = *(int *)(*sv_maxRate + 8);
+	//	}
+	// }
+
+	// if (!rate) {
+	//	blockspersnap = 1;
+	// } else {
+	//	blockspersnap = ( rate * (*(int *)(cl + 452012) ) / 1000 + MAX_DOWNLOAD_BLKSIZE ) / MAX_DOWNLOAD_BLKSIZE;
+	// }
+	
+	*(int *)(cl + 452008) = 25000; // Lock client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
+	*(int *)(cl + 452012) = 20; // Lock snaps. They will be equal to sv_fps anyway
+	
+	blockspersnap = 1; // one block per snapshot with 1024 bytes provides best results
+
+	if (blockspersnap < 0)
+		blockspersnap = 1;
+
+	while (blockspersnap--) {
+
+		// Write out the next section of the file, if we have already reached our window,
+		// automatically start retransmitting
+
+		if ( *(int *)(cl + 134324) == *(int *)(cl + 134328) )
+			return; // Nothing to transmit
+
+		if ( *(int *)(cl + 134332) == *(int *)(cl + 134328) ) {
+			// We have transmitted the complete window, should we start resending?
+
+			//FIXME:  This uses a hardcoded one second timeout for lost blocks
+			//the timeout should be based on client rate somehow
+			if (*svs_time - *(int *)(cl + 134404) > 1000)
+				*(int *)(cl + 134332) = *(int *)(cl + 134324);
+			else
+				return;
+		}
+
+		// Send current block
+		curindex = *(int *)(cl + 134332) % MAX_DOWNLOAD_WINDOW;
+
+		MSG_WriteByte(msg, 5);
+        MSG_WriteShort(msg, *(int *)(cl + 134332));
+
+		// block zero is special, contains file size
+		if ( *(int *)(cl + 134332) == 0 )
+			MSG_WriteLong(msg, *(int *)(cl + 134316));
+ 
+		MSG_WriteShort(msg, *(int *)(cl + 4 * curindex + 134368));
+
+		// Write the block
+		if ( *(int *)(cl + 4 * curindex + 134368) ) {
+			MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
+		}
+
+		Com_DPrintf( "clientDownload: %d : writing block %d\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), *(int *)(cl + 134332) );
+
+		// Move on to the next block
+		// It will get sent with next snap shot.  The rate will keep us in line.
+		( *(int *)(cl + 134332) )++;
+
+		*(int *)(cl + 134404) = *svs_time;
+	}
+}
+
 void hook_SV_WriteDownloadToClient(int cl, int msg)
 {
 	#if COD_VERSION == COD2_1_0
@@ -1615,7 +1826,13 @@ void hook_SV_WriteDownloadToClient(int cl, int msg)
 	if((*(int*)(cl + 134248)) && (*(int*)(cl+offset)**(int*)(cl+offset+4)/2048000 > 6))
 		SV_DropClient(cl, "broken download");
 	else
-		SV_WriteDownloadToClient(cl, msg);
+	{
+		#if COD_VERSION == COD2_1_0
+		    custom_SV_WriteDownloadToClient(cl, msg);
+	    #else
+		    SV_WriteDownloadToClient(cl, msg);
+	    #endif
+	}
 }
 
 int clientaddress_to_num(int client);
