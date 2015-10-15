@@ -2747,7 +2747,6 @@ class cCallOfDuty2Pro
 		#elif COD_VERSION == COD2_1_2
 			//cracking_hook_function(0x0804A0B4, (int)hook_sendto);
 			//#error asd
-			printf("cracking_hook_function(0x08049E64, (int)hook_recvfrom);\n");
 			cracking_hook_function(0x08049E64, (int)hook_recvfrom);
 			//cracking_hook_function(0x0804A154, (int)hook_pthread_mutex_lock);
 			//cracking_hook_function(0x0804A5A4, (int)hook_pthread_mutex_unlock);
