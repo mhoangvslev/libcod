@@ -1823,6 +1823,13 @@ void hook_SV_WriteDownloadToClient(int cl, int msg)
 		SV_WriteDownloadToClient(cl, msg);
 }
 
+void hook_SV_UserinfoChanged_f( int a1 ) { 
+    char * userinfo = Cmd_Argv(1); 
+    if(strlen(userinfo) > 0) { 
+        SV_UserinfoChanged_f(a1); 
+    } 
+}
+
 int clientaddress_to_num(int client);
 int custom_animation[64] = {0};
 cHook *hook_set_anim;
@@ -2597,7 +2604,7 @@ class cCallOfDuty2Pro
 			#warning int *addressToCloserPointer = NULL;
 			int *addressToCloserPointer = NULL;
 		#endif
-		printf("> [INFO] value of closer=%.8x\n", *addressToCloserPointer);
+		//printf("> [INFO] value of closer=%.8x\n", *addressToCloserPointer);
 		*addressToCloserPointer = (int) cdecl_injected_closer/*_stack_debug*/;
 		//printf("after\n");
 		
@@ -2639,10 +2646,26 @@ class cCallOfDuty2Pro
 		#endif
 
 		#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-			printf("> [INFO] value of download=%.8x\n", *addressToDownloadPointer);
+			//printf("> [INFO] value of download=%.8x\n", *addressToDownloadPointer);
 			SV_BeginDownload_f = (SV_BeginDownload_f_t)*addressToDownloadPointer;
 			*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
 		#endif
+		
+		#if COD_VERSION == COD2_1_0 
+            int * addressToUserInfoPointer = (int *)0x0817D9E4; 
+        #elif COD_VERSION == COD2_1_2 
+            int * addressToUserInfoPointer = (int *)0x0817C9C4; 
+        #elif COD_VERSION == COD2_1_3 
+            int * addressToUserInfoPointer = (int *)0x0815D564; 
+        #else 
+            #warning int *addressToUserInfoPointer = NULL; 
+            int *addressToUserInfoPointer = NULL; 
+        #endif
+
+        #if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3 
+            SV_UserinfoChanged_f = (SV_UserinfoChanged_f_t)*addressToUserInfoPointer; 
+            *addressToUserInfoPointer = (int)hook_SV_UserinfoChanged_f; 
+        #endif  
 		
 		#if COD_VERSION == COD4_1_7
 			cracking_hook_function(0x0804AB6C, (int)hook_recvfrom);

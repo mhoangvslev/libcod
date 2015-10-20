@@ -302,6 +302,9 @@ typedef int (*SV_WriteDownloadToClient_t)(int a1, int a2);
 typedef int (*SV_BeginDownload_f_t)(int a1);
 static SV_BeginDownload_f_t SV_BeginDownload_f = (SV_BeginDownload_f_t)NULL;
 
+typedef int (*SV_UserinfoChanged_f_t)(int a1); 
+static SV_UserinfoChanged_f_t SV_UserinfoChanged_f = (SV_UserinfoChanged_f_t)NULL;  
+
 typedef int (*ClientUserinfoChanged_t)(int a1);
 #if COD_VERSION == COD2_1_0
 	static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F6506;
