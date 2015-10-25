@@ -2447,16 +2447,53 @@ void manymaps_prepare(char *mapname, int read)
 		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
 	else
 		strncpy(library_path, Cvar_VariableString("fs_library"), sizeof(library_path));
+	
+	char *map = Cvar_VariableString("mapname");
+	if(strcmp(map, mapname) == 0)
+		return;									// Same map is about to load, no need to trigger manymap (equals map_restart)
+	
+	#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+		char map_check[512];
+		snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
+		int size;
+		#if COD_VERSION == COD2_1_0
+			size = 13;
+			char *stock_maps[size] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
+		#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+			size = 15;
+			char *stock_maps[size] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
+		#endif
+		bool map_found = false;
+		bool from_stock_map = false;
+		int map_exists = access(map_check, F_OK) != -1;
+		for(i = 0; i < size; i++)
+		{
+			if (strcmp(map, stock_maps[i]) == 0)
+			{
+				from_stock_map = true;
+				break;
+			}
+		}
+		for(i = 0; i < size; i++)
+		{
+			if (strcmp(mapname, stock_maps[i]) == 0)
+			{
+				map_found = true;
+				if (from_stock_map)
+					return;			// When changing from stock map to stock map do not trigger manymap
+				else
+					break;
+			}
+		}
+		if (!map_exists && !map_found)
+			return;
+	#endif
+	
 	printf("manymaps> map=%s sv_iwdNames: %s\n", mapname, sv_iwdNames);
 	char *tok;
 	tok = strtok(sv_iwdNames, " ");
 	while (tok)
 	{
-		if(strncmp(tok, "zzz_", 4) == 0)
-		{
-			tok = strtok(NULL, " ");
-			continue;
-		}
 		int i = 0;
 		while(tok[i] != '\0')
 			i++;
