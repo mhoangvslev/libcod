@@ -1648,9 +1648,6 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 	int (*MSG_WriteString)(int a1, char *s);
 	*(int *)&MSG_WriteString = 0x8067CE4;
 	
-	int (*Com_sprintf)(char *s, size_t maxlen, char *format, ...);
-	*(int *)&Com_sprintf = 0x80B5932;
-	
 	int (*MSG_WriteData)(int a1, void *src, size_t n);
 	*(int *)&MSG_WriteData = 0x8067B84;
 	
@@ -1680,17 +1677,20 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 			// cannot auto-download file
 			if (iwdFile) {
 				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
-                Com_sprintf(&errorMessage, 1024, "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
+                SV_DropClient(cl, "Cannot autodownload iwd file.");
 			} else if ( !*(int *)(*sv_allowDownload + 8) ) {
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
 				if (*(int *)(*sv_pure + 8)) {
-					Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
+					SV_DropClient(cl, "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+                    "The server you are connecting to is not a pure server, "
+                    "set autodownload to No in your settings and you might be "
+                    "able to join the game anyway.\n");
 				} else {
-					Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
+					SV_DropClient(cl, "Could not download because autodownloading is disabled on the server.");
 				}
 			} else {
 				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
-				Com_sprintf(&errorMessage, 1024, "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
+				SV_DropClient(cl, "File not found on server for autodownloading.");
 			}
 			MSG_WriteByte(msg, 5);
             MSG_WriteShort(msg, 0);
