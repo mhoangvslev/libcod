@@ -1681,7 +1681,7 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 			} else if ( !*(int *)(*sv_allowDownload + 8) ) {
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
 				if (*(int *)(*sv_pure + 8)) {
-					SV_DropClient(cl, "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+					SV_DropClient(cl, "Could not download iwd files because autodownloading is disabled on the server.\n\n"
                     "The server you are connecting to is not a pure server, "
                     "set autodownload to No in your settings and you might be "
                     "able to join the game anyway.\n");
