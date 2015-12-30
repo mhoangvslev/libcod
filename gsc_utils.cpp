@@ -529,7 +529,45 @@ void gsc_utils_toupper() {
 	stackPushString(result);
 }
 
-void gsc_utils_system() { // closer 903, "ls"
+// http://stackoverflow.com/questions/1583234/c-system-function-how-to-collect-the-output-of-the-issued-command
+// Calling function must free the returned result.
+char* exec(const char* command) {
+  FILE* fp;
+  char* line = NULL;
+  // Following initialization is equivalent to char* result = ""; and just
+  // initializes result to an empty string, only it works with
+  // -Werror=write-strings and is so much less clear.
+  char* result = (char*) calloc(1, 1);
+  size_t len = 0;
+
+  fflush(NULL);
+  fp = popen(command, "r");
+  if (fp == NULL) {
+    printf("Cannot execute command:\n%s\n", command);
+    return NULL;
+  }
+
+  while(getline(&line, &len, fp) != -1) {
+    // +1 below to allow room for null terminator.
+    result = (char*) realloc(result, strlen(result) + strlen(line) + 1);
+    // +1 below so we copy the final null terminator.
+    strncpy(result + strlen(result), line, strlen(line) + 1);
+    free(line);
+    line = NULL;
+  }
+
+  fflush(fp);
+  /*
+  if (pclose(fp) != 0) {
+    perror("Cannot close stream.\n");
+  }
+  */
+  pclose(fp);
+  
+  return result;
+}
+
+void gsc_utils_system() { // Returns complete command output as a string
 	char *cmd;
 	if ( ! stackGetParams("s",  &cmd)) {
 		printf("scriptengine> ERROR: please specify the command as string to gsc_system_command()\n");
@@ -537,7 +575,7 @@ void gsc_utils_system() { // closer 903, "ls"
 		return;
 	}
 	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
-	stackPushInt( system(cmd) );
+	stackPushString( exec(cmd) );
 }
 
 void gsc_utils_file_link() {
