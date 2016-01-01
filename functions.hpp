@@ -275,6 +275,18 @@ typedef int (*SV_GameSendServerCommand_t)(int clientNum, signed int a2, const ch
 	static SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)NULL;
 #endif
 
+typedef int (*SV_StopDownload_f_t)(int a1);
+#if COD_VERSION == COD2_1_0
+	static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808E348;
+#elif COD_VERSION == COD2_1_2
+	static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808F6EC;
+#elif COD_VERSION == COD2_1_3
+	static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808F780;
+#else
+	#warning SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)NULL;
+	static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)NULL;
+#endif
+
 typedef int (*SV_DropClient_t)(int a1, char* message);
 #if COD_VERSION == COD2_1_0
 	static SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808DC8C;
