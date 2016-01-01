@@ -1606,7 +1606,7 @@ char * hook_beginDownloadCopy(char *a1, char *a2, int a3) {
 
 void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 {
-    char errorMessage;
+    char errorMessage[1024];
     int iwdFile;
     int blockspersnap;
     // int rate;
@@ -1648,6 +1648,9 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 	int (*MSG_WriteString)(int a1, char *s);
 	*(int *)&MSG_WriteString = 0x8067CE4;
 	
+	int (*Com_sprintf)(char *s, size_t maxlen, char *format, ...);		
+	*(int *)&Com_sprintf = 0x80B5932;
+	
 	int (*MSG_WriteData)(int a1, void *src, size_t n);
 	*(int *)&MSG_WriteData = 0x8067B84;
 	
@@ -1677,25 +1680,22 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 			// cannot auto-download file
 			if (iwdFile) {
 				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
-                SV_DropClient(cl, "Cannot autodownload iwd file.");
+                Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
 			} else if ( !*(int *)(*sv_allowDownload + 8) ) {
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
 				if (*(int *)(*sv_pure + 8)) {
-					SV_DropClient(cl, "Could not download iwd files because autodownloading is disabled on the server.\n\n"
-                    "The server you are connecting to is not a pure server, "
-                    "set autodownload to No in your settings and you might be "
-                    "able to join the game anyway.\n");
+					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
 				} else {
-					SV_DropClient(cl, "Could not download because autodownloading is disabled on the server.");
+					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
 				}
 			} else {
 				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
-				SV_DropClient(cl, "File not found on server for autodownloading.");
+				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
 			}
 			MSG_WriteByte(msg, 5);
             MSG_WriteShort(msg, 0);
             MSG_WriteLong(msg, -1);
-            MSG_WriteString(msg, &errorMessage);
+            MSG_WriteString(msg, errorMessage);
 
 			*(int *)(cl + 134248) = 0;
 			return;
@@ -2455,7 +2455,7 @@ void manymaps_prepare(char *mapname, int read)
 	#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 		char map_check[512];
 		snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
-		int size;
+		size_t size;
 		#if COD_VERSION == COD2_1_0
 			size = 13;
 			char *stock_maps[size] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
