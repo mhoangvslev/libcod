@@ -10,7 +10,7 @@
 		nm -D libcod2_ver_1_3.so | less
 */
 
-// that makes debugging easier after some months 
+// that makes debugging easier after some months
 #define DEBUG_MYSQL 0
 #define DEBUG_GSC 0
 #define DEBUG_MEMORY 0

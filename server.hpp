@@ -48,10 +48,10 @@ extern "C" {
 
 typedef struct
 {
-	int create_socket;
-	int new_socket;
-	struct sockaddr_in address;
-	socklen_t addrlen;
+    int create_socket;
+    int new_socket;
+    struct sockaddr_in address;
+    socklen_t addrlen;
 } TCP_connection;
 
 
