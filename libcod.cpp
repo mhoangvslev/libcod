@@ -1823,11 +1823,11 @@ void hook_SV_WriteDownloadToClient(int cl, int msg)
 		SV_WriteDownloadToClient(cl, msg);
 }
 
-void hook_SV_UserinfoChanged_f( int a1 ) { 
-    char * userinfo = Cmd_Argv(1); 
-    if(strlen(userinfo) > 0) { 
-        SV_UserinfoChanged_f(a1); 
-    } 
+void hook_SV_UserinfoChanged_f( int a1 ) {
+    char * userinfo = Cmd_Argv(1);
+    if(strlen(userinfo) > 32) {
+        SV_UserinfoChanged_f(a1);
+    }
 }
 
 int clientaddress_to_num(int client);
@@ -2689,11 +2689,11 @@ class cCallOfDuty2Pro
 		#endif
 		
 		#if COD_VERSION == COD2_1_0 
-            int * addressToUserInfoPointer = (int *)0x0817D9E4; 
+            int * addressToUserInfoPointer = (int *)0x0815D564; 
         #elif COD_VERSION == COD2_1_2 
             int * addressToUserInfoPointer = (int *)0x0817C9C4; 
         #elif COD_VERSION == COD2_1_3 
-            int * addressToUserInfoPointer = (int *)0x0815D564; 
+            int * addressToUserInfoPointer = (int *)0x0817D9E4; 
         #else 
             #warning int *addressToUserInfoPointer = NULL; 
             int *addressToUserInfoPointer = NULL; 
