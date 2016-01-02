@@ -529,6 +529,17 @@ void gsc_utils_toupper() {
 	stackPushString(result);
 }
 
+void gsc_utils_system() { // closer 903, "ls"
+	char *cmd;
+	if ( ! stackGetParams("s",  &cmd)) {
+		printf("scriptengine> ERROR: please specify the command as string to gsc_system_command()\n");
+		stackPushUndefined();
+		return;
+	}
+	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
+	stackPushInt( system(cmd) );
+}
+
 // http://stackoverflow.com/questions/1583234/c-system-function-how-to-collect-the-output-of-the-issued-command
 // Calling function must free the returned result.
 char* exec(const char* command) {
@@ -567,10 +578,10 @@ char* exec(const char* command) {
   return result;
 }
 
-void gsc_utils_system() { // Returns complete command output as a string
+void gsc_utils_execute() { // Returns complete command output as a string
 	char *cmd;
 	if ( ! stackGetParams("s",  &cmd)) {
-		printf("scriptengine> ERROR: please specify the command as string to gsc_system_command()\n");
+		printf("scriptengine> ERROR: please specify the command as string to gsc_execute_command()\n");
 		stackPushUndefined();
 		return;
 	}
