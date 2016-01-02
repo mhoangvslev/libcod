@@ -541,41 +541,24 @@ void gsc_utils_system() { // closer 903, "ls"
 }
 
 // http://stackoverflow.com/questions/1583234/c-system-function-how-to-collect-the-output-of-the-issued-command
-// Calling function must free the returned result.
 char* exec(const char* command) {
-  FILE* fp;
-  char* line = NULL;
-  // Following initialization is equivalent to char* result = ""; and just
-  // initializes result to an empty string, only it works with
-  // -Werror=write-strings and is so much less clear.
-  char* result = (char*) calloc(1, 1);
-  size_t len = 0;
+    FILE* fp;
+    char* result;
+    size_t len = 0;
 
-  fflush(NULL);
-  fp = popen(command, "r");
-  if (fp == NULL) {
-    printf("Cannot execute command:\n%s\n", command);
-    return NULL;
-  }
+    fp = popen(command, "r");
+    if (fp == NULL) {
+        printf("Cannot execute command:\n%s\n", command);
+        return NULL;
+    }
 
-  while(getline(&line, &len, fp) != -1) {
-    // +1 below to allow room for null terminator.
-    result = (char*) realloc(result, strlen(result) + strlen(line) + 1);
-    // +1 below so we copy the final null terminator.
-    strncpy(result + strlen(result), line, strlen(line) + 1);
-    free(line);
-    line = NULL;
-  }
+    while(getline(&result, &len, fp) != -1) {
+        fputs(result, stdout);
+    }
 
-  fflush(fp);
-  /*
-  if (pclose(fp) != 0) {
-    perror("Cannot close stream.\n");
-  }
-  */
-  pclose(fp);
-  
-  return result;
+	pclose(fp);
+
+    return result;
 }
 
 void gsc_utils_execute() { // Returns complete command output as a string
