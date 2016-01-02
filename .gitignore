@@ -2,4 +2,5 @@ bin/
 objects_*
 libcod.tar
 *.o
+*.so
 *.orig
