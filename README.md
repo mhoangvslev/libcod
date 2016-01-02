@@ -28,6 +28,7 @@ Working with the source / Compiling:
 ./doit.sh tar
 ./doit.sh base # compiles object files needed by every .so
 ./doit.sh cod1_1_5 # compiles object files for CoD 1 1.5 and linking them against base to the actual bin/libcod1_1_5.so
+./doit.sh cod2_1_0
 ./doit.sh cod2_1_2
 ./doit.sh cod2_1_3
 ./doit.sh cod4_1_7
