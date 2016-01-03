@@ -2560,7 +2560,7 @@ class cCallOfDuty2Pro
 			printf("> [WARNING] Compiled for: %s\n", TOSTRING1(COD_VERSION));
 		#endif
 		
-		printf("Compiled: " __DATE__ " " __TIME__ "\n");
+		printf("Compiled: " __DATE__ " " __TIME__ " using GCC " __VERSION__ "\n");
 
 		
 		#if COD_VERSION == COD4_1_7
