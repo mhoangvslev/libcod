@@ -541,9 +541,9 @@ void gsc_utils_system() { // closer 903, "ls"
 }
 
 // http://stackoverflow.com/questions/1583234/c-system-function-how-to-collect-the-output-of-the-issued-command
-char* exec(const char* command) {
-    FILE* fp;
-    char* result;
+char *exec(const char* command) {
+    FILE *fp;
+    char *result = NULL;
     size_t len = 0;
 
     fp = popen(command, "r");
@@ -569,7 +569,9 @@ void gsc_utils_execute() { // Returns complete command output as a string
         return;
     }
     setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
-    stackPushString( exec(cmd) );
+    char *result = exec(cmd);
+    stackPushString( result );
+    free(result);
 }
 
 void gsc_utils_file_link() {
