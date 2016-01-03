@@ -2460,18 +2460,15 @@ void manymaps_prepare(char *mapname, int read)
 #if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
     char map_check[512];
     snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
-    size_t size;
 #if COD_VERSION == COD2_1_0
-    size = 13;
-    char *stock_maps[size] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
+    char *stock_maps[13] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
 #elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-    size = 15;
-    char *stock_maps[size] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
+    char *stock_maps[15] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
     bool map_found = false;
     bool from_stock_map = false;
     int map_exists = access(map_check, F_OK) != -1;
-    for(i = 0; i < size; i++)
+    for(i = 0; i < ( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
     {
         if (strcmp(map, stock_maps[i]) == 0)
         {
@@ -2479,7 +2476,7 @@ void manymaps_prepare(char *mapname, int read)
             break;
         }
     }
-    for(i = 0; i < size; i++)
+    for(i = 0; i < ( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
     {
         if (strcmp(mapname, stock_maps[i]) == 0)
         {
