@@ -752,6 +752,9 @@ void gsc_player_set_anim(int id)
         int anim_offset = 0x080D6C8C;
     #elif COD_VERSION == COD2_1_3
         int anim_offset = 0x080D6DD0;
+    #else
+	#warning gsc_player_set_anim() got no working addresses for anim_offset
+	int anim_offset = 0x0;
     #endif
     
     int (*BG_AnimationIndexForString)(char *src);
