@@ -574,6 +574,16 @@ void gsc_utils_execute() { // Returns complete command output as a string
     free(result);
 }
 
+void gsc_utils_strlen() {
+    char *str;
+    if ( ! stackGetParams("s",  &str)) {
+        printf("scriptengine> ERROR: please specify the string to gsc_utils_strlen()\n");
+        stackPushUndefined();
+        return;
+    }
+    stackPushInt( strlen(str) );
+}
+
 void gsc_utils_file_link() {
 	char *source, *dest;
 	if ( ! stackGetParams("ss",  &source, &dest)) {
