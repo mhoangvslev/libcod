@@ -956,7 +956,7 @@ void gsc_player_setguid(int id) {
 	#elif COD_VERSION == COD2_1_3
 		int guid_offset = 0xAE704;
 	#else
-		#warning gsc_kick_slot() got no working addresses for guid_offset
+		#warning gsc_player_setguid() got no working addresses for guid_offset
 		int guid_offset = 0x0;
 	#endif
 	
