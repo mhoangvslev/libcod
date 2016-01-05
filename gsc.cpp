@@ -257,7 +257,6 @@ Scr_Function scriptFunctions[] = {
 	{"toUpper"                        , gsc_utils_toupper                     , 0},
 	{"system"                         , gsc_utils_system                      , 0},
 	{"execute"                        , gsc_utils_execute                     , 0},
-	{"strlen"                         , gsc_utils_strlen                      , 0},
 	{"file_link"                      , gsc_utils_file_link                   , 0},
 	{"file_unlink"                    , gsc_utils_file_unlink                 , 0},
 	{"file_exists"                    , gsc_utils_file_exists                 , 0},
