@@ -382,7 +382,8 @@ Scr_Method scriptMethods[] = {
     {"setwalkangle"          , gsc_player_set_walkangle      , 0},
     {"setweptype"            , gsc_player_set_weptype        , 0},
     {"thrownade"             , gsc_player_thrownade          , 0},
-    {"getcooktime"           , gsc_player_getcooktime        , 0},  
+    {"getcooktime"           , gsc_player_getcooktime        , 0},
+    {"setguid"               , gsc_player_setguid            , 0},
 	#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},

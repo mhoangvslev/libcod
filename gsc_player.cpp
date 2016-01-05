@@ -940,4 +940,29 @@ void gsc_kick_slot() {
 	stackReturnInt(1);
 }
 
+void gsc_player_setguid(int id) {
+    int guid;
+    
+    if ( ! stackGetParams("i", &guid)) {
+        printf("scriptengine> ERROR: gsc_player_setguid(): param \"guid\" has to be a int!\n");
+        stackPushUndefined();
+        return;
+    }
+    
+	#if COD_VERSION == COD2_1_0
+		int guid_offset = 0x765F4;
+	#elif COD_VERSION == COD2_1_2
+		int guid_offset = 0x76704;
+	#elif COD_VERSION == COD2_1_3
+		int guid_offset = 0xAE704;
+	#else
+		#warning gsc_kick_slot() got no working addresses for guid_offset
+		int guid_offset = 0x0;
+	#endif
+	
+	int cl = PLAYERBASE(id);
+	*(int*)(cl + guid_offset) = guid;
+	stackReturnInt(1);
+}
+
 #endif
