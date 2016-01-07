@@ -352,8 +352,8 @@ void gsc_get_language_item()
 
 void gsc_themetext()
 {
-	char *mask;
-	char *text;
+	char *mask = 0;
+	char *text = 0;
 	char result[COD2_MAX_STRINGLENGTH];
 	int num = 0;
 	if (!stackGetParams("ss", &mask, &text))
@@ -362,23 +362,23 @@ void gsc_themetext()
 		stackPushUndefined();
 		return;
 	}
-	while(*mask != NULL)
+	while(*mask != 0)
 	{
 		switch(*mask)
 		{
 			case 'c':
-				if(*text != NULL)
+				if(*text != 0)
 					result[num++] = *(text++);
 				mask++;
 				break;
 			case 'C':
-				if(*text != NULL)
+				if(*text != 0)
 					result[num++] = toupper(*(text++));
 				mask++;
 				break;
 			case 's':
 			{
-				while(*text != NULL)
+				while(*text != 0)
 					result[num++] = *(text++);
 				mask++;
 				break;
@@ -388,7 +388,7 @@ void gsc_themetext()
 				break;
 		}
 	}
-	while(*text != NULL)
+	while(*text != 0)
 		result[num++] = *(text++);
 	result[num] = '\0';
 	stackPushString(result);

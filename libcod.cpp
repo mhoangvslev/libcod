@@ -1497,7 +1497,7 @@ void parent_of_SV_SendServerCommand(signed int nr, const char *fmt, ...)
 	vsnprintf(message, 4000, fmt, argptr);
 	va_end(argptr);
 	
-	printf("nr=%8p message=%s\n", nr, message);
+	printf("nr=%d message=%s\n", nr, message);
 	
 	hook_parent_of_SV_SendServerCommand->unhook();
 	int (*sig)(signed int nr, const char *fmt, ...);
