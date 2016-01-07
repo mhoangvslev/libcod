@@ -16,7 +16,7 @@ mkdir -p objects_normal
 # clang warns about everything
 cc="gcc"
 
-options="-I. -m32 -fPIC -Os -Wno-write-strings"
+options="-I. -m32 -fPIC -Wno-write-strings"
 
 #objects_tcc="build/gsc_tcc.opp /home/kung/tcc/tcc-0.9.25/libtcc.a"
 	
