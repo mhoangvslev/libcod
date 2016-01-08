@@ -1614,7 +1614,7 @@ char * hook_beginDownloadCopy(char *a1, char *a2, int a3) {
 	}
 }
 
-void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
+int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
 {
     char errorMessage[1024];
     int iwdFile;
@@ -1674,10 +1674,13 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 	char * file = (char *)(cl + 134248);
 	
 	if (!*(int *)(cl + 134248))
-		return;	// Nothing being downloaded
+		return 0;	// Nothing being downloaded
 
 	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
-		return; // Not a valid iwd file
+		return 0; // Not a valid iwd file
+	
+	*(int *)(cl + 452008) = 25000; // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
+	*(int *)(cl + 452012) = 50; // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
 
 	if (!*(int *)(cl + 134312)) {
 		// We open the file here
@@ -1703,12 +1706,12 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
 			}
 			MSG_WriteByte(msg, 5);
-            MSG_WriteShort(msg, 0);
-            MSG_WriteLong(msg, -1);
-            MSG_WriteString(msg, errorMessage);
+			MSG_WriteShort(msg, 0);
+			MSG_WriteLong(msg, -1);
+			MSG_WriteString(msg, errorMessage);
 
 			*(int *)(cl + 134248) = 0;
-			return;
+			return 1;
 		}
  
 		// Init
@@ -1749,80 +1752,45 @@ void custom_SV_WriteDownloadToClient(int cl, int msg)  // q3 style
 
 		*(int *)(cl + 134400) = 1;  // We have added the EOF block
 	}
-
-	// Loop up to window size times based on how many blocks we can fit in the
-	// client snapMsec and rate
-
-	// based on the rate, how many bytes can we fit in the snapMsec time of the client
-	// normal rate / snapshotMsec calculation
-	// rate = *(int *)(cl + 452008);
-	// if ( *(int *)(*sv_maxRate + 8) ) {
-	//	if ( *(int *)(*sv_maxRate + 8) < 1000 ) {
-	//		Cvar_Set(*sv_maxRate, 1000);
-	//	}
-	//	if ( *(int *)(*sv_maxRate + 8) < rate ) {
-	//		rate = *(int *)(*sv_maxRate + 8);
-	//	}
-	// }
-
-	// if (!rate) {
-	//	blockspersnap = 1;
-	// } else {
-	//	blockspersnap = ( rate * (*(int *)(cl + 452012) ) / 1000 + MAX_DOWNLOAD_BLKSIZE ) / MAX_DOWNLOAD_BLKSIZE;
-	// }
 	
-	*(int *)(cl + 452008) = 25000; // Lock client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
-	*(int *)(cl + 452012) = 50; // Lock snaps. They will be equal to sv_fps anyway // Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
-	
-	blockspersnap = 1; // one block per snapshot with above settings and 1024 bytes provides best results.
+	// Write out the next section of the file, if we have already reached our window,
+	// automatically start retransmitting
+	if ( *(int *)(cl + 134324) == *(int *)(cl + 134328) )
+		return 0; // Nothing to transmit
 
-	if (blockspersnap < 0)
-		blockspersnap = 1;
-
-	while (blockspersnap--) {
-
-		// Write out the next section of the file, if we have already reached our window,
-		// automatically start retransmitting
-
-		if ( *(int *)(cl + 134324) == *(int *)(cl + 134328) )
-			return; // Nothing to transmit
-
-		if ( *(int *)(cl + 134332) == *(int *)(cl + 134328) ) {
-			// We have transmitted the complete window, should we start resending?
-
-			//FIXME:  This uses a hardcoded one second timeout for lost blocks
-			//the timeout should be based on client rate somehow
-			if (*svs_time - *(int *)(cl + 134404) > 1000)
-				*(int *)(cl + 134332) = *(int *)(cl + 134324);
-			else
-				return;
-		}
-
-		// Send current block
-		curindex = *(int *)(cl + 134332) % MAX_DOWNLOAD_WINDOW;
-
-		MSG_WriteByte(msg, 5);
-        MSG_WriteShort(msg, *(int *)(cl + 134332));
-
-		// block zero is special, contains file size
-		if ( *(int *)(cl + 134332) == 0 )
-			MSG_WriteLong(msg, *(int *)(cl + 134316));
- 
-		MSG_WriteShort(msg, *(int *)(cl + 4 * curindex + 134368));
-
-		// Write the block
-		if ( *(int *)(cl + 4 * curindex + 134368) ) {
-			MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
-		}
-
-		Com_DPrintf( "clientDownload: %d : writing block %d\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), *(int *)(cl + 134332) );
-
-		// Move on to the next block
-		// It will get sent with next snap shot.  The rate will keep us in line.
-		( *(int *)(cl + 134332) )++;
-
-		*(int *)(cl + 134404) = *svs_time;
+	if ( *(int *)(cl + 134332) == *(int *)(cl + 134328) ) {
+		// We have transmitted the complete window, should we start resending?
+		if (*svs_time - *(int *)(cl + 134404) > 1000)
+			*(int *)(cl + 134332) = *(int *)(cl + 134324);
+		else
+			return 0;
 	}
+
+	// Send current block
+	curindex = *(int *)(cl + 134332) % MAX_DOWNLOAD_WINDOW;
+
+	MSG_WriteByte(msg, 5);
+    MSG_WriteShort(msg, *(int *)(cl + 134332));
+
+	// block zero is special, contains file size
+	if ( *(int *)(cl + 134332) == 0 )
+		MSG_WriteLong(msg, *(int *)(cl + 134316));
+ 
+	MSG_WriteShort(msg, *(int *)(cl + 4 * curindex + 134368));
+
+	// Write the block
+	if ( *(int *)(cl + 4 * curindex + 134368) ) {
+		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
+	}
+
+	Com_DPrintf( "clientDownload: %d : writing block %d\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), *(int *)(cl + 134332) );
+
+	// Move on to the next block
+	// It will get sent with next snap shot.  The rate will keep us in line.
+	( *(int *)(cl + 134332) )++;
+	*(int *)(cl + 134404) = *svs_time;
+	
+	return 1;
 }
 
 void hook_SV_WriteDownloadToClient(int cl, int msg)
