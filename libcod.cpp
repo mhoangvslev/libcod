@@ -667,17 +667,27 @@ int hook_ClientCommand(int clientNum)
 	*/
 	
 	stackPushArray();
-	int args = trap_Argc();
-	//printf("args: %d\n", args);
-	for (int i=0; i<args; i++)
-	{
-		char tmp[1024];
-		
-		trap_Argv(i, tmp, sizeof(tmp));
-		stackPushString(tmp);
-		//printf("pushing: %s\n", tmp);
-		stackPushArrayLast();
-	}
+    int args = trap_Argc();
+    for (int i=0; i<args; i++)
+    {
+        char tmp[1024];
+        trap_Argv(i, tmp, sizeof(tmp));
+        if(i == 1 && tmp[0] >= 20 && tmp[0] <= 22)
+        {
+            char *part = strtok(tmp + 1, " ");
+            while(part != NULL)
+            {
+                stackPushString(part);
+                stackPushArrayLast();
+                part = strtok(NULL, " ");
+            }
+        }
+        else
+        {
+            stackPushString(tmp);
+            stackPushArrayLast();
+        }
+    }
 	
 	// todo: G_ENTITY(clientNum)
 	#if COD_VERSION == COD2_1_0 // search '\\name\\badinfo'
