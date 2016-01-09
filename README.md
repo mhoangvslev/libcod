@@ -19,11 +19,7 @@ Precompiled shared libraries: http://killtube.org/downloads/libcod/
 
 Starting the server:
 
-```LD_PRELOAD=libcod2_1_3.so ./cod2_lnxded```
-
-Some enviroments need LD_LIBRARY_PATH also:
-
-```LD_LIBRARY_PATH=. LD_PRELOAD=libcod2_1_3_nomysql.so ./cod2_lnxded```
+```LD_LIBRARY_PATH=. LD_PRELOAD=libcod2_1_3.so ./cod2_lnxded```
 	
 Working with the source / Compiling:
 ```
