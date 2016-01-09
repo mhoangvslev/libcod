@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ./doit.sh tar
 # ./doit.sh base
 # ./doit.sh clean
@@ -119,11 +121,11 @@ elif [ "$1" == "cod4_1_7_l" ]; then
 	constants="-D COD_VERSION=COD4_1_7_L"
 
 elif [ "$1" == "" ]; then
-	echo "#### Please specify a command line option ####"
+	echo "##### Please specify a command line option #####"
 	exit 0
 
 else
-	echo "#### Unrecognized command line option $1 ####"
+	echo "##### Unrecognized command line option $1 #####"
 	exit 0
 fi
 
@@ -149,6 +151,9 @@ fi
 objects+="$(ls objects_$1/*.opp)"
 if [ -e objects_tcc ]; then
 	objects+=" $(ls objects_tcc/*.opp)"
+fi
+if [ -e objects_car ]; then
+	objects+=" $(ls objects_car/*.opp)"
 fi
 $cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $java_lib $mysql_config
 
