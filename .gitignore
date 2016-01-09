@@ -4,3 +4,4 @@ libcod.tar
 *.o
 *.so
 *.orig
+*.*~

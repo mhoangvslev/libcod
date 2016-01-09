@@ -1,5 +1,7 @@
 The Call of Duty extension *libcod* is adding new server-side functions to:
 
+ - Call Of Duty 1 1.5
+ - Call Of Duty 2 1.0
  - Call Of Duty 2 1.2
  - Call Of Duty 2 1.3
  - Call Of Duty 4 1.7
@@ -17,22 +19,22 @@ Precompiled shared libraries: http://killtube.org/downloads/libcod/
 
 Starting the server:
 
-```LD_PRELOAD=libcod2_1_3_nomysql.so ./cod2_lnxded +set fs_game ...```
+```LD_PRELOAD=libcod2_1_3.so ./cod2_lnxded```
 
 Some enviroments need LD_LIBRARY_PATH also:
 
-```LD_LIBRARY_PATH=. LD_PRELOAD=libcod2_1_3_nomysql.so ./cod2_lnxded +set fs_game ...```
+```LD_LIBRARY_PATH=. LD_PRELOAD=libcod2_1_3_nomysql.so ./cod2_lnxded```
 	
 Working with the source / Compiling:
 ```
 ./doit.sh tar
 ./doit.sh base # compiles object files needed by every .so
-./doit.sh cod1_1_5 # compiles object files for CoD 1 1.5 and linking them against base to the actual bin/libcod1_1_5.so
+./doit.sh cod1_1_5
 ./doit.sh cod2_1_0
 ./doit.sh cod2_1_2
 ./doit.sh cod2_1_3
 ./doit.sh cod4_1_7
-./doit.sh wrapper
+./doit.sh cod4_1_7_l
 ```
 
 Mods depending on *libcod*:

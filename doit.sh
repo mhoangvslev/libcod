@@ -1,26 +1,21 @@
-#
-# help:
-# -O1    = removes references to unused strings for printf_hide -> anti reversing | found "-O3 -s" but dunno the advantage
-#
 # ./doit.sh tar
+# ./doit.sh base
+# ./doit.sh clean
+# ./doit.sh tcc
+# ./doit.sh car
 # ./doit.sh cod1_1_5
+# ./doit.sh cod2_1_0
 # ./doit.sh cod2_1_2
 # ./doit.sh cod2_1_3
 # ./doit.sh cod4_1_7
-# ./doit.sh wrapper
-#
-
-mkdir -p bin
-mkdir -p objects_normal
+# ./doit.sh cod4_1_7_l
 
 # clang warns about everything
 cc="gcc"
 
 options="-I. -m32 -fPIC -Wno-write-strings"
-
-#objects_tcc="build/gsc_tcc.opp /home/kung/tcc/tcc-0.9.25/libtcc.a"
 	
-tmp="/root/q3rally/q3rallysa/build";
+tmp="/$XDG_DATA_HOME/q3rally/q3rallysa/build";
 objects_car="$tmp/q_shared.o $tmp/q_math.o $tmp/com_printf.o $tmp/bg_wheel_forces.o $tmp/bg_pmove.o $tmp/bg_physics.o $tmp/bg_misc.o"
 
 mysql_config="`mysql_config --cflags --libs`"
@@ -42,194 +37,118 @@ java_enable="false"
 if [ ! -d $java_jdk ]; then
 	java_enable="false"
 fi
+
 if [ "$java_enable" == "true" ]; then
 	java_lib="-ljvm -L$java_jdk/jre/lib/i386/server/"
 	java_header="-I$java_jdk/include/ -I$java_jdk/include/linux/"
 	options="$options -DIS_JAVA_ENABLED"
 fi
 
-if [ "$1" == "" ] || [ "$1" == "tar" ]; then
+if [ "$1" == "tar" ]; then
 	echo "##### TAR LIBCOD #####"
 	
-	rm libcod.tar
-	
-	#tar -cf  libcod.tar json
-	#tar -rf  libcod.tar jsonrpc
+	rm libcod.tar -rf
 	tar -cf  libcod.tar plugins
-	#tar -rf  libcod.tar vendors
-	
 	tar -rf  libcod.tar *.c
 	tar -rf  libcod.tar *.cpp
 	tar -rf  libcod.tar *.hpp
-
 	tar -rf  libcod.tar doit.sh
-	echo "libcod.tar created: $?"
-fi
 
-if [ "$1" == "" ] || [ "$1" == "base" ]; then
+	echo "libcod.tar created: $?"
+	exit 1
+
+elif [ "$1" == "base" ]; then
+	mkdir -p objects_$1
 	echo "##### COMPILE GSC_ASTAR.CPP #####"
-	$cc $options -c gsc_astar.cpp -o objects_normal/gsc_astar.opp
+	$cc $options -c gsc_astar.cpp -o objects_$1/gsc_astar.opp
 	echo "##### COMPILE GSC_MYSQL.CPP #####"
-	$cc $options -c gsc_mysql.cpp -o objects_normal/gsc_mysql.opp -lmysqlclient -L/usr/lib/mysql
+	$cc $options -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lmysqlclient -L/usr/lib/mysql
 	echo "##### COMPILE SERVER.C #####"
-	$cc $options -c server.c -o objects_normal/server.opp -D SERVER_PORT=8000
+	$cc $options -c server.c -o objects_$1/server.opp -D SERVER_PORT=8000
 	echo "##### COMPILE GSC_MEMORY.CPP #####"
-	$cc $options -c gsc_memory.cpp -o objects_normal/gsc_memory.opp
-	echo "##### COMPILE cracking.CPP #####"
-	$cc $options -c cracking.cpp -o objects_normal/cracking.opp
+	$cc $options -c gsc_memory.cpp -o objects_$1/gsc_memory.opp
+	echo "##### COMPILE CRACKING.CPP #####"
+	$cc $options -c cracking.cpp -o objects_$1/cracking.opp
 	echo "##### COMPILE GSC_MATH.CPP #####"
-	$cc $options -o objects_normal/gsc_math.opp -c gsc_math.cpp
+	$cc $options -o objects_$1/gsc_math.opp -c gsc_math.cpp
 	echo "##### COMPILE JAVA_EMBED.C #####"
 	if [ "$java_enable" == "true" ]; then
-		$cc $options -o objects_normal/java_embed.opp -c java_embed.c $java_header
+		$cc $options -o objects_$1/java_embed.opp -c java_embed.c $java_header
 	else
 		echo "Ignore java_embed.c, because java_enable==false (e.g. because the dir \$java_jdk=$java_jdk does not exist)"
 	fi
-fi
+	exit 1
 
-if [ "$1" == "" ] || [ "$1" == "clean" ]; then
+elif [ "$1" == "clean" ]; then
 	echo "##### CLEAN OBJECTS #####"
-	rm objects_* -r
-	rm bin -r
-	rm libcod.tar
-fi
+	rm objects_* -rf
+	rm bin -rf
+	rm libcod.tar -rf
+	exit 1
 
+elif [ "$1" == "tcc" ]; then
+	mkdir -p objects_$1
 
-if [ "$1" == "" ] || [ "$1" == "tcc" ]; then
-	mkdir -p objects_tcc
+	echo "##### COMPILE GSC_TCC.cpp #####"
+	$cc $options -c gsc_tcc.cpp -o objects_$1/gsc_tcc.opp
+	exit 1
 
-	echo "##### COMPILE gsc_tcc.cpp #####"
-	$cc $options -c gsc_tcc.cpp -o objects_tcc/gsc_tcc.opp
-fi
-
-if [ "$1" == "" ] || [ "$1" == "car" ]; then
-	mkdir -p objects_car
+elif [ "$1" == "car" ]; then
+	mkdir -p objects_$1
 
 	echo "##### COMPILE GSC_CAR.CPP #####"
-	$cc $options -c gsc_car.cpp -o objects_car/gsc_car.opp -I/root/q3rally/q3rallysa/
-fi
+	$cc $options -c gsc_car.cpp -o objects_$1/gsc_car.opp -I/$XDG_DATA_HOME/q3rally/q3rallysa/
+	exit 1
 
-if [ "$1" == "" ] || [ "$1" == "cod2_1_3" ]; then
-	constants="-D COD2_VERSION=COD2_VERSION_1_3 -D COD_VERSION=COD2_1_3"
+elif [ "$1" == "cod1_1_5" ]; then
+	constants="-D COD_VERSION=COD1_1_5"
 
-	mkdir -p objects_$1
-	echo "##### COMPILE $1 LIBCOD.CPP #####"
-	$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
-	echo "##### COMPILE $1 GSC.CPP #####"
-	$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
-	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
-	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
-
-	echo "##### LINK lib$1.so #####"
-	objects="$(ls objects_normal/*.opp) $(ls objects_$1/*.opp)"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so $objects $objects_tcc -Os -s -ldl -Wall $java_lib $mysql_config
-fi
-# -Xlinker --defsym -Xlinker stackStart=0x08297500 
-
-if [ "$1" == "" ] || [ "$1" == "cod2_1_2" ]; then
-	constants="-D COD2_VERSION=COD2_VERSION_1_2 -D COD_VERSION=COD2_1_2"
-
-	mkdir -p objects_$1
-	echo "##### COMPILE $1 LIBCOD.CPP #####"
-	$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
-	echo "##### COMPILE $1 GSC.CPP #####"
-	$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
-	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
-	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
-
-	echo "##### LINK lib$1.so #####"
-	objects="$(ls objects_normal/*.opp) $(ls objects_$1/*.opp)"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so $objects $objects_tcc -Os -s -ldl -Wall $java_lib $mysql_config
-fi
-
-if [ "$1" == "" ] || [ "$1" == "cod2_1_0" ]; then
+elif [ "$1" == "cod2_1_0" ]; then
 	constants="-D COD2_VERSION=COD2_VERSION_1_0 -D COD_VERSION=COD2_1_0"
 
-	mkdir -p objects_$1
-	echo "##### COMPILE $1 LIBCOD.CPP #####"
-	$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
-	echo "##### COMPILE $1 GSC.CPP #####"
-	$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
-	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
-	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
+elif [ "$1" == "cod2_1_2" ]; then
+	constants="-D COD2_VERSION=COD2_VERSION_1_2 -D COD_VERSION=COD2_1_2"
 
-	echo "##### LINK lib$1.so #####"
-	objects="$(ls objects_normal/*.opp) $(ls objects_$1/*.opp)"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so $objects $objects_tcc -Os -s -ldl -Wall $java_lib $mysql_config
-fi
+elif [ "$1" == "cod2_1_3" ]; then
+	constants="-D COD2_VERSION=COD2_VERSION_1_3 -D COD_VERSION=COD2_1_3"
 
-
-if [ "$1" == "" ] || [ "$1" == "cod1_1_5" ]; then
-	constants="-D COD_VERSION=COD1_1_5"
-	
-	#echo "##### COMPILE CoD1 1.5 LIBCOD2.CPP #####"
-	#$cc $options $constants -c libcod2.cpp -o libcod2.opp
-	echo "##### COMPILE CoD1 1.5 GSC.CPP #####"
-	$cc $options $constants -c gsc.cpp -o gsc.opp
-	#echo "##### COMPILE CoD1 1.5 GSC_PLAYER.CPP #####"
-	#$cc $options $constants -c gsc_player.cpp -o gsc_player.opp
-
-	echo "##### LINK libcod1_1_5.so #####"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/libcod1_1_5.so libcod2.opp gsc.opp gsc_player.opp gsc_astar.opp gsc_mysql.opp server.opp gsc_memory.opp cracking.opp $objects_tcc -Os -s -ldl -Wall $mysql_config
-fi
-
-
-if [ "$1" == "" ] || [ "$1" == "cod4_1_7" ]; then
+elif [ "$1" == "cod4_1_7" ]; then
 	constants="-D COD_VERSION=COD4_1_7"
 
-	mkdir -p objects_$1
-	echo "##### COMPILE $1 LIBCOD.CPP #####"
-	$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
-	echo "##### COMPILE $1 GSC.CPP #####"
-	$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
-	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
-	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
-
-	echo "##### LINK lib$1.so #####"
-	objects="$(ls objects_normal/*.opp) $(ls objects_$1/*.opp)"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so $objects $objects_tcc -Os -s -ldl -Wall $java_lib $mysql_config
-fi
-
-
-if [ "$1" == "" ] || [ "$1" == "cod4_1_7_l" ]; then
+elif [ "$1" == "cod4_1_7_l" ]; then
 	constants="-D COD_VERSION=COD4_1_7_L"
 
-	mkdir -p objects_$1
-	echo "##### COMPILE $1 LIBCOD.CPP #####"
-	$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
-	echo "##### COMPILE $1 GSC.CPP #####"
-	$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
-	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
-	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
+elif [ "$1" == "" ]; then
+	echo "#### Please specify a command line option ####"
+	exit 0
 
-	echo "##### LINK lib$1.so #####"
-	objects="$(ls objects_normal/*.opp) $(ls objects_$1/*.opp)"
-	$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so $objects $objects_tcc -Os -s -ldl -Wall $java_lib $mysql_config
+else
+	echo "#### Unrecognized command line option $1 ####"
+	exit 0
 fi
 
+mkdir -p bin
+mkdir -p objects_$1
+echo "##### COMPILE $1 LIBCOD.CPP #####"
+$cc $options $constants -o objects_$1/libcod.opp -c libcod.cpp
+echo "##### COMPILE $1 GSC.CPP #####"
+$cc $options $constants -o objects_$1/gsc.opp -c gsc.cpp
+echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
+$cc $options $constants -o objects_$1/gsc_player.opp -c gsc_player.cpp
+echo "##### COMPILE $1 GSC_UTILS.CPP #####"
+$cc $options $constants -o objects_$1/gsc_utils.opp -c gsc_utils.cpp
 
-if [ "$1" == "wrapper" ]; then
-	echo "##### WRAPPER: COMPILE wrapper_libcod2.cpp #####"
-	cp wrapper_libcod2.cpp a.cpp # just for name hiding in the .opp/.so -.-
-	$cc -m32 -fPIC -c a.cpp -o wrapper_libcod2.opp
-
-	#strip wrapper_libcod2.opp
-
-	# make the shared lib for the wrapper
-	echo "##### WRAPPER: LINK wrapper_libcod2.so #####"
-	$cc -m32 -shared -L/lib32 -o wrapper_libcod2.so wrapper_libcod2.opp
-
-
-	cp wrapper_libcod2.so bin/libcod2.so
-	#cp wrapper_libcod2.so /root/helper/game_cod2/libs/libcod2.so # other then "mv", "ld" can use it so (not just from game-libs-folder)
+echo "##### LINK lib$1.so #####"
+objects=""
+if [ -e objects_base ]; then
+	objects="$(ls objects_base/*.opp) "
+else
+	echo "##### error: objects_base not found, you proably forgot to ./doit.sh base #####"
+	exit 0
 fi
+objects+="$(ls objects_$1/*.opp)"
+if [ -e objects_tcc ]; then
+	objects+=" $(ls objects_tcc/*.opp)"
+fi
+$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $java_lib $mysql_config
+
