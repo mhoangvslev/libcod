@@ -33,7 +33,6 @@ void gsc_utils_sendgameservercommand();
 void gsc_utils_scandir();
 void gsc_G_FindConfigstringIndex();
 void gsc_G_FindConfigstringIndexOriginal();
-void gsc_utils_sendCommand();
 
 void gsc_add_language();
 void gsc_load_languages();
