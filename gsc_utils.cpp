@@ -5,6 +5,9 @@
 #include <dirent.h> // dir stuff
 #include <assert.h>
 #include <ctype.h> // toupper
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 #define MAX_LANGUAGES 16
 #define MAX_LANGUAGE_ITEMS 1024
@@ -1190,6 +1193,128 @@ void gsc_utils_getloadedweapons() {
 	// 1456 - 1528 = locNone till locGun
 	// [id][weapon_mp][worldmodel][viewmodel]: displayname
 	//printf("[%d][%s][%s][%s]: %s\n", i, *(char**)w, *(const char **)(w + 436), *(char**)(w + 12), *(char**)(w + 4)); 	
+}
+
+// http://stackoverflow.com/questions/791982/determine-if-a-string-is-a-valid-ip-address-in-c
+bool isValidIpAddress(char *ipAddress)
+{
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ipAddress, &(sa.sin_addr));
+    return result != 0;
+}
+
+char* sendCommand(char *ip, int port, char *message)
+{
+    int Socket;
+    struct sockaddr_in server;
+    struct timeval timeout;
+
+    int i;
+    char *data;
+    char *fixed;
+    char response[16384];
+
+    data = strcat(strdup("00000"), message);
+
+    for(i = 0; i < 4; i++)
+    {
+        data[i] = 0xFF;
+    }
+	
+    data[i] = 0x02;
+
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port);
+    server.sin_addr.s_addr = inet_addr(ip);
+
+    timeout.tv_sec = 2;
+    timeout.tv_usec = 2;
+
+    Socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	
+    if(Socket == -1)
+    {
+        return "0";
+    }
+
+    if(setsockopt(Socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) == -1)
+    {
+        close(Socket);
+        return "0";
+    }
+
+    if(setsockopt(Socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) == -1)
+    {
+        close(Socket);
+        return "0";
+    }
+
+    if(connect(Socket, (struct sockaddr *)&server, sizeof(server)) == -1)
+    {
+        close(Socket);
+        return "0";
+    }
+
+    sendto(Socket, data, strlen(data), 0, (struct sockaddr *)&server, sizeof(server));
+    i = recvfrom(Socket, response, sizeof(response), 0, 0, 0);
+
+    if(i == -1)
+    {
+        close(Socket);
+        return "0";
+    }
+
+    response[i] = '\0';
+
+    close(Socket);
+
+    fixed = strtok(response, "\\");
+    fixed = strtok(NULL, "\0");
+
+    for(i = 0; i < strlen(fixed); i++)
+    {
+        if(fixed[i] == '\n')
+        {
+            fixed[i] = '\t';
+        }
+        if(fixed[i] == '"')
+        {
+            fixed[i] = '\t';
+        }
+        if(fixed[i] == '\\')
+        {
+            fixed[i] = '\t';
+        }
+    }
+
+    return fixed;
+}
+
+void gsc_utils_sendCommand()
+{
+    char *ip;
+    char *data;
+    int port = 0;
+	char *tok;
+
+    if(!stackGetParams((char *)"sis", &ip, &port, &data) || strlen(ip) == 0 || port == 0 || strlen(data) == 0) {
+        stackPushUndefined();
+        return;
+    }
+
+    if(isValidIpAddress(ip))
+	{
+		stackPushArray();
+		tok = strtok(sendCommand(ip, port, data), "\t");
+		while (tok != NULL)
+		{
+			stackPushString(tok);
+			stackPushArrayLast();
+			tok = strtok(NULL, "\t");
+		}
+	}
+    else
+        stackPushInt(0);
 }
 
 #endif
