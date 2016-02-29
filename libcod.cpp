@@ -553,6 +553,7 @@ int hook_codscript_load_label_8075DEA(char *file, char *function)
 
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
+int codecallback_fire_grenade = 0;
 
 typedef void (*gametype_scripts_t)();
 #if COD_VERSION == COD2_1_0
@@ -626,6 +627,7 @@ void hook_codscript_gametype_scripts()
 	#else
 		codecallback_playercommand = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
 		codecallback_userinfochanged = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
+		codecallback_fire_grenade = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
 	#endif
 
 	//printf("codecallback_playercommand=%.8x\n", codecallback_playercommand);
@@ -642,6 +644,34 @@ void hook_codscript_gametype_scripts()
 
 	// hook again
 	cracking_hook_function((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
+}
+
+cHook *hook_fire_grenade;
+int fire_grenade(int player, int a2, int a3, int weapon, int a5)
+{
+	hook_fire_grenade->unhook();
+	int (*sig)(int player, int a2, int a3, int a4, int a5);
+	*(int *)&sig = hook_fire_grenade->from;
+	int grenade = sig(player, a2, a3, weapon, a5);
+	hook_fire_grenade->hook();
+	int (*sig2)(int weapon);
+	#if COD_VERSION == COD2_1_0
+		*(int *)&sig2 = 0x80E9270;
+	#elif COD_VERSION == COD2_1_2
+		*(int *)&sig2 = 0x80EB860;
+	#elif COD_VERSION == COD2_1_3
+		*(int *)&sig2 = 0x80EB9A4;
+	#else
+		#warning fire_grenade &sig2 = NULL;
+		*(int *)&sig2 = NULL;
+	#endif
+	int weaponname = sig2(weapon);
+	char *wname2 = *(char**)weaponname;
+	stackPushString(wname2);
+	stackPushEntity(grenade);
+	short ret = codscript_call_callback_entity(player, codecallback_fire_grenade, 2);
+	codscript_callback_finish(ret);
+	return grenade;
 }
 
 int hook_ClientCommand(int clientNum)
@@ -2824,6 +2854,8 @@ class cCallOfDuty2Pro
             hook_set_bot_pings->hook();
 			hook_play_movement = new cHook(0x0808F488, (int)play_movement);
             hook_play_movement->hook();
+			hook_fire_grenade = new cHook(0x810C1F6, (int) fire_grenade);
+			hook_fire_grenade->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -2863,6 +2895,8 @@ class cCallOfDuty2Pro
             hook_set_bot_pings->hook();
 			hook_play_movement = new cHook(0x08090D18, (int)play_movement);
             hook_play_movement->hook();
+			hook_fire_grenade = new cHook(0x810E532, (int) fire_grenade);
+			hook_fire_grenade->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -2895,6 +2929,8 @@ class cCallOfDuty2Pro
             hook_set_bot_pings->hook();
 			hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
             hook_play_movement->hook();
+			hook_fire_grenade = new cHook(0x810E68E, (int) fire_grenade);
+			hook_fire_grenade->hook();
 			
 			#if COMPILE_RATELIMITER == 1
 				cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
