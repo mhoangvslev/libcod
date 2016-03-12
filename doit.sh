@@ -20,10 +20,19 @@ options="-I. -m32 -fPIC -Wno-write-strings"
 tmp="/$XDG_DATA_HOME/q3rally/q3rallysa/build";
 objects_car="$tmp/q_shared.o $tmp/q_math.o $tmp/com_printf.o $tmp/bg_wheel_forces.o $tmp/bg_pmove.o $tmp/bg_physics.o $tmp/bg_misc.o"
 
-mysql_config="`mysql_config --cflags --libs`"
 mysql_link=""
+mysql_config=""
 
-if [ -d "./vendors/lib" ]; then
+if [ -e /usr/lib/mysql ]; then
+	mysql_enable="true"
+	mysql_config="`mysql_config --cflags --libs`"
+else
+	mysql_enable="false"
+	sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
+	sed -i "/#define COMPILE_MYSQL_TESTS 1/c\#define COMPILE_MYSQL_TESTS 0" config.hpp
+fi
+
+if [ -d "./vendors/lib" ] && [ mysql_enable == "true" ]; then
 	mysql_config=""
 	mysql_link="-lmysqlclient -L./vendors/lib"
 fi
@@ -33,7 +42,7 @@ fi
 java_jdk="/root/helper/openjdk8"
 java_lib=""
 java_header=""
-java_enable="false"
+java_enable="true"
 
 # when the JDK is not found, force it to be off
 if [ ! -d $java_jdk ]; then
@@ -63,8 +72,12 @@ elif [ "$1" == "base" ]; then
 	mkdir -p objects_$1
 	echo "##### COMPILE GSC_ASTAR.CPP #####"
 	$cc $options -c gsc_astar.cpp -o objects_$1/gsc_astar.opp
-	echo "##### COMPILE GSC_MYSQL.CPP #####"
-	$cc $options -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lmysqlclient -L/usr/lib/mysql
+	if [ "$mysql_enable" == "true" ]; then
+		echo "##### COMPILE GSC_MYSQL.CPP #####"
+		$cc $options -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lmysqlclient -L/usr/lib/mysql
+	else
+		echo "##### WARNING: MYSQL libs not found, MYSQL compilation skipped #####"
+	fi
 	echo "##### COMPILE SERVER.C #####"
 	$cc $options -c server.c -o objects_$1/server.opp -D SERVER_PORT=8000
 	echo "##### COMPILE GSC_MEMORY.CPP #####"
@@ -77,8 +90,10 @@ elif [ "$1" == "base" ]; then
 	if [ "$java_enable" == "true" ]; then
 		$cc $options -o objects_$1/java_embed.opp -c java_embed.c $java_header
 	else
-		echo "Ignore java_embed.c, because java_enable==false (e.g. because the dir \$java_jdk=$java_jdk does not exist)"
+		echo "##### WARNING: Skipped java_embed.c because OpenJDK 8 does not exist #####"
 	fi
+	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
+	sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
 	exit 1
 
 elif [ "$1" == "clean" ]; then
@@ -145,7 +160,7 @@ objects=""
 if [ -e objects_base ]; then
 	objects="$(ls objects_base/*.opp) "
 else
-	echo "##### error: objects_base not found, you proably forgot to ./doit.sh base #####"
+	echo "##### ERROR: objects_base not found, you proably forgot to ./doit.sh base #####"
 	exit 0
 fi
 objects+="$(ls objects_$1/*.opp)"
@@ -157,3 +172,5 @@ if [ -e objects_car ]; then
 fi
 $cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $java_lib $mysql_config
 
+sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
+sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
