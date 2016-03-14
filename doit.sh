@@ -23,18 +23,20 @@ objects_car="$tmp/q_shared.o $tmp/q_math.o $tmp/com_printf.o $tmp/bg_wheel_force
 mysql_link=""
 mysql_config=""
 
-if [ -e /usr/lib/mysql ]; then
-	mysql_enable="true"
-	mysql_config="`mysql_config --cflags --libs`"
-else
-	mysql_enable="false"
-	sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
-	sed -i "/#define COMPILE_MYSQL_TESTS 1/c\#define COMPILE_MYSQL_TESTS 0" config.hpp
-fi
+if [ "$1" != "tar" ] && [ "$1" != "clean" ] && [ "$1" != "tcc" ] && [ "$1" != "car" ]; then
+	if [ -e /usr/lib/libmysqlclient.so.18 ] || [ -e /usr/lib/i386-linux-gnu/libmysqlclient.so.18 ]; then
+		mysql_enable="true"
+		mysql_config="`mysql_config --cflags --libs`"
+	else
+		mysql_enable="false"
+		sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
+		sed -i "/#define COMPILE_MYSQL_TESTS 1/c\#define COMPILE_MYSQL_TESTS 0" config.hpp
+	fi
 
-if [ -d "./vendors/lib" ] && [ mysql_enable == "true" ]; then
-	mysql_config=""
-	mysql_link="-lmysqlclient -L./vendors/lib"
+	if [ -d "./vendors/lib" ] && [ mysql_enable == "true" ]; then
+		mysql_config=""
+		mysql_link="-lmysqlclient -L./vendors/lib"
+	fi
 fi
 
 # if dir $java_jdk exists: add java support to libcod
@@ -90,10 +92,12 @@ elif [ "$1" == "base" ]; then
 	if [ "$java_enable" == "true" ]; then
 		$cc $options -o objects_$1/java_embed.opp -c java_embed.c $java_header
 	else
-		echo "##### WARNING: Skipped java_embed.c because OpenJDK 8 does not exist #####"
+		echo "##### WARNING: Skipped java_embed.c because /root/helper/openjdk8 does not exist #####"
 	fi
-	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
-	sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
+	if [ "$mysql_enable" == "true" ]; then
+		sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
+		sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
+	fi
 	exit 1
 
 elif [ "$1" == "clean" ]; then
@@ -172,5 +176,7 @@ if [ -e objects_car ]; then
 fi
 $cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $java_lib $mysql_config
 
-sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
-sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
+if [ "$mysql_enable" == "true" ]; then
+	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
+	sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
+fi
