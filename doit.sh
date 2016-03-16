@@ -94,7 +94,7 @@ elif [ "$1" == "base" ]; then
 	else
 		echo "##### WARNING: Skipped java_embed.c because /root/helper/openjdk8 does not exist #####"
 	fi
-	if [ "$mysql_enable" == "true" ]; then
+	if [ "$mysql_enable" == "false" ]; then
 		sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
 		sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
 	fi
@@ -176,7 +176,7 @@ if [ -e objects_car ]; then
 fi
 $cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $java_lib $mysql_config
 
-if [ "$mysql_enable" == "true" ]; then
+if [ "$mysql_enable" == "false" ]; then
 	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
 	sed -i "/#define COMPILE_MYSQL_TESTS 0/c\#define COMPILE_MYSQL_TESTS 1" config.hpp
 fi
