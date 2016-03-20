@@ -44,7 +44,7 @@ fi
 java_jdk="/root/helper/openjdk8"
 java_lib=""
 java_header=""
-java_enable="true"
+java_enable="false"
 
 # when the JDK is not found, force it to be off
 if [ ! -d $java_jdk ]; then

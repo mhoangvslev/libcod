@@ -584,7 +584,7 @@ void gsc_utils_execute() { // Returns complete command output as a string
     setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
     char *result = exec(cmd);
 	if (result == NULL)
-		stackReturnInt(0);
+		stackPushUndefined();
 	else
 	{
 		stackPushString(result);
