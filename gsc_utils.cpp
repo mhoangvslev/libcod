@@ -888,11 +888,16 @@ void gsc_dlclose() {
 
 #define MAX_WEAPON_IGNORE_SIZE 20
 #define MAX_WEAPON_NAME_SIZE 32
-char* defaultweapon_mp = (char*)malloc(MAX_WEAPON_NAME_SIZE);
+char* defaultweapon_mp = NULL;
 char ignoredWeapons[MAX_WEAPON_IGNORE_SIZE][MAX_WEAPON_NAME_SIZE];
 int ignoredWeaponCount = 0;
 
 void gsc_utils_init() {
+        if(defaultweapon_mp == NULL)
+                defaultweapon_mp = (char*)malloc(MAX_WEAPON_NAME_SIZE);
+        if(defaultweapon_mp == NULL)
+                printf("Failed to malloc defaultweapon_mp\n");
+
 	strcpy(defaultweapon_mp, "defaultweapon_mp");
 	defaultweapon_mp[strlen(defaultweapon_mp)] = '\0';
 }
