@@ -22,9 +22,17 @@ objects_car="$tmp/q_shared.o $tmp/q_math.o $tmp/com_printf.o $tmp/bg_wheel_force
 
 mysql_link=""
 mysql_config=""
+mysql_libpath=""
+
+MACHINE_TYPE=`uname -m`
+if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+	mysql_libpath="/usr/lib/i386-linux-gnu/libmysqlclient.so.18"
+else
+	mysql_libpath="/usr/lib/libmysqlclient.so.18"
+fi
 
 if [ "$1" != "tar" ] && [ "$1" != "clean" ] && [ "$1" != "tcc" ] && [ "$1" != "car" ]; then
-	if [ -e /usr/lib/libmysqlclient.so.18 ] || [ -e /usr/lib/i386-linux-gnu/libmysqlclient.so.18 ]; then
+	if [ -e $mysql_libpath ]; then
 		mysql_enable="true"
 		mysql_config="`mysql_config --cflags --libs`"
 	else
