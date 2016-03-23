@@ -124,7 +124,7 @@ static void mythread(void *arg)
 		//printf("> [INFO] TCP_read_all(): msglen=%d msg=%s\n", msglen, buffer);
 
 		// maybe its sometime usefull
-		TCP_write(&conn, "{\n\t\"time\": \"%d\"", time(NULL));
+		TCP_write(&conn, "{\n\t\"time\": \"%d\" ", time(NULL));
 
 		
 
@@ -188,10 +188,22 @@ static void mythread(void *arg)
 					if (!strcmp(type, "float"))
 					{
 						int address;
-						float *tmpPtr;
 						sscanf(number, "%x", &address);
-						tmpPtr = (float *) address;
-						TCP_write(&conn, "float %x = %f\n", tmpPtr, *tmpPtr);
+						TCP_write(&conn, "float of %p = %f\n", (void*)address, *(float*)address);
+					}
+					
+					if (!strcmp(type, "int"))
+					{
+						int address;
+						sscanf(number, "%x", &address);
+						TCP_write(&conn, "int of %p = %i\n", (void*)address, *(int*)address);
+					}
+					
+					if (!strcmp(type, "char"))
+					{
+						int address;
+						sscanf(number, "%x", &address);
+						TCP_write(&conn, "char of %p = %s\n", (void*)address, (char*)address);
 					}
 				}
 				
