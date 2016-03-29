@@ -35,15 +35,13 @@ if [ "$1" != "tar" ] && [ "$1" != "clean" ] && [ "$1" != "tcc" ] && [ "$1" != "c
 	if [ -e $mysql_libpath ]; then
 		mysql_enable="true"
 		mysql_config="`mysql_config --cflags --libs`"
+	elif [ -d "./vendors/lib" ]; then
+		mysql_enable="true"
+		mysql_link="-lmysqlclient -L./vendors/lib"
 	else
 		mysql_enable="false"
 		sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
 		sed -i "/#define COMPILE_MYSQL_TESTS 1/c\#define COMPILE_MYSQL_TESTS 0" config.hpp
-	fi
-
-	if [ -d "./vendors/lib" ] && [ mysql_enable == "true" ]; then
-		mysql_config=""
-		mysql_link="-lmysqlclient -L./vendors/lib"
 	fi
 fi
 
