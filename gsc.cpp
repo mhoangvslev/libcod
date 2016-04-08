@@ -384,6 +384,7 @@ Scr_Method scriptMethods[] = {
     {"thrownade"             , gsc_player_thrownade          , 0},
     {"getcooktime"           , gsc_player_getcooktime        , 0},
     {"setguid"               , gsc_player_setguid            , 0},
+	{"getlastgamestatesize"  , gsc_player_getlastgamestatesize    , 0},
 	#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},

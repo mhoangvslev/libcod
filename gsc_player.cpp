@@ -965,4 +965,13 @@ void gsc_player_setguid(int id) {
 	stackReturnInt(1);
 }
 
+void gsc_player_getlastgamestatesize(int id) {
+	extern int gamestate_size[64];
+	
+	if (gamestate_size[id])
+		stackPushInt(gamestate_size[id]);
+	else
+		stackPushUndefined();
+}
+
 #endif

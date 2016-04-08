@@ -1838,6 +1838,49 @@ void hook_SV_UserinfoChanged_f( int a1 ) {
     }
 }
 
+int gamestate_size[64] = {0};
+void hook_gamestate_info(char *format, ...) {
+	
+	#if COD_VERSION == COD2_1_0
+        int gamestate_info_offset = 0x8060B7C;
+    #elif COD_VERSION == COD2_1_2
+        int gamestate_info_offset = 0x8060E42;
+    #elif COD_VERSION == COD2_1_3
+        int gamestate_info_offset = 0x8060E3A;
+    #else
+        #warning gamestate_info got no working addresses
+        int gamestate_info_offset = 0x0;
+    #endif
+	
+	char *s;
+	va_list va;
+	
+	int (*Com_DPrintf)(char *format, ...);
+	*(int *)&Com_DPrintf = gamestate_info_offset;
+	
+	va_start(va, format);
+	vasprintf(&s, format, va);
+	va_end(va);
+	
+	Com_DPrintf("%s", s);
+	
+	char *tok;
+	int gamestate = 0;
+	int clientnum = 0;
+	tok = strtok(s, " ");
+	
+	for (int i = 0; tok != NULL; i++)
+	{
+		if (i == 1)
+			gamestate = atoi(tok);
+		if (i == 7)
+			clientnum = atoi(tok);
+		tok = strtok(NULL, " ");
+	}
+	
+	gamestate_size[clientnum] = gamestate;
+}
+
 int clientaddress_to_num(int client);
 int custom_animation[64] = {0};
 cHook *hook_set_anim;
@@ -2845,6 +2888,7 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 			cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
 			cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
+			cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
 			cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
 			cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
@@ -2880,6 +2924,7 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 			cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 			cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
+			cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
 			cracking_hook_call(0x080E2546, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F76BF, (int)hook_player_g_speed);
 			cracking_hook_call(0x080EBB14, (int)hook_findWeaponIndex);
@@ -2920,6 +2965,7 @@ class cCallOfDuty2Pro
 			cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 			cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 			cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
+			cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
 			cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
 			cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
 			cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
