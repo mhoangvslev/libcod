@@ -236,6 +236,7 @@ Scr_Function scriptFunctions[] = {
 	#if COMPILE_PLAYER == 1
 	{"free_slot"                   , gsc_free_slot                         , 0},
 	{"kick2"                       , gsc_kick_slot                         , 0},
+	{"fpsnextframe"                , gsc_fpsnextframe                      , 0},
 	#endif
 	
 	#if COMPILE_MEMORY == 1
@@ -384,7 +385,9 @@ Scr_Method scriptMethods[] = {
     {"thrownade"             , gsc_player_thrownade          , 0},
     {"getcooktime"           , gsc_player_getcooktime        , 0},
     {"setguid"               , gsc_player_setguid            , 0},
-	{"getlastgamestatesize"  , gsc_player_getlastgamestatesize    , 0},
+    {"getlastgamestatesize"  , gsc_player_getlastgamestatesize , 0},
+    {"resetfps"              , gsc_player_resetfps           , 0},
+    {"getfps"                , gsc_player_getfps             , 0},
 	#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},

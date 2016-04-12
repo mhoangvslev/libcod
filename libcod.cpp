@@ -1970,6 +1970,10 @@ int bot_shoot[64] = {0};
 int bot_wepType[64] = {0};
 int bot_throwNade[64] = {0};
 
+int clfps[64][20] = {0};
+int clfpstemp[64] = {0};
+int clfpsindex = 0;
+
 cHook *hook_play_movement;
 int play_movement(int a1, int a2)
 {
@@ -1988,6 +1992,7 @@ int play_movement(int a1, int a2)
     int addrtype, clientnum;
     
     clientnum = (a1 - *(int*)offset) / playerinfo_size;
+	clfpstemp[clientnum]++; // FPS
     if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
     {
         addrtype = gsc_libcod_getAddressType(clientnum);

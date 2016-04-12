@@ -974,4 +974,46 @@ void gsc_player_getlastgamestatesize(int id) {
 		stackPushUndefined();
 }
 
+void gsc_player_resetfps(int id) {
+	extern int clfps[64][20];
+	extern int clfpstemp[64];
+
+	for(int i = 0; i < sizeof(clfps[0]) / sizeof(int); i++)
+		clfps[id][i] = -1;
+	clfpstemp[id] = 0;
+	stackPushInt(0);
+}
+
+void gsc_player_getfps(int id) {
+	extern int clfps[64][20];
+	
+	int total = 0;
+	for(int i = 0; i < sizeof(clfps[0]) / sizeof(int); i++)
+	{
+		if(clfps[id][i] == -1)
+		{
+			stackPushInt(-1);
+			return;
+		}
+		total += clfps[id][i];
+	}
+	stackPushInt(total);
+}
+
+void gsc_fpsnextframe() {
+	extern int clfps[64][20];
+	extern int clfpstemp[64];
+	extern int clfpsindex;	
+	
+	for(int i = 0; i < sizeof(clfpstemp) / sizeof(int); i++)
+	{
+		clfps[i][clfpsindex] = clfpstemp[i];
+		clfpstemp[i] = 0;
+	}
+	clfpsindex++;
+	if(clfpsindex >= sizeof(clfps[0]) / sizeof(int))
+		clfpsindex = 0;
+	stackReturnInt(0);
+}
+
 #endif
