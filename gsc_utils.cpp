@@ -555,6 +555,7 @@ char* exec(const char* command) {
   fp = popen(command, "r");
   if (fp == NULL) {
     printf("Cannot execute command:\n%s\n", command);
+	free(result);
     return NULL;
   }
 
@@ -569,8 +570,11 @@ char* exec(const char* command) {
 
   fflush(fp);
   if (pclose(fp) != 0) {
-    perror("Cannot close stream.\n");
+	// Stream is proably already gone
+	free(result);
+    return NULL;
   }
+
   return result;
 }
 
