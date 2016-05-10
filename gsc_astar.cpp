@@ -12,7 +12,7 @@ int gsc_graph_new()
 int gsc_graph_add_edge() // int GRAPH_add_edge(int graph, int first, int second);
 {
 	int graph, first, second;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &graph);
 	helper += stackGetParamInt(2, &first);
@@ -22,7 +22,7 @@ int gsc_graph_add_edge() // int GRAPH_add_edge(int graph, int first, int second)
 		printf("scriptengine> wrongs args for RAPH_add_edge(int graph, int first, int second);\n");
 		return stackReturnInt(0);
 	}
-	
+
 	printf("GRAPH_add_edge(graph=%d, first=%d, second=%d);\n", graph, first, second);
 	GRAPH_add_edge(graph, first, second);
 	return stackReturnInt(1);
@@ -98,26 +98,26 @@ int gsc_graph_do_astar() // int *GRAPH_do_astar(int graph, int from, int to, int
 		cost = 0;
 	}
 	//printf("cost=%.2f\n", cost);
-	
+
 	int i; // useable out of this comment for the real array-creation
-	#ifdef VERBOSE_GRAPH
+#ifdef VERBOSE_GRAPH
 	printf("GRAPH_do_astar(graph=%d, from=%d, to=%d, &outRet, &outLen);\n", graph, from, to);
 	printf("route: ");
 
 	for (i=0; i<outLen; i++)
 		printf("%d ", outRet[i]);
 	printf("\n");
-	
-	#endif
-	
+
+#endif
+
 	// todo? if no nodes, then return undefined... but how?
-	
-	
+
+
 	/*
 		word_8853240 = precache_string_sub_81101B4("key1");
 		word_8853242 = precache_string_sub_81101B4("key2");
 	*/
-	
+
 	ret = stackPushArray(); // this will be an array with [0] and [1]
 
 	stackPushArray(); // [0] = array of nodes
@@ -126,10 +126,10 @@ int gsc_graph_do_astar() // int *GRAPH_do_astar(int graph, int from, int to, int
 		stackReturnInt(outRet[i]);
 		stackPushArrayLast();
 	}
-	
+
 	// dont forget to free memory! :)
 	free(outRet);
-	
+
 	// LUULZ, dont forget to set those 4 bytes to 0! :D
 	// forgot that... and since im just writting 2 bytes to it each, the other
 	// bytes were random! in the start it was working, but later i wondering why it
@@ -141,17 +141,17 @@ int gsc_graph_do_astar() // int *GRAPH_do_astar(int graph, int from, int to, int
 	//printf("key1 = %.8x ", key1);
 	//printf("key2 = %.8x\n", key2);
 	stackSetKeyInArray(key1);
-	
-	
+
+
 	//ret = stackPushArray(); // [1] = cost
 	//stackPushFloat(cost);
 	stackPushFloat(cost);
 	//stackPushArrayLast();
 	stackSetKeyInArray(key2);
-	
+
 	return ret;
-	
-	
+
+
 	// todo: stackPushArray()
 	// stackPushElement()
 	// stackReturnArray();
@@ -173,11 +173,11 @@ int gsc_graph_get_nearest_edge()
 
 	int wp1, wp2;
 	GRAPH_getNearestEdge(graph, pos, &wp1, &wp2, NULL);
-	
+
 	// [0] == wp1 [1] == wp2
 	int ret = stackPushArray(); // this will be an array with [0] and [1]
-	
-	
+
+
 	int key1 = 0; // precached string "key1"
 	int key2 = 0;
 	memcpy(&key1, (void *)0x08853240, 2); // jeah it workes!
@@ -185,13 +185,13 @@ int gsc_graph_get_nearest_edge()
 
 	stackPushInt(wp1);
 	stackSetKeyInArray(key1);
-	
+
 	//ret = stackPushArray(); // [1] = cost
 	//stackPushFloat(cost);
 	stackPushInt(wp2);
 	//stackPushArrayLast();
 	stackSetKeyInArray(key2);
-	
+
 	return ret;
 }
 

@@ -7,14 +7,14 @@
 int
 main()
 {
-    char *ptr=NULL;
+	char *ptr=NULL;
 
-    fprintf(stderr, "|0| everything looks fine. lets produce a SIGSEGV\n");
+	fprintf(stderr, "|0| everything looks fine. lets produce a SIGSEGV\n");
 	*ptr=1;
 	fprintf(stderr, "|1| after first provocated SIGSEGV\n");
-    *ptr=1;
-    fprintf(stderr, "|2| after second provocated SIGSEGV\n");
-    fprintf(stderr, "|X| We survived - enough played today.\n");
+	*ptr=1;
+	fprintf(stderr, "|2| after second provocated SIGSEGV\n");
+	fprintf(stderr, "|X| We survived - enough played today.\n");
 
-    return 0;
+	return 0;
 }

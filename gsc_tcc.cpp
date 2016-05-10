@@ -5,11 +5,11 @@
 int gsc_tcc_new()
 {
 	TCCState *s;
-	
-	#if DEBUG_TCC
+
+#if DEBUG_TCC
 	printf("%s()\n", __FUNCTION__);
-	#endif
-	
+#endif
+
 	s = tcc_new();
 	s->nostdlib = 1;
 	return stackReturnInt((int) s);
@@ -19,15 +19,15 @@ int gsc_tcc_add_include_path()
 {
 	TCCState *s;
 	char *pathname;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, (int *)&s);
 	helper += stackGetParamString(2, &pathname);
-	
-	#if DEBUG_TCC
+
+#if DEBUG_TCC
 	printf("%s(TCCState *s=%.8p, char *pathname=\"%s\")\n", __FUNCTION__, s, pathname);
-	#endif
-	
+#endif
+
 	if (helper != 2)
 	{
 		printf("scriptengine> wrongs args for %s(TCCState *s=%.8p, char *pathname=\"%s\")\n", __FUNCTION__, s, pathname);
@@ -43,13 +43,13 @@ int gsc_tcc_add_include_path()
 TCCState *global_s;
 char *global_filename;
 int global_ret;
-	
+
 void *thread_for_tcc_add_file(void *arg)
 {
 	//global_ret = tcc_add_file(global_s, global_filename);
-	
+
 	TCCState *s;
-	
+
 	s = tcc_new();
 	s->nostdlib = 1;
 	tcc_add_include_path(s, "/usr/include");
@@ -65,10 +65,10 @@ int tcc_add_file_thread(TCCState *s, char *filename)
 	global_s = s;
 	global_filename = filename;
 	pthread_t thread1;
-	
-	
-	
-	
+
+
+
+
 	pthread_attr_t settings;
 
 	int stacksize;
@@ -90,12 +90,12 @@ int tcc_add_file_thread(TCCState *s, char *filename)
 	}
 
 	printf("> [INFO] Stack-Size set to %d Bytes (%.2f KB, %.2f MB)\n", stacksize, (float)(stacksize/1024), (float)((stacksize/1024)/1024));
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	pthread_create (&thread1, &settings, thread_for_tcc_add_file, NULL);
 	//pthread_join(thread1, NULL);
 	return global_ret;
@@ -105,15 +105,15 @@ int gsc_tcc_add_file()
 {
 	TCCState *s;
 	char *filename;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, (int *)&s);
 	helper += stackGetParamString(2, &filename);
 
-	#if DEBUG_TCC
+#if DEBUG_TCC
 	printf("%s(TCCState *s=%.8p, char *filename=\"%s\")\n", __FUNCTION__, s, filename);
-	#endif
-	
+#endif
+
 	if (helper != 2)
 	{
 		printf("scriptengine> wrongs args for %s(TCCState *s=%.8p, char *filename=\"%s\")\n", __FUNCTION__, s, filename);
@@ -127,14 +127,14 @@ int gsc_tcc_add_file()
 int gsc_tcc_run()
 {
 	TCCState *s;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, (int *)&s);
 
-	#if DEBUG_TCC
+#if DEBUG_TCC
 	printf("%s(TCCState *s=%.8p)\n", __FUNCTION__, s);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for %s(TCCState *s=%.8p)\n", __FUNCTION__, s);
@@ -148,14 +148,14 @@ int gsc_tcc_run()
 int gsc_tcc_delete()
 {
 	TCCState *s;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, (int *)&s);
 
-	#if DEBUG_TCC
+#if DEBUG_TCC
 	printf("%s(TCCState *s=%.8p)\n", __FUNCTION__, s);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for %s(TCCState *s=%.8p)\n", __FUNCTION__, s);

@@ -30,28 +30,44 @@ int singleHexToNumber(char hexchar)
 {
 	switch (hexchar)
 	{
-		case '0': return 0;
-		case '1': return 1;
-		case '2': return 2;
-		case '3': return 3;
-		case '4': return 4;
-		case '5': return 5;
-		case '6': return 6;
-		case '7': return 7;
-		case '8': return 8;
-		case '9': return 9;
-		case 'a':
-		case 'A': return 10;
-		case 'b':
-		case 'B': return 11;
-		case 'c':
-		case 'C': return 12;
-		case 'd':
-		case 'D': return 13;
-		case 'e':
-		case 'E': return 14;
-		case 'f':
-		case 'F': return 15;
+	case '0':
+		return 0;
+	case '1':
+		return 1;
+	case '2':
+		return 2;
+	case '3':
+		return 3;
+	case '4':
+		return 4;
+	case '5':
+		return 5;
+	case '6':
+		return 6;
+	case '7':
+		return 7;
+	case '8':
+		return 8;
+	case '9':
+		return 9;
+	case 'a':
+	case 'A':
+		return 10;
+	case 'b':
+	case 'B':
+		return 11;
+	case 'c':
+	case 'C':
+		return 12;
+	case 'd':
+	case 'D':
+		return 13;
+	case 'e':
+	case 'E':
+		return 14;
+	case 'f':
+	case 'F':
+		return 15;
 	}
 	return -1;
 }
@@ -76,16 +92,21 @@ int hexToBuffer(char *hex, char *buffer, int bufferLen)
 		char twochars[2] = {'0', '0'};
 		if (first)
 		{
-			if (padding) {
+			if (padding)
+			{
 				twochars[1] = hex[0];
 				pos++;
-			} else {
+			}
+			else
+			{
 				twochars[0] = hex[0];
 				twochars[1] = hex[1];
 				pos += 2;
 			}
 			first = 0;
-		} else {
+		}
+		else
+		{
 			twochars[0] = hex[pos];
 			twochars[1] = hex[pos+1];
 			pos += 2;
@@ -112,48 +133,56 @@ int cracking_write_hex(int address, char *hex)
 	int bytes;
 	int i;
 	bytes = hexToBuffer(hex, buffer, 128);
-	
-	
+
+
 	for (i=0; i<bytes; i++)
 		ptr[i] = buffer[i];
-		
+
 	return bytes;
 }
 
 
-cHook::cHook(int from, int to) {
+cHook::cHook(int from, int to)
+{
 	this->from = from;
 	this->to = to;
 }
-void cHook::hook() {
+void cHook::hook()
+{
 	memcpy((void *)oldCode, (void *)from, 5);
 	cracking_hook_function(from, to);
 }
-void cHook::unhook() {
+void cHook::unhook()
+{
 	memcpy((void *)from, (void *)oldCode, 5);
 }
 
 
-int cracking_call_function(int func_address, char *args, unsigned char *data) {
+int cracking_call_function(int func_address, char *args, unsigned char *data)
+{
 	int data_pos = 0;
 	unsigned char stack[128];
 	int stack_pos = 0;
-	
+
 	int mode_varargs = 0;
 	int i;
-	for (i=0; args[i]; i++) {
-		if (args[i] == '.') {
+	for (i=0; args[i]; i++)
+	{
+		if (args[i] == '.')
+		{
 			mode_varargs = 1;
 			continue;
 		}
 		//printf("args[i=%d]=%c stack_pos=%.2d data=%.8p\n", i, args[i], stack_pos, *(int *)(data + data_pos));
 		*(int *)(stack + stack_pos) = *(int*)(data + data_pos);
 
-		if (args[i] == 'f' && mode_varargs) {
+		if (args[i] == 'f' && mode_varargs)
+		{
 			double tmp_double = (double)*(float *)(data + data_pos);
 			memcpy(stack + stack_pos, &tmp_double, 8);
 		}
-		if (args[i] == 'd') {
+		if (args[i] == 'd')
+		{
 			double tmp_double = *(double *)(data + data_pos);
 			memcpy(stack + stack_pos, &tmp_double, 8);
 		}
@@ -163,23 +192,30 @@ int cracking_call_function(int func_address, char *args, unsigned char *data) {
 			stack_pos += 4; // use 8 bytes for varargs/float, aka double
 		if (args[i] == 'd')
 			stack_pos += 4; // use 8 bytes for normal double
-			
-		switch (args[i]) {
-			case 'i':
-			case 's':
-			case 'f': data_pos += 4; break;
-			case 'c': data_pos += 1; break;
-			case 'd': data_pos += 8; break;
+
+		switch (args[i])
+		{
+		case 'i':
+		case 's':
+		case 'f':
+			data_pos += 4;
+			break;
+		case 'c':
+			data_pos += 1;
+			break;
+		case 'd':
+			data_pos += 8;
+			break;
 		}
 	}
-	
+
 	// http://wiki.osdev.org/Inline_Assembly
 	unsigned char *sp;
 	asm("movl %%esp, %0" : "=g" (sp));
 	//printf("sp=%.8p\n", sp);
 
 	memcpy(sp, stack, stack_pos);
-	
+
 	asm("movl %0, %%eax" : : "g" (func_address));
 	asm("call *%eax");
 

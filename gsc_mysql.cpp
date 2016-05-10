@@ -266,7 +266,7 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 	char *host, *user, *pass, *db;
 
 	if ( ! stackGetParams("ssssii", &host, &user, &pass, &db, &port, &connection_count))
-	{ 
+	{
 		printf("scriptengine> wrongs args for mysql_async_initializer(...);\n");
 		stackPushUndefined();
 		return;
@@ -316,10 +316,11 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 	//async_query.detach();
 }
 
-void gsc_mysql_init() {
-	#if DEBUG_MYSQL
+void gsc_mysql_init()
+{
+#if DEBUG_MYSQL
 	printf("gsc_mysql_init()\n");
-	#endif
+#endif
 	MYSQL *my = mysql_init(NULL);
 	stackReturnInt((int) my);
 }
@@ -338,18 +339,20 @@ void gsc_mysql_reuse_connection()
 	}
 }
 
-void gsc_mysql_real_connect() {
+void gsc_mysql_real_connect()
+{
 	int mysql, port;
 	char *host, *user, *pass, *db;
 
-	if ( ! stackGetParams("issssi", &mysql, &host, &user, &pass, &db, &port)) {
+	if ( ! stackGetParams("issssi", &mysql, &host, &user, &pass, &db, &port))
+	{
 		printf("scriptengine> wrongs args for mysql_real_connect(...);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_real_connect(mysql=%d, host=\"%s\", user=\"%s\", pass=\"%s\", db=\"%s\", port=%d)\n", mysql, host, user, pass, db, port);
-	#endif
+#endif
 
 	mysql = (int) mysql_real_connect((MYSQL *)mysql, host, user, pass, db, port, NULL, 0);
 	my_bool reconnect = true;
@@ -359,166 +362,187 @@ void gsc_mysql_real_connect() {
 	stackReturnInt(mysql);
 }
 
-void gsc_mysql_close() {
+void gsc_mysql_close()
+{
 	int mysql;
-	
-	if ( ! stackGetParams("i", &mysql)) {
+
+	if ( ! stackGetParams("i", &mysql))
+	{
 		printf("scriptengine> wrongs args for mysql_close(mysql);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_close(%d)\n", mysql);
-	#endif
+#endif
 
 	mysql_close((MYSQL *)mysql);
 	stackReturnInt(0);
 }
 
-void gsc_mysql_query() {
+void gsc_mysql_query()
+{
 	int mysql;
 	char *sql;
 
-	if ( ! stackGetParams("is", &mysql, &sql)) {
+	if ( ! stackGetParams("is", &mysql, &sql))
+	{
 		printf("scriptengine> wrongs args for mysql_query(...);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_query(%d, \"%s\")\n", mysql, sql);
-	#endif
-	
-	int ret = mysql_query((MYSQL *)mysql, sql);	
+#endif
+
+	int ret = mysql_query((MYSQL *)mysql, sql);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_errno() {
+void gsc_mysql_errno()
+{
 	int mysql;
 
-	if ( ! stackGetParams("i", &mysql)) {
+	if ( ! stackGetParams("i", &mysql))
+	{
 		printf("scriptengine> wrongs args for mysql_errno(mysql);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_errno(%d)\n", mysql);
-	#endif
-	
+#endif
+
 	int ret = mysql_errno((MYSQL *)mysql);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_error() {
+void gsc_mysql_error()
+{
 	int mysql;
 
-	if ( ! stackGetParams("i", &mysql)) {
+	if ( ! stackGetParams("i", &mysql))
+	{
 		printf("scriptengine> wrongs args for mysql_error(mysql);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_error(%d)\n", mysql);
-	#endif
-	
+#endif
+
 	char *ret = (char *)mysql_error((MYSQL *)mysql);
 	stackPushString(ret);
 }
 
-void gsc_mysql_affected_rows() {
+void gsc_mysql_affected_rows()
+{
 	int mysql;
 
-	if ( ! stackGetParams("i", &mysql)) {
+	if ( ! stackGetParams("i", &mysql))
+	{
 		printf("scriptengine> wrongs args for mysql_affected_rows(mysql);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_affected_rows(%d)\n", mysql);
-	#endif
-	
+#endif
+
 	int ret = mysql_affected_rows((MYSQL *)mysql);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_store_result() {
+void gsc_mysql_store_result()
+{
 	int mysql;
 
-	if ( ! stackGetParams("i", &mysql)) {
+	if ( ! stackGetParams("i", &mysql))
+	{
 		printf("scriptengine> wrongs args for mysql_store_result(mysql);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_store_result(%d)\n", mysql);
-	#endif
-		
+#endif
+
 	MYSQL_RES *result = mysql_store_result((MYSQL *)mysql);
 	stackReturnInt((int) result);
 }
 
-void gsc_mysql_num_rows() {
+void gsc_mysql_num_rows()
+{
 	int result;
 
-	if ( ! stackGetParams("i", &result)) {
+	if ( ! stackGetParams("i", &result))
+	{
 		printf("scriptengine> wrongs args for mysql_num_rows(result);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_num_rows(result=%d)\n", result);
-	#endif
-	
+#endif
+
 	int ret = mysql_num_rows((MYSQL_RES *)result);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_num_fields() {
+void gsc_mysql_num_fields()
+{
 	int result;
 
-	if ( ! stackGetParams("i", &result)) {
+	if ( ! stackGetParams("i", &result))
+	{
 		printf("scriptengine> wrongs args for mysql_num_fields(result);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_num_fields(result=%d)\n", result);
-	#endif
+#endif
 
 	int ret = mysql_num_fields((MYSQL_RES *)result);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_field_seek() {
+void gsc_mysql_field_seek()
+{
 	int result;
 	int offset;
 
-	if ( ! stackGetParams("ii", &result, &offset)) {
+	if ( ! stackGetParams("ii", &result, &offset))
+	{
 		printf("scriptengine> wrongs args for mysql_field_seek(result, offset);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_field_seek(result=%d, offset=%d)\n", result, offset);
-	#endif
+#endif
 
 	int ret = mysql_field_seek((MYSQL_RES *)result, offset);
 	stackReturnInt(ret);
 }
 
-void gsc_mysql_fetch_field() {
+void gsc_mysql_fetch_field()
+{
 	int result;
 
-	if ( ! stackGetParams("i", &result)) {
+	if ( ! stackGetParams("i", &result))
+	{
 		printf("scriptengine> wrongs args for mysql_fetch_field(result);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_fetch_field(result=%d)\n", result);
-	#endif
-	
+#endif
+
 	MYSQL_FIELD *field = mysql_fetch_field((MYSQL_RES *)result);
-	if (field == NULL) {
+	if (field == NULL)
+	{
 		stackPushUndefined();
 		return;
 	}
@@ -526,30 +550,32 @@ void gsc_mysql_fetch_field() {
 	stackPushString(ret);
 }
 
-void gsc_mysql_fetch_row() {
+void gsc_mysql_fetch_row()
+{
 	int result;
 
-	if ( ! stackGetParams("i", &result)) {
+	if ( ! stackGetParams("i", &result))
+	{
 		printf("scriptengine> wrongs args for mysql_fetch_row(result);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_fetch_row(result=%d)\n", result);
-	#endif
-	
+#endif
+
 	MYSQL_ROW row = mysql_fetch_row((MYSQL_RES *)result);
 	if (!row)
 	{
-		#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 		printf("row == NULL\n");
-		#endif
+#endif
 		stackPushUndefined();
 		return;
 	}
 
 	stackPushArray();
-	
+
 	int numfields = mysql_num_fields((MYSQL_RES *)result);
 	for (int i=0; i<numfields; i++)
 	{
@@ -557,25 +583,27 @@ void gsc_mysql_fetch_row() {
 			stackPushUndefined();
 		else
 			stackPushString(row[i]);
-		
-		#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 		printf("row == \"%s\"\n", row[i]);
-		#endif
+#endif
 		stackPushArrayLast();
 	}
 }
 
-void gsc_mysql_free_result() {
+void gsc_mysql_free_result()
+{
 	int result;
 
-	if ( ! stackGetParams("i", &result)) {
+	if ( ! stackGetParams("i", &result))
+	{
 		printf("scriptengine> wrongs args for mysql_free_result(result);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_free_result(result=%d)\n", result);
-	#endif
+#endif
 	if(result == 0)
 	{
 		printf("scriptengine> Error in mysql_free_result: input is a NULL-pointer\n");
@@ -586,21 +614,23 @@ void gsc_mysql_free_result() {
 	stackPushUndefined();
 }
 
-void gsc_mysql_real_escape_string() {
+void gsc_mysql_real_escape_string()
+{
 	int mysql;
 	char *str;
 
-	if ( ! stackGetParams("is", &mysql, &str)) {
+	if ( ! stackGetParams("is", &mysql, &str))
+	{
 		printf("scriptengine> wrongs args for mysql_real_escape_string(...);\n");
 		stackPushUndefined();
 		return;
 	}
-	#if DEBUG_MYSQL
+#if DEBUG_MYSQL
 	printf("gsc_mysql_real_escape_string(%d, \"%s\")\n", mysql, str);
-	#endif
-	
+#endif
+
 	char *to = (char *) malloc(strlen(str) * 2 + 1);
-	mysql_real_escape_string((MYSQL *)mysql, to, str, strlen(str));	
+	mysql_real_escape_string((MYSQL *)mysql, to, str, strlen(str));
 	stackPushString(to);
 	free(to);
 }
@@ -613,14 +643,14 @@ void gsc_mysql_real_escape_string() {
 int gsc_mysql_stmt_init()
 {
 	int mysql;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_init(mysql=%d)\n", mysql); // print as %d, cause i cant print it with hex in .gsc
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_init(mysql);\n");
@@ -629,7 +659,7 @@ int gsc_mysql_stmt_init()
 
 	MYSQL_STMT *stmt;
 	stmt = mysql_stmt_init((MYSQL*)mysql);
-	
+
 	int ret = (int) stmt;
 	return stackReturnInt(ret);
 }
@@ -637,14 +667,14 @@ int gsc_mysql_stmt_init()
 int gsc_mysql_stmt_close()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_close(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_close(mysql_stmt);\n");
@@ -658,14 +688,14 @@ int gsc_mysql_stmt_close()
 int gsc_mysql_stmt_get_stmt_id()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_get_stmt_id(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_get_stmt_id(mysql_stmt);\n");
@@ -678,14 +708,14 @@ int gsc_mysql_stmt_get_stmt_id()
 int gsc_mysql_stmt_get_prefetch_rows()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_get_prefetch_rows(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_get_prefetch_rows(mysql_stmt);\n");
@@ -698,14 +728,14 @@ int gsc_mysql_stmt_get_prefetch_rows()
 int gsc_mysql_stmt_get_param_count()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_get_param_count(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_get_param_count(mysql_stmt);\n");
@@ -718,14 +748,14 @@ int gsc_mysql_stmt_get_param_count()
 int gsc_mysql_stmt_get_field_count()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_get_field_count(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_get_field_count(mysql_stmt);\n");
@@ -740,16 +770,16 @@ int gsc_mysql_stmt_prepare()
 	int mysql_stmt;
 	char *sql;
 	int len;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
 	helper += stackGetParamString(2, &sql);
 	helper += stackGetParamInt(3, &len);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_prepare(mysql_stmt=%d, sql=%s)\n", mysql_stmt, sql);
-	#endif
-	
+#endif
+
 	if (helper != 3)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_prepare(mysql_stmt);\n");
@@ -763,15 +793,15 @@ int gsc_mysql_stmt_bind_param()
 {
 	int mysql_stmt;
 	int param;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
 	helper += stackGetParamInt(2, &param);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_bind_param(mysql_stmt=%d, param=%d)\n", mysql_stmt, param);
-	#endif
-	
+#endif
+
 	if (helper != 2)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_bind_param(mysql_stmt, param);\n");
@@ -785,15 +815,15 @@ int gsc_mysql_stmt_bind_result()
 {
 	int mysql_stmt;
 	int result;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
 	helper += stackGetParamInt(2, &result);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_bind_result(mysql_stmt=%d, result=%d)\n", mysql_stmt, result);
-	#endif
-	
+#endif
+
 	if (helper != 2)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_bind_result(mysql_stmt, result);\n");
@@ -806,14 +836,14 @@ int gsc_mysql_stmt_bind_result()
 int gsc_mysql_stmt_execute()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_execute(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_execute(mysql_stmt);\n");
@@ -826,14 +856,14 @@ int gsc_mysql_stmt_execute()
 int gsc_mysql_stmt_store_result()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_store_result(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_store_result(mysql_stmt);\n");
@@ -846,14 +876,14 @@ int gsc_mysql_stmt_store_result()
 int gsc_mysql_stmt_fetch()
 {
 	int mysql_stmt;
-	
+
 	int helper = 0;
 	helper += stackGetParamInt(1, &mysql_stmt);
-	
-	#if DEBUG_MYSQL
+
+#if DEBUG_MYSQL
 	printf("gsc_mysql_stmt_fetch(mysql_stmt=%d)\n", mysql_stmt);
-	#endif
-	
+#endif
+
 	if (helper != 1)
 	{
 		printf("scriptengine> wrongs args for gsc_mysql_stmt_fetch(mysql_stmt);\n");
@@ -895,56 +925,56 @@ int gsc_mysql_test_0()
 		printf("ERROR: mysql_init()\n");
 		return stackReturnInt(0);
 	}
-	
+
 	my = mysql_real_connect(
-		my,
-		"127.0.0.1",
-		"kung",
-		"zetatest",
-		"kung_zeta",
-		3306,
-		NULL,
-		0
-	);
-	
+	         my,
+	         "127.0.0.1",
+	         "kung",
+	         "zetatest",
+	         "kung_zeta",
+	         3306,
+	         NULL,
+	         0
+	     );
+
 	if (my == NULL)
 	{
 		printf("ERROR: mysql_real_connect(): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	//int ret = mysql_query(my, "SELECT 1 as first,2 as second,3  as third UNION SELECT 11,22,33");
 	int ret = mysql_query(my, "SELECT * FROM players");
-	
+
 	if (ret != 0)
 	{
 		printf("ERROR: mysql_query(): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	printf("affected rows: %llu\n", mysql_affected_rows(my));
-	
+
 	MYSQL_RES *query;
 	query = mysql_store_result(my);
-	
+
 	if (mysql_errno(my) != 0) /* do not check query==NULL, because thats also the case for like INSERT */
 	{
 		printf("ERROR: mysql_store_result(my): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	printf("query-num rows: %llu\n", mysql_num_rows(query));
-	
+
 	printf("spalten im query: %d\n", mysql_num_fields(query));
-	
-	
-	
+
+
+
 	int numfields = mysql_num_fields(query);
-	
-	
+
+
 	MYSQL_FIELD *field;
 	int i;
 	mysql_field_seek(query, 0);
@@ -954,33 +984,33 @@ int gsc_mysql_test_0()
 		printf("%s(%s), ", field->name, field->table);
 	}
 	printf("\n");
-	
+
 
 	MYSQL_ROW row;
 	while (row = mysql_fetch_row(query))
 	{
 		int i;
-		
+
 		for (i=0; i<numfields; i++)
 			printf("%s, ", row[i]);
 		printf("\n");
 	}
-	
-	
-	
-	
+
+
+
+
 	mysql_free_result(query);
-	
-	
+
+
 	mysql_close(my);
-	
+
 	return stackReturnInt(1);
 }
 
 int gsc_mysql_test_1()
 {
 	printf("test 1 10.05.2012 ;D\n");
-	
+
 	MYSQL *my;
 	my = mysql_init(NULL);
 	if (my == NULL)
@@ -988,37 +1018,37 @@ int gsc_mysql_test_1()
 		printf("ERROR: mysql_init()\n");
 		return stackReturnInt(0);
 	}
-	
+
 	my = mysql_real_connect(
-		my,
-		"127.0.0.1",
-		"kung",
-		"zetatest",
-		"kung_zeta",
-		3306,
-		NULL,
-		0
-	);
-	
+	         my,
+	         "127.0.0.1",
+	         "kung",
+	         "zetatest",
+	         "kung_zeta",
+	         3306,
+	         NULL,
+	         0
+	     );
+
 	if (my == NULL)
 	{
 		printf("ERROR: mysql_real_connect(): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	{
 		const char *sql = "SELECT 1 + ?,1 UNION SELECT 2+?,1 UNION SELECT 3,2 UNION SELECT 4,3";
 		int ret;
-		
+
 		MYSQL_STMT *stmt;
 		stmt = mysql_stmt_init(my);
-		
+
 		printf("stmt->stmt_id = %lu\n", stmt->stmt_id);
 		printf("stmt->prefetch_rows = %lu\n", stmt->prefetch_rows);
 		printf("stmt->param_count = %d\n", stmt->param_count);
 		printf("stmt->field_count = %d\n", stmt->field_count);
-		
+
 		if (stmt == NULL)
 		{
 			printf("ERROR: mysql_stmt_init(my): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
@@ -1032,26 +1062,26 @@ int gsc_mysql_test_1()
 			mysql_close(my);
 			return stackReturnInt(0);
 		}
-		
+
 		// set by mysql_stmt_prepare, before they are just default-values (0,1,0,0)
-		// 
+		//
 		printf("stmt->stmt_id = %lu\n", stmt->stmt_id);
 		printf("stmt->prefetch_rows = %lu\n", stmt->prefetch_rows); // i dont know
 		printf("stmt->param_count = %d\n", stmt->param_count); // "SELECT ?,?" param_count=2
 		printf("stmt->field_count = %d\n", stmt->field_count); // "SELECT 1,2,3" field_count=3
-		
+
 		MYSQL_BIND param[2], result[2];
 		memset(param, 0, sizeof(param));
 		memset(result, 0, sizeof(result));
-		
+
 		int myNumAddresses[2];
 		int paramIntA;
 		int paramIntB;
 		int resultIntA;
 		int resultIntB;
 		my_bool is_null[2];
-		
-		
+
+
 		// JUST TO GET THE INFOS FAST :)
 		printf("sizeof(MYSQL_BIND)=%d\n", sizeof(MYSQL_BIND));
 		printf("MYSQL_TYPE_LONG=%d\n", MYSQL_TYPE_LONG);
@@ -1060,21 +1090,21 @@ int gsc_mysql_test_1()
 		printf("offsetof(MYSQL_BIND, is_unsigned)=%d\n", offsetof(MYSQL_BIND, is_unsigned));
 		printf("offsetof(MYSQL_BIND, is_null)=%d\n", offsetof(MYSQL_BIND, is_null));
 		printf("offsetof(MYSQL_BIND, length)=%d\n", offsetof(MYSQL_BIND, length));
-		
+
 		// BIND PARAM
-		
+
 		param[0].buffer_type = MYSQL_TYPE_LONG;
 		param[0].buffer = (void*) &paramIntA;
 		param[0].is_unsigned = 0;
 		param[0].is_null = 0;
 		param[0].length = 0;
-		
+
 		param[1].buffer_type = MYSQL_TYPE_LONG;
 		param[1].buffer = (void*) &paramIntB;
 		param[1].is_unsigned = 0;
 		param[1].is_null = 0;
 		param[1].length = 0;
-		
+
 		ret = mysql_stmt_bind_param(stmt, param);
 		if (ret != 0)
 		{
@@ -1082,21 +1112,21 @@ int gsc_mysql_test_1()
 			mysql_close(my);
 			return stackReturnInt(0);
 		}
-		
+
 		// BIND RESULT
-		
+
 		result[0].buffer_type = MYSQL_TYPE_LONG;
 		result[0].buffer = (void*) &resultIntA;
 		result[0].is_unsigned = 0;
 		result[0].is_null = 0; //&is_null[0];
 		result[0].length = 0;
-		
+
 		result[1].buffer_type = MYSQL_TYPE_LONG;
 		result[1].buffer = (void*) &resultIntB;
 		result[1].is_unsigned = 0;
 		result[1].is_null = 0; //&is_null[1];
 		result[1].length = 0;
-		
+
 		ret = mysql_stmt_bind_result(stmt, result);
 		if (ret != 0)
 		{
@@ -1104,11 +1134,11 @@ int gsc_mysql_test_1()
 			mysql_close(my);
 			return stackReturnInt(0);
 		}
-		
+
 		{
 			paramIntA = 10;
 			paramIntB = 20;
-			
+
 			ret = mysql_stmt_execute(stmt);
 			if (ret != 0)
 			{
@@ -1116,7 +1146,7 @@ int gsc_mysql_test_1()
 				mysql_close(my);
 				return stackReturnInt(0);
 			}
-			
+
 			ret = mysql_stmt_store_result(stmt);
 			if (ret != 0)
 			{
@@ -1124,7 +1154,7 @@ int gsc_mysql_test_1()
 				mysql_close(my);
 				return stackReturnInt(0);
 			}
-			
+
 			int i=0;
 			while (mysql_stmt_fetch(stmt) == 0)
 			{
@@ -1132,15 +1162,15 @@ int gsc_mysql_test_1()
 				i++;
 			}
 			printf("READED ROWS=%d\n", i);
-			
+
 			mysql_stmt_free_result(stmt);
 		}
-		
-		#if 0
+
+#if 0
 		{
 			paramIntA = 100;
 			paramIntB = 200;
-			
+
 			ret = mysql_stmt_execute(stmt);
 			if (ret != 0)
 			{
@@ -1148,7 +1178,7 @@ int gsc_mysql_test_1()
 				mysql_close(my);
 				return stackReturnInt(0);
 			}
-			
+
 			ret = mysql_stmt_store_result(stmt);
 			if (ret != 0)
 			{
@@ -1156,7 +1186,7 @@ int gsc_mysql_test_1()
 				mysql_close(my);
 				return stackReturnInt(0);
 			}
-			
+
 			int i=0;
 			while (mysql_stmt_fetch(stmt) == 0)
 			{
@@ -1165,50 +1195,50 @@ int gsc_mysql_test_1()
 				i++;
 			}
 			printf("READED ROWS=%d\n", i);
-			
+
 			mysql_stmt_free_result(stmt);
 		}
-		#endif
-		
+#endif
+
 		mysql_stmt_close(stmt);
-		
+
 		printf("all went ok till here! :)\n");
 	}
-	
-	
-	
-	
+
+
+
+
 	//int ret = mysql_query(my, "SELECT 1 as first,2 as second,3  as third UNION SELECT 11,22,33");
 	int ret = mysql_query(my, "SELECT * FROM players");
-	
+
 	if (ret != 0)
 	{
 		printf("ERROR: mysql_query(): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	printf("affected rows: %llu\n", mysql_affected_rows(my));
-	
+
 	MYSQL_RES *query;
 	query = mysql_store_result(my);
-	
+
 	if (mysql_errno(my) != 0) /* do not check query==NULL, because thats also the case for like INSERT */
 	{
 		printf("ERROR: mysql_store_result(my): %d->\"%s\"\n", mysql_errno(my), mysql_error(my));
 		mysql_close(my);
 		return stackReturnInt(0);
 	}
-	
+
 	printf("query-num rows: %llu\n", mysql_num_rows(query));
-	
+
 	printf("spalten im query: %d\n", mysql_num_fields(query));
-	
-	
-	
+
+
+
 	int numfields = mysql_num_fields(query);
-	
-	
+
+
 	MYSQL_FIELD *field;
 	int i;
 	mysql_field_seek(query, 0);
@@ -1218,26 +1248,26 @@ int gsc_mysql_test_1()
 		printf("%s(%s), ", field->name, field->table);
 	}
 	printf("\n");
-	
+
 
 	MYSQL_ROW row;
 	while (row = mysql_fetch_row(query))
 	{
 		int i;
-		
+
 		for (i=0; i<numfields; i++)
 			printf("%s, ", row[i]);
 		printf("\n");
 	}
-	
-	
-	
-	
+
+
+
+
 	mysql_free_result(query);
-	
-	
+
+
 	mysql_close(my);
-	
+
 	return stackReturnInt(1337);
 }
 #endif // compile mysql tests 

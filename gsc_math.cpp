@@ -1,8 +1,10 @@
 #include "gsc_math.hpp"
 
-void gsc_math_sqrt() {
+void gsc_math_sqrt()
+{
 	float x;
-	if ( ! stackGetParams("f", &x)) {
+	if ( ! stackGetParams("f", &x))
+	{
 		printf("scriptengine> wrong param for sqrt(float x)\n");
 		stackPushUndefined();
 		return;
@@ -10,9 +12,11 @@ void gsc_math_sqrt() {
 	stackPushFloat(sqrt(x));
 }
 
-void gsc_math_sqrtInv() {
+void gsc_math_sqrtInv()
+{
 	float x;
-	if ( ! stackGetParams("f", &x)) {
+	if ( ! stackGetParams("f", &x))
+	{
 		printf("scriptengine> wrong param for sqrtInv(float x)\n");
 		stackPushUndefined();
 		return;
