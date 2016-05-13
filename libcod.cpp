@@ -1866,6 +1866,57 @@ void hook_SV_UserinfoChanged_f( int a1 )
 	}
 }
 
+// Segfault fix
+int hook_BG_IsWeaponValid(int a1, int a2)
+{
+
+#if COD_VERSION == COD2_1_0
+	int sub_80E9758_offset = 0x80E9758;
+	int sub_80D9E84_offset = 0x80D9E84;
+	int getWeaponStruct_offset = 0x80E9270;
+#elif COD_VERSION == COD2_1_2
+	int sub_80E9758_offset = 0x80EBD48;
+	int sub_80D9E84_offset = 0x80DC464;
+	int getWeaponStruct_offset = 0x80EB860;
+#elif COD_VERSION == COD2_1_3
+	int sub_80E9758_offset = 0x80EBE8C;
+	int sub_80D9E84_offset = 0x80DC5A8;
+	int getWeaponStruct_offset = 0x80EB9A4;
+#else
+#warning hook_BG_IsWeaponValid got no working addresses
+	int sub_80E9758_offset = 0x0;
+	int sub_80D9E84_offset = 0x0;
+	int getWeaponStruct_offset = 0x0;
+#endif
+
+	int weapon;
+
+	signed int (*sub_80E9758)(int a1);
+	*(int *)&sub_80E9758 = sub_80E9758_offset;
+
+	int (*sub_80D9E84)(int a1, signed int a2);
+	*(int *)&sub_80D9E84 = sub_80D9E84_offset;
+
+	int (*getWeaponStruct)(int a1);
+	*(int *)&getWeaponStruct = getWeaponStruct_offset;
+
+	if ( !(unsigned int8_t)sub_80E9758(a2) )
+		return 0;
+
+	if ( !(unsigned int8_t)sub_80D9E84(a1 + 1348, a2) )
+		return 0;
+
+	weapon = getWeaponStruct(a2);
+
+	if ( !weapon )
+		return 0;
+
+	if ( !*(long *)(weapon + 132) && *(char *)(a1 + 1365) != a2 && *(char *)(a1 + 1366) != a2 && *(long *)(weapon + 876) != a2 )
+		return 0;
+
+	return 1;
+}
+
 int gamestate_size[64] = {0};
 void hook_gamestate_info(char *format, ...)
 {
@@ -2975,6 +3026,7 @@ public:
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x810C1F6, (int) fire_grenade);
 		hook_fire_grenade->hook();
+		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -3018,6 +3070,7 @@ public:
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x810E532, (int) fire_grenade);
 		hook_fire_grenade->hook();
+		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -3054,6 +3107,7 @@ public:
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x810E68E, (int) fire_grenade);
 		hook_fire_grenade->hook();
+		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
