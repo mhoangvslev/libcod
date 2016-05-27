@@ -612,6 +612,19 @@ void gsc_utils_execute()   // Returns complete command output as a string
 	}
 }
 
+void gsc_utils_exponent()
+{
+	float basis;
+	float exponent;
+	if ( ! stackGetParams("ff", &basis, &exponent))
+	{
+		printf("scriptengine> ERROR: please specify the commands as float to gsc_exponent_command()\n");
+		stackPushUndefined();
+		return;
+	}
+	stackPushFloat( pow(basis, exponent) );
+}
+
 void gsc_utils_file_link()
 {
 	char *source, *dest;
