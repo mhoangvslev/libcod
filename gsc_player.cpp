@@ -529,7 +529,7 @@ void gsc_player_renameclient(int id)
 	char * name = (char *)(info_player + 134216);
 	memcpy(&name[0], key, 32);
 	name[31] = '\0';
-	printf("name = %s\n", name);
+	// printf("name = %s\n", name);
 
 	stackPushInt(1);
 }
@@ -923,7 +923,6 @@ void gsc_player_getcooktime(int id)
 }
 
 // entity functions (could be in own file, but atm not many pure entity functions)
-
 void gsc_entity_setalive(int id)   // as in isAlive?
 {
 	int isAlive;
@@ -956,7 +955,7 @@ void gsc_entity_setbounds(int id)
 	*(float*)(gentities + gentities_size*id + 264) = -width;
 	*(float*)(gentities + gentities_size*id + 260) = -width;
 
-	printf("id=%d height=%f width=%f\n", id, height, width);
+	// printf("id=%d height=%f width=%f\n", id, height, width);
 	stackReturnInt(1);
 }
 
@@ -1014,12 +1013,12 @@ void gsc_kick_slot()
 
 	if(!stackGetParamString(2, &reason))
 	{
-		Com_Printf("%s (guid %i) was kicked\n", name, guid);
+		Com_Printf("%s (guid %i) was kicked.\n", name, guid);
 		stackReturnInt(1);
 		return;
 	}
 
-	Com_Printf("%s (guid %i) was kicked for %s\n", name, guid, reason);
+	Com_Printf("%s (guid %i) was kicked for %s.\n", name, guid, reason);
 	stackReturnInt(1);
 }
 
