@@ -894,6 +894,29 @@ void gsc_G_FindConfigstringIndex()
 	return;
 }
 
+void gsc_get_configstring()
+{
+	int index;
+	char* (*func)(int index);
+	if ( ! stackGetParams("i", &index))
+	{
+		stackPushUndefined();
+		return;
+	}
+#if COD_VERSION == COD2_1_0
+	*(int*)&func = 0x08091108;
+#elif COD_VERSION == COD2_1_2
+	*(int*)&func = 0x08092918;
+#elif COD_VERSION == COD2_1_3
+	*(int*)&func = 0x08092a1c;
+#endif
+	char *string = func(index);
+	if ( ! *string )
+		stackPushUndefined();
+	else
+		stackPushString(string);
+}
+
 void gsc_call_function_raw()
 {
 	int func_address;
