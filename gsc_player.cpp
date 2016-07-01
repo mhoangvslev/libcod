@@ -654,8 +654,8 @@ calc_client_speed_t calc_client_speed = (calc_client_speed_t)NULL;
 #endif
 
 float player_movespeedscale[64] = {0};
-int player_g_speed[64] = {-1};
-int player_g_gravity[64] = {-1};
+int player_g_speed[64] = {0};
+int player_g_gravity[64] = {0};
 
 long double hook_player_setmovespeed(int client, int a2)
 {
@@ -737,11 +737,11 @@ void hook_player_g_speed(int client)
 	int id = gentityaddress_to_num(client);
 
 	int newgravity = player_g_gravity[id];
-	if(newgravity > -1)
+	if(newgravity > 0)
 		*(int *)(player + 72) = newgravity;
 
 	int newspeed = player_g_speed[id];
-	if(newspeed > -1)
+	if(newspeed > 0)
 		*(int *)(player + 80) = newspeed;
 
 	calc_client_speed(client);
