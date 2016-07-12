@@ -1720,6 +1720,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
 		return 0; // Not a valid iwd file
 
+	*(int *)cl = 2; // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
 	*(int *)(cl + 452008) = 25000; // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
 	*(int *)(cl + 452012) = 50; // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
 
@@ -1743,13 +1744,9 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			{
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
 				if (*(int *)(*sv_pure + 8))
-				{
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
-				}
 				else
-				{
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
-				}
 			}
 			else
 			{
@@ -1776,7 +1773,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	// Perform any reads that we need to
 	while ( *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW && *(int *)(cl + 134316) != *(int *)(cl + 134320) )
 	{
-
 		curindex = (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW);
 
 		if (!*(int *)(cl + 4 * curindex + 134336))
@@ -1800,7 +1796,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	// Check to see if we have eof condition and add the EOF block
 	if ( *(int *)(cl + 134320) == *(int *)(cl + 134316) && !*(int *)(cl + 134400) && *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW)
 	{
-
 		*(int *)(cl + 4 * (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW) + 134368) = 0;
 		( *(int *)(cl + 134328) )++;
 
@@ -1835,9 +1830,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 	// Write the block
 	if ( *(int *)(cl + 4 * curindex + 134368) )
-	{
 		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
-	}
 
 	Com_DPrintf( "clientDownload: %d : writing block %d\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), *(int *)(cl + 134332) );
 
