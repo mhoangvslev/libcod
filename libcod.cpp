@@ -1720,6 +1720,19 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
 		return 0; // Not a valid iwd file
 
+	char *downloadMsg = Cvar_VariableString("sv_downloadMessage");
+
+	if ( *downloadMsg )
+	{
+		Com_sprintf(errorMessage, sizeof(errorMessage), downloadMsg);
+		MSG_WriteByte(msg, 5);
+		MSG_WriteShort(msg, 0);
+		MSG_WriteLong(msg, -1);
+		MSG_WriteString(msg, errorMessage);
+		*(int *)(cl + 134248) = 0;
+		return 0;
+	}
+
 	*(int *)cl = 2; // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
 	*(int *)(cl + 452008) = 25000; // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
 	*(int *)(cl + 452012) = 50; // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
@@ -1759,7 +1772,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			MSG_WriteString(msg, errorMessage);
 
 			*(int *)(cl + 134248) = 0;
-			return 1;
+			return 0;
 		}
 
 		// Init
