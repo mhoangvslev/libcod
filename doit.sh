@@ -26,9 +26,9 @@ mysql_libpath=""
 
 MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-	mysql_libpath="/usr/lib/i386-linux-gnu/libmysqlclient.so.18"
+	mysql_libpath="/usr/lib/i386-linux-gnu/libmysqlclient.so"
 else
-	mysql_libpath="/usr/lib/libmysqlclient.so.18"
+	mysql_libpath="/usr/lib/libmysqlclient.so"
 fi
 
 if [ "$1" != "tar" ] && [ "$1" != "clean" ] && [ "$1" != "tcc" ] && [ "$1" != "car" ]; then
