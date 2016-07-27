@@ -35,6 +35,7 @@ void gsc_utils_scandir();
 void gsc_G_FindConfigstringIndex();
 void gsc_G_FindConfigstringIndexOriginal();
 void gsc_get_configstring();
+void gsc_set_configstring();
 
 void gsc_add_language();
 void gsc_load_languages();
