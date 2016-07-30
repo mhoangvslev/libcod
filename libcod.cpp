@@ -561,6 +561,7 @@ int hook_codscript_load_label_8075DEA(char *file, char *function)
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
+int codecallback_vid_restart = 0;
 
 typedef void (*gametype_scripts_t)();
 #if COD_VERSION == COD2_1_0
@@ -635,6 +636,7 @@ void hook_codscript_gametype_scripts()
 	codecallback_playercommand = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
 	codecallback_userinfochanged = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
 	codecallback_fire_grenade = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
+	codecallback_vid_restart = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
 #endif
 
 	//printf("codecallback_playercommand=%.8x\n", codecallback_playercommand);
@@ -679,6 +681,96 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 	short ret = codscript_call_callback_entity(player, codecallback_fire_grenade, 2);
 	codscript_callback_finish(ret);
 	return grenade;
+}
+
+//http://www.cyberforum.ru/cpp-beginners/thread513057.html
+char * substr(const char * text, int beg, int end)
+{
+	int i;
+	char *sub = 0;
+	int len = end - beg;
+	if(text)
+		if(text + beg)
+			if(0 < len)
+				if((sub = new char[1 + len]))
+				{
+					for(i = beg; text[i] != '\0' && i < end; i++)
+						sub[i - beg] = text[i];
+					sub[i - beg] = '\0';
+				}
+	return sub;
+}
+
+void hook_vid_restart(char *format, ...)
+{
+
+#if COD_VERSION == COD2_1_0
+	int vdr_info_offset = 0x8060B7C;
+#elif COD_VERSION == COD2_1_2
+	int vdr_info_offset = 0x8060E42;
+#elif COD_VERSION == COD2_1_3
+	int vdr_info_offset = 0x8060E3A;
+#else
+#warning gamestate_info got no working addresses
+	int vdr_info_offset = 0x0;
+#endif
+
+	char *s;
+	va_list va;
+
+	int (*Com_DPrintf)(char *format, ...);
+	*(int *)&Com_DPrintf = vdr_info_offset;
+
+	va_start(va, format);
+	vasprintf(&s, format, va);
+	va_end(va);
+
+	Com_DPrintf("%s", s);
+
+	char *command = substr(s, strlen(s) - 4, strlen(s));
+
+	if (*command && strncmp(command, "vdr", 3) == 0)
+	{
+		char *name = substr(s, 24, strlen(s) - 6);
+		if (*name)
+		{
+
+#if COD_VERSION == COD2_1_0
+			int offset = 0x0848B1CC;
+#elif COD_VERSION == COD2_1_2
+			int offset = 0x0849E6CC;
+#elif COD_VERSION == COD2_1_3
+			int offset = 0x0849F74C;
+#else
+#warning hook_vid_restart() got no working addresses
+			int offset = 0x0;
+#endif
+
+			extern int playerinfo_base;
+			extern int playerinfo_size;
+
+			for (int i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
+			{
+				char *playername = (char*)(*(int*)playerinfo_base + i * playerinfo_size + 134216);
+				if (strcmp(name, playername) == 0)
+				{
+					stackPushInt(i);
+#if COD_VERSION == COD2_1_0
+					short ret = codscript_call_callback_entity(/*gentity*/0x08665480 + 560 * i, codecallback_vid_restart, 1);
+#elif COD_VERSION == COD2_1_2
+					short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * i, codecallback_vid_restart, 1);
+#elif COD_VERSION == COD2_1_3
+					short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * i, codecallback_vid_restart, 1);
+#else
+#warning short ret = codscript_call_callback_entity(NULL, codecallback_vid_restart, 1);
+					short ret = codscript_call_callback_entity(NULL, codecallback_vid_restart, 1);
+#endif
+					codscript_callback_finish(ret);
+					break;
+				}
+			}
+		}
+	}
 }
 
 int hook_ClientCommand(int clientNum)
@@ -3021,6 +3113,7 @@ public:
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
+		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
 		cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
 		cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
@@ -3059,6 +3152,7 @@ public:
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
+		cracking_hook_call(0x08090CA2, (int)hook_vid_restart);
 		cracking_hook_call(0x080E2546, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F76BF, (int)hook_player_g_speed);
 		cracking_hook_call(0x080EBB14, (int)hook_findWeaponIndex);
@@ -3102,6 +3196,7 @@ public:
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
+		cracking_hook_call(0x08090D36, (int)hook_vid_restart);
 		cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
 		cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
