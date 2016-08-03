@@ -711,7 +711,7 @@ void hook_vid_restart(char *format, ...)
 #elif COD_VERSION == COD2_1_3
 	int vdr_info_offset = 0x8060E3A;
 #else
-#warning gamestate_info got no working addresses
+#warning vdr_info got no working addresses
 	int vdr_info_offset = 0x0;
 #endif
 
