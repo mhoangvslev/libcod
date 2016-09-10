@@ -1049,6 +1049,20 @@ void gsc_player_setguid(int id)
 	stackReturnInt(1);
 }
 
+void gsc_player_clienthasclientmuted(int id)
+{
+	int id2;
+
+	if ( ! stackGetParams("i", &id2))
+	{
+		printf("scriptengine> ERROR: gsc_player_clienthasclientmuted(): param \"id2\" has to be an int!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	stackPushInt(SV_ClientHasClientMuted(id, id2));
+}
+
 void gsc_player_getlastgamestatesize(int id)
 {
 	extern int gamestate_size[64];

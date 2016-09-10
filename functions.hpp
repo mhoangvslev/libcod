@@ -332,6 +332,18 @@ static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0
 static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)NULL;
 #endif
 
+typedef int (*SV_ClientHasClientMuted_t)(int a1, int a2);
+#if COD_VERSION == COD2_1_0
+static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809A01E;
+#elif COD_VERSION == COD2_1_2
+static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C0B6;
+#elif COD_VERSION == COD2_1_3
+static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C1FA;
+#else
+#warning SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)NULL;
+static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)NULL;
+#endif
+
 typedef int (*Info_SetValueForKey_t)(char *s, const char *key, const char *value);
 #if COD_VERSION == COD2_1_0
 static Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B5FF6;

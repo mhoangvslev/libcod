@@ -69,6 +69,7 @@ void gsc_player_set_weptype(int id);
 void gsc_player_thrownade(int id);
 void gsc_player_getcooktime(int id);
 void gsc_player_setguid(int id);
+void gsc_player_clienthasclientmuted(int id);
 void gsc_player_getlastgamestatesize(int id);
 void gsc_player_resetfps(int id);
 void gsc_player_getfps(int id);

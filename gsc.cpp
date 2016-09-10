@@ -460,6 +460,7 @@ Scr_Method scriptMethods[] =
 	{"thrownade"             , gsc_player_thrownade          , 0},
 	{"getcooktime"           , gsc_player_getcooktime        , 0},
 	{"setguid"               , gsc_player_setguid            , 0},
+	{"clienthasclientmuted"  , gsc_player_clienthasclientmuted , 0},
 	{"getlastgamestatesize"  , gsc_player_getlastgamestatesize , 0},
 	{"resetfps"              , gsc_player_resetfps           , 0},
 	{"getfps"                , gsc_player_getfps             , 0},
