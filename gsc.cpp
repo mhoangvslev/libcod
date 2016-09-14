@@ -850,7 +850,6 @@ int stackPushVector(float *ret) // as in vectornormalize
 	*((int *)(&signature)) = 0x0808523A; // difference to 1.3: CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085306;
-	*((int *)(&signature)) = 0x080AF464;
 #elif COD_VERSION == COD4_1_7
 	*((int *)(&signature)) = 0x0815EDF2;
 #elif COD_VERSION == COD4_1_7_L
