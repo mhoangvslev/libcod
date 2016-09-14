@@ -524,7 +524,7 @@ void gsc_utils_toupper()
 	stackPushString(result);
 }
 
-void gsc_utils_system()   // closer 903, "ls"
+void gsc_utils_system()
 {
 	char *cmd;
 	if ( ! stackGetParams("s",  &cmd))

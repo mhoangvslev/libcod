@@ -252,7 +252,7 @@ int hook_ClientCommand(int clientNum)
 	int args = trap_Argc();
 	for (int i=0; i<args; i++)
 	{
-		char tmp[1024];
+		char tmp[COD2_MAX_STRINGLENGTH];
 		trap_Argv(i, tmp, sizeof(tmp));
 		if(i == 1 && tmp[0] >= 20 && tmp[0] <= 22)
 		{
@@ -397,7 +397,7 @@ char *hook_beginDownloadCopy(char *a1, char *a2, int a3)
 
 int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
 {
-	char errorMessage[1024];
+	char errorMessage[COD2_MAX_STRINGLENGTH];
 	int iwdFile;
 	int blockspersnap;
 	int curindex;
@@ -1409,8 +1409,6 @@ public:
 	{
 		setbuf(stdout, NULL); // otherwise the printf()'s are printed at crash/end
 
-		printf("> [INFO] Compiled: " __DATE__ " " __TIME__ " using GCC " __VERSION__ "\n");
-
 #if COD_VERSION == COD2_1_0
 		printf("> [INFO] Compiled for: CoD2 1.0\n");
 #elif COD_VERSION == COD2_1_2
@@ -1424,6 +1422,8 @@ public:
 #else
 		printf("> [WARNING] Compiled for: %s\n", TOSTRING1(COD_VERSION));
 #endif
+
+		printf("> [INFO] Compiled: " __DATE__ " " __TIME__ " using GCC " __VERSION__ "\n");
 
 #if COD_VERSION == COD4_1_7
 

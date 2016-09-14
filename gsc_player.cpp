@@ -210,7 +210,7 @@ void gsc_player_button_ads(int id)
 
 void gsc_player_button_left(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA7);
@@ -224,7 +224,7 @@ void gsc_player_button_left(int id)
 
 void gsc_player_button_right(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA7);
@@ -239,7 +239,7 @@ void gsc_player_button_right(int id)
 
 void gsc_player_button_forward(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA6);
@@ -254,7 +254,7 @@ void gsc_player_button_forward(int id)
 
 void gsc_player_button_back(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA6);
@@ -269,7 +269,7 @@ void gsc_player_button_back(int id)
 
 void gsc_player_button_leanleft(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB4);
@@ -284,7 +284,7 @@ void gsc_player_button_leanleft(int id)
 
 void gsc_player_button_leanright(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB4);
@@ -299,7 +299,7 @@ void gsc_player_button_leanright(int id)
 
 void gsc_player_button_jump(int id)
 {
-#if COD2_VERSION == COD2_VERSION_1_0 || COD2_VERSION == COD2_VERSION_1_2 || COD2_VERSION == COD2_VERSION_1_3
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E9);
 #elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB5);
@@ -569,7 +569,7 @@ void gsc_player_connectionlesspacket(int id)
 		return;
 	}
 
-	char message[1024];
+	char message[COD2_MAX_STRINGLENGTH];
 	message[0] = -1;
 	message[1] = -1;
 	message[2] = -1;

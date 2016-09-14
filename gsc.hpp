@@ -6,39 +6,18 @@
 extern "C" {
 #endif
 
-// needs to be over the includes
-// example of versioning:
-/*
-		#if COD2_VERSION == COD2_VERSION_1_2
-		int *addressToCloserPointer = (int *)0x081872D0;
-		#endif
-		#if COD2_VERSION == COD2_VERSION_1_3
-		int *addressToCloserPointer = (int *)0x081882F0;
-		#endif
-*/
-
-#define COD2_VERSION_1_0 0 // depricated
-#define COD2_VERSION_1_2 2 // depricated
-#define COD2_VERSION_1_3 3 // depricated
-
 #define COD2_1_0 210
 #define COD2_1_2 212
 #define COD2_1_3 213
 #define COD4_1_7 417
 #define COD4_1_7_L 4171
 
-//#define COD2_VERSION COD2_VERSION_1_2
-
-// gonna define that per command-line now, to build from script every version + select the correct with inbuilt if()
-//#define COD2_VERSION COD2_VERSION_1_3
-
-
 /* default stuff */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <dlfcn.h> // closer 500: dlcall
+#include <dlfcn.h> // dlcall
 #include <stdarg.h> // va_args
 
 #include "config.hpp" // DEBUG_MYSQL etc.
@@ -102,9 +81,6 @@ int stackPushString(char *toPush);
 int stackPushEntity(int arg);
 int stackPushArray();
 int stackPushArrayLast();
-
-int stackCallScriptFunction(int self, int scriptFunction, int numberOfArgs);
-int stackSetKeyInArray(int precachedStringOffset);
 
 unsigned short get_var_by_idx(unsigned short index);
 unsigned short Scr_GetArray(int index);

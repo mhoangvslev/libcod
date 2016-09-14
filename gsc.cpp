@@ -517,7 +517,7 @@ int stackGetParams(char *params, ...)
 	{
 		switch (params[i])
 		{
-		case ' ': // ignore param (e.g. to ignore the function-id from closer()-wrapper)
+		case ' ': // ignore param
 			break;
 		case 'i':
 		{
@@ -788,7 +788,7 @@ int stackPushUndefined()
 	scriptStack->type = STACK_UNDEFINED;
 	scriptStack->offsetData = NULL; // never tested anything else for UNDEFINED
 	//return (int) *(aStackElement**) getStack(); // dunno...
-	return 123; // dunno... works also lol. so no need to return some specific stackelement
+	return 1; // dunno... works also lol. so no need to return some specific stackelement
 }
 
 /*
@@ -927,13 +927,6 @@ int stackPushEntity(int arg) // as in getent() // todo: find out how to represen
 	return signature(arg);
 }
 
-int stackCallScriptFunction(int self, int scriptFunction, int numberOfArgs)
-{
-	int (*signature)(int, int, int);
-	*((int *)(&signature)) = 0x0811B284;
-	return signature(self, scriptFunction, numberOfArgs);
-}
-
 // as in bullettrace
 int stackPushArray()
 {
@@ -955,13 +948,6 @@ int stackPushArray()
 #endif
 
 	return signature();
-}
-
-int stackSetKeyInArray(int precachedStringOffset) // TODOOOOOO
-{
-	int (*signature)(int);
-	*((int *)(&signature)) = 0x080853B6;
-	return signature(precachedStringOffset);
 }
 
 int stackPushArrayLast()   // as in getentarray

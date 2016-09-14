@@ -59,13 +59,13 @@ elif [ "$1" == "clean" ]; then
 	exit 1
 
 elif [ "$1" == "cod2_1_0" ]; then
-	constants="-D COD2_VERSION=COD2_VERSION_1_0 -D COD_VERSION=COD2_1_0"
+	constants="-D COD_VERSION=COD2_1_0"
 
 elif [ "$1" == "cod2_1_2" ]; then
-	constants="-D COD2_VERSION=COD2_VERSION_1_2 -D COD_VERSION=COD2_1_2"
+	constants="-D COD_VERSION=COD2_1_2"
 
 elif [ "$1" == "cod2_1_3" ]; then
-	constants="-D COD2_VERSION=COD2_VERSION_1_3 -D COD_VERSION=COD2_1_3"
+	constants="-D COD_VERSION=COD2_1_3"
 
 elif [ "$1" == "cod4_1_7" ]; then
 	constants="-D COD_VERSION=COD4_1_7"

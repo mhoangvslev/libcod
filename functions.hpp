@@ -1,4 +1,4 @@
-#if !defined(_FUNCTIONS_HPP_) && (defined(COD2_VERSION) || defined(COD_VERSION))
+#if !defined(_FUNCTIONS_HPP_) && defined(COD_VERSION)
 #define _FUNCTIONS_HPP_
 
 /* MAKE FUNCTIONS STATIC, SO THEY CAN BE IN EVERY FILE */
