@@ -9,8 +9,6 @@
 #include "cracking.hpp"
 #include "gsc.hpp"
 
-#pragma GCC visibility push(hidden)
-
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
