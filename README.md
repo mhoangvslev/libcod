@@ -1,6 +1,5 @@
 The Call of Duty extension *libcod* is adding new server-side functions to:
 
- - Call Of Duty 1 1.5
  - Call Of Duty 2 1.0
  - Call Of Duty 2 1.2
  - Call Of Duty 2 1.3
@@ -50,7 +49,6 @@ Engine fixes:
  - Directory traversal fix
  - Weapon struct segfault fix
  - Rate Limiter
-
 	
 Community / Help: http://killtube.org/forum.php
 
