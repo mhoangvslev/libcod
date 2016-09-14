@@ -505,7 +505,7 @@ int getAddressType(int id)
 	int info_addresstype_offset = 0x0;
 #endif
 
-	int addrtype = *(unsigned int *)(PLAYERBASE(id) + info_addresstype_offset);
+	return *(unsigned int *)(PLAYERBASE(id) + info_addresstype_offset);
 }
 
 void gsc_player_addresstype(int id)
@@ -874,9 +874,9 @@ void gsc_player_set_walkangle(int id)
 
 	extern int client_movement[64];
 	if(!walkDir)
-		client_movement[64] = (0);
+		client_movement[id] = (0);
 	else
-		client_movement[64] = (walkDir);
+		client_movement[id] = (walkDir);
 }
 
 void gsc_player_set_weptype(int id)

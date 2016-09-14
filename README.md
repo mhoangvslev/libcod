@@ -8,24 +8,23 @@ The Call of Duty extension *libcod* is adding new server-side functions to:
 
 Requirements:
 ```
-dpkg --add-architecture i386
-apt-get update
-apt-get install gcc-multilib
-apt-get install libmysqlclient-dev:i386
-apt-get install g++-multilib
+gcc-multilib
+g++-multilib
+libmysqlclient-dev:i386 for MySQL (optional)
 ```
 
-Precompiled shared libraries: http://killtube.org/downloads/libcod/
+Precompiled shared libraries (outdated): http://killtube.org/downloads/libcod/
 
 Starting the server:
 
-```LD_LIBRARY_PATH=. LD_PRELOAD=libcod2_1_3.so ./cod2_lnxded```
+```
+export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
+./cod2_lnxded +set fs_game ... +set dedicated 2 ...
+```
 	
 Working with the source / Compiling:
 ```
 ./doit.sh tar
-./doit.sh base # compiles object files needed by every .so
-./doit.sh cod1_1_5
 ./doit.sh cod2_1_0
 ./doit.sh cod2_1_2
 ./doit.sh cod2_1_3
@@ -43,11 +42,18 @@ Little overview of added functions:
 - MySQL
 - setVelocity, getVelocity, addVelocity (needed for the mods: portal, surf)
 - keyPressed-functions for left, right, forward, backward, leanleft, leanright, jump etc., (needed for: surf, doublejump made by IzNoGod)
-- blazing fast astar-implementation (needed for: zombots)
 - setAlive-function (needed for: zombots, so xmodels are damagable without damage-trigger... zombots in stockmaps)
-- disableGlobalPlayerCollision() 
+- disableGlobalPlayerCollision()
+
+Engine fixes:
+ - Faster download for CoD2 1.0
+ - Directory traversal fix
+ - Weapon struct segfault fix
+ - Rate Limiter
+
 	
 Community / Help: http://killtube.org/forum.php
 
-Porting *libcod* to a new Call Of Duty:
-```find . -name '*.c*' | xargs grep -n _VERSION```
+CoD1 users:
+Libcod support for CoD1 was very basic and without almost all functions and it's been dropped.
+Use php's CoDExtended: https://github.com/riicchhaarrd/CoDExtended

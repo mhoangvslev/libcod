@@ -9,13 +9,6 @@
 #define MAX_LANGUAGES 16
 #define MAX_LANGUAGE_ITEMS 1024
 
-// 1.2 0x080F6D5A
-int utils_hook_player_eject(int player)   // player 0 = 0x08679380 + 0x11c = 0x0867949c
-{
-	//printf("int hook_player_eject(int player=%.8x)\n", player);
-	return 0;
-}
-
 int languages_defined = 0;
 int language_items_defined = 0;
 char languages[MAX_LANGUAGES][3]; //add space for \0
@@ -454,34 +447,31 @@ void gsc_utils_sprintf()
 	stackPushString(result);
 }
 
+int dummy(int a1)
+{
+	return 0;
+}
+
 void gsc_utils_disableGlobalPlayerCollision()
 {
-	// well, i could also just write LEAVE,RETN C9,C3 at beginnung of function
 #if COD_VERSION == COD2_1_0
-	cracking_write_hex(0x080F474A, (char *)"C3");
-	cracking_write_hex(0x080F5199, (char *)"02");
-	cracking_write_hex(0x0805AA0E, (char *)"C3");
-
-	cracking_hook_function(0x080F474A, (int)utils_hook_player_eject);
-	cracking_hook_function(0x080F2F2E, (int)utils_hook_player_eject); //g_setclientcontents
+	cracking_hook_function(0x080F2F2E, (int)dummy); //g_setclientcontents
 #elif COD_VERSION == COD2_1_2
-	//ret = cracking_nop(0x080F6D5A, 0x080F7150);
-	//ret = cracking_nop(0x080F6E82, 0x080F7150); // requires setcontents(0) hack and brushmodels arent working
-	cracking_write_hex(0x080F6D5A, (char *)"C3");
-	cracking_write_hex(0x080F77AD, (char *)"02");
-	cracking_write_hex(0x0805AC1A, (char *)"C3");
-
-	cracking_hook_function(0x080F6D5A, (int)utils_hook_player_eject);
-	cracking_hook_function(0x080F553E, (int)utils_hook_player_eject); //g_setclientcontents
+	cracking_hook_function(0x080F553E, (int)dummy); //g_setclientcontents
 #elif COD_VERSION == COD2_1_3
-	//ret = cracking_nop(0x080F6E9E, 0x080F7294);
-	//ret = cracking_nop(0x080F6FC6, 0x080F7294);
-	cracking_write_hex(0x080F6E9E, (char *)"C3");
-	cracking_write_hex(0x080F78F1, (char *)"02");
-	cracking_write_hex(0x0805AC12, (char *)"C3");
+	cracking_hook_function(0x080F5682, (int)dummy); //g_setclientcontents
+#endif
+	stackPushUndefined();
+}
 
-	cracking_hook_function(0x080F6E9E, (int)utils_hook_player_eject);
-	cracking_hook_function(0x080F5682, (int)utils_hook_player_eject); //g_setclientcontents
+void gsc_utils_disableGlobalPlayerEject()
+{
+#if COD_VERSION == COD2_1_0
+	cracking_hook_function(0x080F474A, (int)dummy);
+#elif COD_VERSION == COD2_1_2
+	cracking_hook_function(0x080F6D5A, (int)dummy);
+#elif COD_VERSION == COD2_1_3
+	cracking_hook_function(0x080F6E9E, (int)dummy);
 #endif
 	stackPushUndefined();
 }
@@ -769,7 +759,7 @@ void gsc_utils_scandir()
 		return;
 	}
 	stackPushArray();
-	while (dir_ent = readdir(dir))
+	while ( (dir_ent = readdir(dir)) != NULL)
 	{
 		stackPushString(dir_ent->d_name);
 		stackPushArrayLast();
@@ -1383,6 +1373,37 @@ void gsc_utils_getloadedweapons()
 	// 1456 - 1528 = locNone till locGun
 	// [id][weapon_mp][worldmodel][viewmodel]: displayname
 	//printf("[%d][%s][%s][%s]: %s\n", i, *(char**)w, *(const char **)(w + 436), *(char**)(w + 12), *(char**)(w + 4));
+}
+
+void gsc_utils_sqrt()
+{
+	float x;
+	if ( ! stackGetParams("f", &x))
+	{
+		printf("scriptengine> wrong param for sqrt(float x)\n");
+		stackPushUndefined();
+		return;
+	}
+	stackPushFloat(sqrt(x));
+}
+
+void gsc_utils_sqrtInv()
+{
+	float x;
+	if ( ! stackGetParams("f", &x))
+	{
+		printf("scriptengine> wrong param for sqrtInv(float x)\n");
+		stackPushUndefined();
+		return;
+	}
+	// http://www.beyond3d.com/content/articles/8/
+	float xhalf = 0.5f*x;
+	int i = *(int*)&x;
+	i = 0x5f3759df - (i>>1);
+	x = *(float*)&i;
+	x = x*(1.5f - xhalf*x*x);
+
+	stackPushFloat(x);
 }
 
 #endif

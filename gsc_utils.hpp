@@ -17,6 +17,7 @@ extern "C" {
 #include <unistd.h>
 
 void gsc_utils_disableGlobalPlayerCollision();
+void gsc_utils_disableGlobalPlayerEject();
 void gsc_utils_getAscii();
 void gsc_utils_toupper();
 void gsc_utils_system();
@@ -76,6 +77,9 @@ void gsc_utils_setweaponreloademptytime();
 void gsc_utils_getweaponhitlocmultiplier();
 void gsc_utils_setweaponhitlocmultiplier();
 void gsc_utils_getloadedweapons();
+
+void gsc_utils_sqrt();
+void gsc_utils_sqrtInv();
 
 #ifdef __cplusplus
 }

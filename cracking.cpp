@@ -1,16 +1,5 @@
 #include "cracking.hpp"
 
-int cracking_nop(int from, int to)
-{
-	int i;
-	for (i=from; i<to; i++)
-	{
-		*(unsigned char *)i = 0x90;
-		//printf("%d ", *(unsigned char *)i);
-	}
-	return to - from; // bytes overwritten
-}
-
 void cracking_hook_function(int from, int to)
 {
 	int relative = to - (from+5); // +5 is the position of next opcode
@@ -23,8 +12,6 @@ void cracking_hook_call(int from, int to)
 	int relative = to - (from+5); // +5 is the position of next opcode
 	memcpy((void *)(from+1), &relative, 4); // set relative address with endian
 }
-
-
 
 int singleHexToNumber(char hexchar)
 {
@@ -71,6 +58,7 @@ int singleHexToNumber(char hexchar)
 	}
 	return -1;
 }
+
 int hexToBuffer(char *hex, char *buffer, int bufferLen)
 {
 	int len, neededBytes, i, padding, first, pos, leftPart, rightPart;
@@ -124,8 +112,6 @@ int hexToBuffer(char *hex, char *buffer, int bufferLen)
 	return neededBytes;
 }
 
-
-
 int cracking_write_hex(int address, char *hex)
 {
 	unsigned char *ptr = (unsigned char *)address;
@@ -141,22 +127,22 @@ int cracking_write_hex(int address, char *hex)
 	return bytes;
 }
 
-
 cHook::cHook(int from, int to)
 {
 	this->from = from;
 	this->to = to;
 }
+
 void cHook::hook()
 {
 	memcpy((void *)oldCode, (void *)from, 5);
 	cracking_hook_function(from, to);
 }
+
 void cHook::unhook()
 {
 	memcpy((void *)from, (void *)oldCode, 5);
 }
-
 
 int cracking_call_function(int func_address, char *args, unsigned char *data)
 {

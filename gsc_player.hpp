@@ -15,6 +15,7 @@ extern "C" {
 
 int clientaddress_to_num(int address);
 int gentityaddress_to_num(int address);
+int getAddressType(int id);
 
 void gsc_player_velocity_set(int id);
 void gsc_player_velocity_add(int id);
@@ -28,8 +29,6 @@ void gsc_player_button_back(int id);
 void gsc_player_button_leanleft(int id);
 void gsc_player_button_leanright(int id);
 void gsc_player_button_jump(int id);
-
-int gsc_player_state_alive_set();
 
 void gsc_player_stance_get(int id);
 
