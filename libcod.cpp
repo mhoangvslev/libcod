@@ -122,8 +122,8 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 #elif COD_VERSION == COD2_1_3
 	*(int *)&sig2 = 0x80EB9A4;
 #else
-#warning fire_grenade &sig2 = NULL;
-	*(int *)&sig2 = NULL;
+#warning fire_grenade &sig2 = 0x0;
+	*(int *)&sig2 = 0x0;
 #endif
 	int weaponname = sig2(weapon);
 	char *wname2 = *(char**)weaponname;
