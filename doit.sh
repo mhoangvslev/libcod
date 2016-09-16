@@ -5,11 +5,9 @@
 # ./doit.sh cod2_1_0
 # ./doit.sh cod2_1_2
 # ./doit.sh cod2_1_3
-# ./doit.sh cod4_1_7
-# ./doit.sh cod4_1_7_l
 
 cc="gcc"
-options="-I. -m32 -fPIC -Wno-write-strings"
+options="-I. -m32 -fPIC -Wall -Wno-write-strings -Wno-unused-variable -Wno-unused-function"
 
 mysql_link=""
 mysql_config=""
@@ -66,12 +64,6 @@ elif [ "$1" == "cod2_1_2" ]; then
 
 elif [ "$1" == "cod2_1_3" ]; then
 	constants="-D COD_VERSION=COD2_1_3"
-
-elif [ "$1" == "cod4_1_7" ]; then
-	constants="-D COD_VERSION=COD4_1_7"
-
-elif [ "$1" == "cod4_1_7_l" ]; then
-	constants="-D COD_VERSION=COD4_1_7_L"
 
 elif [ "$1" == "" ]; then
 	echo "##### Please specify a command line option #####"

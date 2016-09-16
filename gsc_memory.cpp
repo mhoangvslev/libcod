@@ -1,8 +1,6 @@
 #include "gsc_memory.hpp"
 
-#if COMPILE_MEMORY == 0
-#warning gsc_memory.cpp is not compiled
-#else
+#if COMPILE_MEMORY == 1
 
 void gsc_memory_malloc()
 {

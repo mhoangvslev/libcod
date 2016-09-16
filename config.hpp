@@ -15,8 +15,4 @@
 // RATE LIMITER
 #define COMPILE_RATELIMITER 1
 
-// GLOBAL MACROS
-#define STR(s) #s // stringify used for __FUNCTION__
-#define INT(address) (*(int*)(address))
-
 #endif

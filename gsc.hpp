@@ -9,8 +9,6 @@ extern "C" {
 #define COD2_1_0 210
 #define COD2_1_2 212
 #define COD2_1_3 213
-#define COD4_1_7 417
-#define COD4_1_7_L 4171
 
 /* default stuff */
 #include <stdio.h>

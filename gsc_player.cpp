@@ -3,34 +3,14 @@
 #if COMPILE_PLAYER == 1
 
 #if COD_VERSION == COD2_1_0
-int playerStates = 0x086F1480; // search 'winner'
+int playerStates = 0x086F1480;
 int sizeOfPlayer = 0x28A4;
 #elif COD_VERSION == COD2_1_2
-int playerStates = 0x08705480; // as in game initialisation "------- Game Initializati"
+int playerStates = 0x08705480;
 int sizeOfPlayer = 0x28A4;
-// memset(&playerStates_8705480, 0, 0xA2900u);
-// then we need a bit math: 0xA2900 / 64 = 0x28A4
 #elif COD_VERSION == COD2_1_3
-// 8716558 pointed on that!! and that i found in setorigin() with ida decompiler
-// looked it up and it points to game_initialization_8109096()
 int playerStates = 0x087a2500;
 int sizeOfPlayer = 0x28A4;
-#elif COD_VERSION == COD4_1_7
-/*
-	memset((void *)0x841F260, 0, 0x9D000u);
-	v836f6c4 = 138539616;
-	v836f8a4 = *(_DWORD *)(v84bc268 + 12);
-	memset((void *)0x84BC3A0, 0, 0xC6100u); // bottom = playerstates
-*/
-int playerStates = 0x084BC3A0;
-int sizeOfPlayer = 0x3184;
-#elif COD_VERSION == COD4_1_7_L
-int playerStates = 0x084BD120;
-int sizeOfPlayer = 0x3184;
-#else
-#warning int playerStates int sizeOfPlayer
-int playerStates = NULL;
-int sizeOfPlayer = NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0
@@ -42,27 +22,10 @@ int gentities_size = 560;
 #elif COD_VERSION == COD2_1_3
 int gentities = 0x08716400;
 int gentities_size = 560;
-#elif COD_VERSION == COD4_1_7
-int gentities = 0x0841F260;
-int gentities_size = 628;
-#elif COD_VERSION == COD4_1_7_L
-int gentities = 0x0841FFE0;
-int gentities_size = 628;
-#else
-#warning int gentities int gentities_size
-int gentities = NULL;
-int gentities_size = NULL;
 #endif
 
 #define PLAYERSTATE(playerid) (playerStates + playerid * sizeOfPlayer)
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 #define PLAYERSTATE_VELOCITY(playerid) (PLAYERSTATE(playerid) + 0x20)
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-#define PLAYERSTATE_VELOCITY(playerid) (PLAYERSTATE(playerid) + 40)
-#else
-#warning NO PLAYERSTATE_VELOCITY!
-#define PLAYERSTATE_VELOCITY(playerid) 0
-#endif
 
 #if COD_VERSION == COD2_1_0
 int playerinfo_base = 0x0841FB0C;
@@ -73,23 +36,9 @@ int playerinfo_size = 0x79064;
 #elif COD_VERSION == COD2_1_3
 int playerinfo_base = 0x0842308C;
 int playerinfo_size = 0xB1064;
-#elif COD_VERSION == COD4_1_7
-int playerinfo_base = 0x090B420C;
-int playerinfo_size = 0x2958F;
-#elif COD_VERSION == COD4_1_7_L
-int playerinfo_base = 0x090B4F8C;
-int playerinfo_size = 0x2958F;
-#else
-#warning PLAYERBASE() got no working addresses
-int playerinfo_base = 0x0;
-int playerinfo_size = 0x0;
 #endif
 
-#if COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-#define PLAYERBASE(playerid) (playerinfo_base + playerid * playerinfo_size)
-#else
 #define PLAYERBASE(playerid) (*(int*)(playerinfo_base) + playerid * playerinfo_size)
-#endif
 
 int clientaddress_to_num(int address)
 {
@@ -210,28 +159,15 @@ void gsc_player_button_ads(int id)
 
 void gsc_player_button_left(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA7);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
+
 	int leftButtonPressed = (*aim_address & 0x81)==0x81;
 	stackReturnInt(leftButtonPressed);
 }
 
 void gsc_player_button_right(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA7);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int rightButtonPressed = (*aim_address & 0x7F)==0x7F;
 	stackReturnInt(rightButtonPressed);
@@ -239,14 +175,7 @@ void gsc_player_button_right(int id)
 
 void gsc_player_button_forward(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA6);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int forwardButtonPressed = (*aim_address & 0x7F)==0x7F;
 	stackReturnInt(forwardButtonPressed);
@@ -254,14 +183,7 @@ void gsc_player_button_forward(int id)
 
 void gsc_player_button_back(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FA6);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int backButtonPressed = (*aim_address & 0x81)==0x81;
 	stackReturnInt(backButtonPressed);
@@ -269,14 +191,7 @@ void gsc_player_button_back(int id)
 
 void gsc_player_button_leanleft(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB4);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int leanleftButtonPressed = (*aim_address & 0x40)==0x40;
 	stackReturnInt(leanleftButtonPressed);
@@ -284,14 +199,7 @@ void gsc_player_button_leanleft(int id)
 
 void gsc_player_button_leanright(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB4);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int leanrightButtonPressed = (*aim_address & 0x80)==0x80;
 	stackReturnInt(leanrightButtonPressed);
@@ -299,30 +207,11 @@ void gsc_player_button_leanright(int id)
 
 void gsc_player_button_jump(int id)
 {
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E9);
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x2FB5);
-#else
-#warning unsigned char *aim_address = (unsigned char *)(NULL);
-	unsigned char *aim_address = (unsigned char *)(NULL);
-#endif
 
 	int jumpButtonPressed = (*aim_address & 0x04)==0x04;
 	stackReturnInt(jumpButtonPressed);
 }
-
-/*
-CoD2 = 26E8 == leanleft:40 leanright:80
-CoD4 = 26E9 == jump:04
-CoD2 = 26FC == forward:7f backward:81
-CoD2 = 26FD == left:81 right:7f
-
-CoD4 = 2FA6 == forward:7f backward:81
-CoD4 = 2FA7 == left:81 right:7f
-CoD4 = 2FB4 == leanleft:40 leanright:80
-CoD4 = 2FB5 == jump:04
-*/
 
 void gsc_player_stance_get(int id)
 {
@@ -330,29 +219,36 @@ void gsc_player_stance_get(int id)
 	unsigned char *stance_address = (unsigned char *)(entity + 8);
 	int code = *stance_address & 0x0F; // just the last 4 bits tell the state
 
-	char *stance = "";
+	char *stance;
 	switch (code)
 	{
 	case  0:
 		stance = "stand";
 		break; // also in spec
+
 	case  2:
 		stance = "stand";
 		break;
+
 	case  4:
 		stance = "duck";
 		break;
+
 	case  6:
 		stance = "duck";
 		break;
+
 	case  8:
 		stance = "lie";
 		break;
+
 	case 10:
 		stance = "lie";
 		break;
+
 	default:
-		printf("unknown stance for player id=%d, code=%d\n", id, code);
+		stance = "unknown";
+		break;
 	}
 
 	stackPushString(stance);
@@ -362,47 +258,29 @@ void gsc_player_spectatorclient_get(int id)
 {
 	int spectatorClient = *(unsigned char *)(PLAYERSTATE(id) + 0xCC);
 
-	//printf("spectator client: %x=%d\n", entity, spectatorClient);
-
-	// ups, its ALWAYS returning a real id
-	// when i have 2 bots, then i got id 2, when i spec "myself" it will return 2, also when i play myself
-	//if ( ! spectatorClient)
-	//	return stackPushUndefined();
-
 	stackPushEntity(gentities + spectatorClient * gentities_size);
 }
 
 void gsc_player_getip(int id)
 {
+
 #if COD_VERSION == COD2_1_0
 	int info_ip_offset = 0x6E5C8;
 #elif COD_VERSION == COD2_1_2
 	int info_ip_offset = 0x6E6D8;
 #elif COD_VERSION == COD2_1_3
 	int info_ip_offset = 0x6E6D8;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	int info_ip_offset = 0x9;
-#else
-#warning gsc_player_getip() got no working addresses
-	int info_ip_offset = 0x0;
 #endif
 
 	char tmp[64];
 	unsigned int ip_a, ip_b, ip_c, ip_d;
 
-#if COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	char iphex[9];
-	snprintf(iphex, 9, "%08x", ((int *)PLAYERBASE(id))[info_ip_offset]);
-	sscanf(iphex, "%2x%2x%2x%2x", &ip_d, &ip_c, &ip_b, &ip_a);
-#else
 	int info_player = PLAYERBASE(id);
 	ip_a = *(unsigned char *)(info_player + info_ip_offset + 0);
 	ip_b = *(unsigned char *)(info_player + info_ip_offset + 1); // dafuq, its +1 but in IDA its +4 step :S
 	ip_c = *(unsigned char *)(info_player + info_ip_offset + 2);
 	ip_d = *(unsigned char *)(info_player + info_ip_offset + 3);
-	//int port = *(unsigned char *)(info_player + info_ip_offset + 16);
-	//snprintf(tmp, 64, "%d.%d.%d.%d:%d", ip_a, ip_b, ip_c, ip_d, port);
-#endif
+
 	snprintf(tmp, 64, "%d.%d.%d.%d", ip_a, ip_b, ip_c, ip_d);
 
 	stackPushString(tmp);
@@ -410,17 +288,13 @@ void gsc_player_getip(int id)
 
 void gsc_player_getping(int id)
 {
+
 #if COD_VERSION == COD2_1_0
 	int info_ping_offset = 0x6E5A4;
 #elif COD_VERSION == COD2_1_2
 	int info_ping_offset = 0x6E6B4;
 #elif COD_VERSION == COD2_1_3
 	int info_ping_offset = 0x6E6B4;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	int info_ping_offset = 0x804EC;
-#else
-#warning gsc_player_getport() got no working addresses
-	int info_ping_offset = 0x0;
 #endif
 
 	int ping = *(unsigned int *)(PLAYERBASE(id) + info_ping_offset);
@@ -434,16 +308,15 @@ void gsc_player_ClientCommand(int id)
 
 int getSVSTime()
 {
+
 #if COD_VERSION == COD2_1_0
 	int info_start = *(int *)0x0841FB04;
 #elif COD_VERSION == COD2_1_2
 	int info_start = *(int *)0x08422004;
 #elif COD_VERSION == COD2_1_3
 	int info_start = *(int *)0x08423084;
-#else
-#warning getSVSTime() got no working addresses
-	int info_start = *(int *)0x0;
 #endif
+
 	return info_start;
 }
 
@@ -455,9 +328,6 @@ void gsc_player_getLastConnectTime(int id)
 	int info_connecttime_offset = 0x20E24;
 #elif COD_VERSION == COD2_1_3
 	int info_connecttime_offset = 0x20E24;
-#else
-#warning gsc_player_getLastConnectTime() got no working addresses
-	int info_connecttime_offset = 0x0;
 #endif
 
 	int lastconnect = getSVSTime() - *(unsigned int *)(PLAYERBASE(id) + info_connecttime_offset);
@@ -472,9 +342,6 @@ int getLastPacketTime(int id)
 	int info_lastmsg_offset = 0x20E20;
 #elif COD_VERSION == COD2_1_3
 	int info_lastmsg_offset = 0x20E20;
-#else
-#warning getLastPacketTime() got no working addresses
-	int info_lastmsg_offset = 0x0;
 #endif
 
 	return (PLAYERBASE(id) + info_lastmsg_offset);
@@ -494,15 +361,13 @@ void gsc_player_getclientstate(int id)
 
 int getAddressType(int id)
 {
+
 #if COD_VERSION == COD2_1_0
 	int info_addresstype_offset = 0x6E5C4;
 #elif COD_VERSION == COD2_1_2
 	int info_addresstype_offset = 0x6E6D4;
 #elif COD_VERSION == COD2_1_3
 	int info_addresstype_offset = 0x6E6D4;
-#else
-#warning gsc_player_addresstype() got no working addresses
-	int info_addresstype_offset = 0x0;
 #endif
 
 	return *(unsigned int *)(PLAYERBASE(id) + info_addresstype_offset);
@@ -636,9 +501,6 @@ calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080DF534;
 calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1B14;
 #elif COD_VERSION == COD2_1_3
 calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1C58;
-#else
-#warning calc_player_speed_t calc_player_speed = NULL;
-calc_player_speed_t calc_player_speed = (calc_player_speed_t)NULL;
 #endif
 
 typedef void (*calc_client_speed_t)(int client);
@@ -648,9 +510,6 @@ calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0811FB7A;
 calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x08121EAE;
 #elif COD_VERSION == COD2_1_3
 calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0812200A;
-#else
-#warning calc_client_speed_t calc_client_speed = NULL;
-calc_client_speed_t calc_client_speed = (calc_client_speed_t)NULL;
 #endif
 
 float player_movespeedscale[64] = {0};
@@ -820,9 +679,6 @@ void gsc_player_set_anim(int id)
 	int anim_offset = 0x080D6C8C;
 #elif COD_VERSION == COD2_1_3
 	int anim_offset = 0x080D6DD0;
-#else
-#warning gsc_player_set_anim() got no working addresses for anim_offset
-	int anim_offset = 0x0;
 #endif
 
 	int (*BG_AnimationIndexForString)(char *src);
@@ -999,9 +855,6 @@ void gsc_kick_slot()
 	int guid_offset = 0x76704;
 #elif COD_VERSION == COD2_1_3
 	int guid_offset = 0xAE704;
-#else
-#warning gsc_kick_slot() got no working addresses for guid_offset
-	int guid_offset = 0x0;
 #endif
 
 	int entity = PLAYERBASE(id);
@@ -1039,9 +892,6 @@ void gsc_player_setguid(int id)
 	int guid_offset = 0x76704;
 #elif COD_VERSION == COD2_1_3
 	int guid_offset = 0xAE704;
-#else
-#warning gsc_player_setguid() got no working addresses for guid_offset
-	int guid_offset = 0x0;
 #endif
 
 	int cl = PLAYERBASE(id);
@@ -1078,7 +928,7 @@ void gsc_player_resetfps(int id)
 	extern int clfps[64][20];
 	extern int clfpstemp[64];
 
-	for(int i = 0; i < sizeof(clfps[0]) / sizeof(int); i++)
+	for(int i = 0; i < int( sizeof(clfps[0]) / sizeof(int) ); i++)
 		clfps[id][i] = -1;
 	clfpstemp[id] = 0;
 	stackPushInt(0);
@@ -1089,7 +939,7 @@ void gsc_player_getfps(int id)
 	extern int clfps[64][20];
 
 	int total = 0;
-	for(int i = 0; i < sizeof(clfps[0]) / sizeof(int); i++)
+	for(int i = 0; i < int( sizeof(clfps[0]) / sizeof(int) ); i++)
 	{
 		if(clfps[id][i] == -1)
 		{
@@ -1107,13 +957,13 @@ void gsc_fpsnextframe()
 	extern int clfpstemp[64];
 	extern int clfpsindex;
 
-	for(int i = 0; i < sizeof(clfpstemp) / sizeof(int); i++)
+	for(int i = 0; i < int( sizeof(clfpstemp) / sizeof(int) ); i++)
 	{
 		clfps[i][clfpsindex] = clfpstemp[i];
 		clfpstemp[i] = 0;
 	}
 	clfpsindex++;
-	if(clfpsindex >= sizeof(clfps[0]) / sizeof(int))
+	if(clfpsindex >= int( sizeof(clfps[0]) / sizeof(int) ))
 		clfpsindex = 0;
 	stackReturnInt(0);
 }

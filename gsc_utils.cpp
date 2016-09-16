@@ -152,7 +152,6 @@ void gsc_load_languages()
 	}
 	char curitem[COD2_MAX_STRINGLENGTH + 1] = "";
 	char buffer[COD2_MAX_STRINGLENGTH + 1];
-	bool item_found = false;
 	FILE * file;
 	file = fopen(str, "r");
 	int linenum = 0;
@@ -178,7 +177,6 @@ void gsc_load_languages()
 							strncpy(curitem, &(buffer[start]), end - start);
 							curitem[end - start] = '\0';
 							//printf("Read item: %s", curitem);
-							item_found = true;
 						}
 						break;
 					}
@@ -196,7 +194,6 @@ void gsc_load_languages()
 							strncpy(curitem, &(buffer[start]), end - start);
 							curitem[end - start] = '\0';
 							//printf("Read item: %s", curitem);
-							item_found = true;
 						}
 						break;
 					}
@@ -503,7 +500,7 @@ void gsc_utils_toupper()
 		offset = 0;
 	if(!stackGetParamInt(2, &len) || len == 0)
 		len = strlen(str);
-	if(len - offset > strlen(str))
+	if((len - offset) > int(strlen(str)))
 		len = strlen(str) - offset;
 	if(len <= 0)
 	{
@@ -1037,15 +1034,13 @@ bool isOnIgnoreList(char* weapon)
 int hook_findWeaponIndex(char* weapon)
 {
 	typedef int (*findIndexWeapon_t)(char* weapon);
+
 #if COD_VERSION == COD2_1_0
 	findIndexWeapon_t findIndexWeapon = (findIndexWeapon_t)0x080E949C;
 #elif COD_VERSION == COD2_1_2
 	findIndexWeapon_t findIndexWeapon = (findIndexWeapon_t)0x080EBA8C;
 #elif COD_VERSION == COD2_1_3
 	findIndexWeapon_t findIndexWeapon = (findIndexWeapon_t)0x080EBBD0;
-#else
-#warning findIndexWeapon_t findIndexWeapon = NULL;
-	findIndexWeapon_t findIndexWeapon = (findIndexWeapon_t)NULL;
 #endif
 
 	if(isOnIgnoreList(weapon))
@@ -1141,24 +1136,21 @@ int weaponCount()
 	return *(int*)0x0858A000;
 #elif COD_VERSION == COD2_1_3
 	return *(int*)0x08627080; // see 80EBFFE (cod2 1.3)
-#else
-	return 0;
 #endif
 }
 
 int getWeapon(int index)
 {
 	typedef int (*get_weapon_t)(int index);
+
 #if COD_VERSION == COD2_1_0
 	get_weapon_t get_weapon = (get_weapon_t)0x080E9270;
 #elif COD_VERSION == COD2_1_2
 	get_weapon_t get_weapon = (get_weapon_t)0x080EB860;
 #elif COD_VERSION == COD2_1_3
 	get_weapon_t get_weapon = (get_weapon_t)0x080EB9A4;
-#else
-#warning get_weapon_t get_weapon = NULL;
-	get_weapon_t get_weapon = (get_weapon_t)NULL;
 #endif
+
 	return get_weapon(index);
 }
 

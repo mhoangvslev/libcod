@@ -21,11 +21,6 @@ gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
 gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0811012A;
 #elif COD_VERSION == COD2_1_3
 gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x08110286;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x080C0A7A;
-#else
-#warning gametype_scripts_t gametype_scripts = (gametype_scripts_t)NULL;
-gametype_scripts_t gametype_scripts = (gametype_scripts_t)NULL;
 #endif
 
 typedef int (*codscript_load_function_t)(char *file, char *function, int isNeeded);
@@ -35,69 +30,19 @@ codscript_load_function_t codscript_load_function = (codscript_load_function_t)0
 codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x081100AC;
 #elif COD_VERSION == COD2_1_3
 codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x08110208;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x080C09E8; // int __usercall sub_80C09E8<eax>(int a1<eax>, int a2<edx>, int a3<ecx>)
-#else
-#warning codscript_load_function_t codscript_load_function = (codscript_load_function_t)NULL;
-codscript_load_function_t codscript_load_function = (codscript_load_function_t)NULL;
 #endif
-
-int codscript_load_function_custom(char *file, char *function, int isNeeded)
-{
-	typedef int (*codscript_file_load_function_t)(char *file, char *function);
-#if COD_VERSION == COD4_1_7
-	codscript_file_load_function_t codscript_file_load_function = (codscript_file_load_function_t)0x0814C194;
-#elif COD_VERSION == COD4_1_7_L
-	codscript_file_load_function_t codscript_file_load_function = (codscript_file_load_function_t)0x0814C1B4;
-#else
-	codscript_file_load_function_t codscript_file_load_function = (codscript_file_load_function_t)NULL;
-#endif
-
-	typedef int (*codscript_file_load_t)(char *file);
-#if COD_VERSION == COD4_1_7
-	codscript_file_load_t codscript_file_load = (codscript_file_load_t)0x0814C076;
-#elif COD_VERSION == COD4_1_7_L
-	codscript_file_load_t codscript_file_load = (codscript_file_load_t)0x0814C096;
-#else
-	codscript_file_load_t codscript_file_load = (codscript_file_load_t)NULL;
-#endif
-
-	if (!codscript_file_load(file))
-	{
-		if(isNeeded)
-			printf((char*)"Could not find script '%s'\n", file);
-
-		return 0;
-	}
-
-	int result = codscript_file_load_function(file, function);
-
-	if(!result && isNeeded)
-		printf((char *)"Could not find label '%s' in script '%s'\n", function, file);
-
-	return result;
-}
 
 void hook_codscript_gametype_scripts()
 {
-#if COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	codecallback_playercommand = codscript_load_function_custom((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
-	codecallback_userinfochanged = codscript_load_function_custom((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
-#else
 	codecallback_playercommand = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
 	codecallback_userinfochanged = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
 	codecallback_fire_grenade = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
 	codecallback_vid_restart = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
-#endif
 
 	//printf("codecallback_playercommand=%.8x\n", codecallback_playercommand);
 
 	// unhook
-#if COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	cracking_write_hex((int)gametype_scripts, (char *)"5589E55383EC54");
-#else
 	cracking_write_hex((int)gametype_scripts, (char *)"5589E583EC58"); // todo: hook->unhook()
-#endif
 
 	// call original
 	gametype_scripts();
@@ -121,9 +66,6 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 	*(int *)&sig2 = 0x80EB860;
 #elif COD_VERSION == COD2_1_3
 	*(int *)&sig2 = 0x80EB9A4;
-#else
-#warning fire_grenade &sig2 = 0x0;
-	*(int *)&sig2 = 0x0;
 #endif
 	int weaponname = sig2(weapon);
 	char *wname2 = *(char**)weaponname;
@@ -161,9 +103,6 @@ void hook_vid_restart(char *format, ...)
 	int vdr_info_offset = 0x8060E42;
 #elif COD_VERSION == COD2_1_3
 	int vdr_info_offset = 0x8060E3A;
-#else
-#warning vdr_info got no working addresses
-	int vdr_info_offset = 0x0;
 #endif
 
 	char *s;
@@ -192,9 +131,6 @@ void hook_vid_restart(char *format, ...)
 			int offset = 0x0849E6CC;
 #elif COD_VERSION == COD2_1_3
 			int offset = 0x0849F74C;
-#else
-#warning hook_vid_restart() got no working addresses
-			int offset = 0x0;
 #endif
 
 			extern int playerinfo_base;
@@ -212,9 +148,6 @@ void hook_vid_restart(char *format, ...)
 					short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * i, codecallback_vid_restart, 1);
 #elif COD_VERSION == COD2_1_3
 					short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * i, codecallback_vid_restart, 1);
-#else
-#warning short ret = codscript_call_callback_entity(NULL, codecallback_vid_restart, 1);
-					short ret = codscript_call_callback_entity(NULL, codecallback_vid_restart, 1);
 #endif
 					codscript_callback_finish(ret);
 					break;
@@ -226,25 +159,11 @@ void hook_vid_restart(char *format, ...)
 
 int hook_ClientCommand(int clientNum)
 {
-	//printf("clientNum: %d\n", clientNum);
-
-	//cracking_hook_function(0x08100D1E, hook_ClientCommand_8100D1E);
-
-	/*
-	// perfect idea: dont call the original function here, so other players wont see chat
-	// so ppl can do cracked servers with !login mulder trustno1
-	// ooooops, need to call it always, when the callback was not found
-	*/
 	if ( ! codecallback_playercommand)
 	{
 		//printf("NOT USING hook_ClientCommand(), because codecallback_playercommand was not defined.\n");
 		return ClientCommand(clientNum);
 	}
-	/*
-	int (*ClientCommand_8100D1E)(int clientNum);
-	*(int *)&ClientCommand_8100D1E = 0x8100D1E;
-	ClientCommand_8100D1E(clientNum);
-	*/
 
 	stackPushArray();
 	int args = trap_Argc();
@@ -276,13 +195,6 @@ int hook_ClientCommand(int clientNum)
 	short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * clientNum, codecallback_playercommand, 1);
 #elif COD_VERSION == COD2_1_3
 	short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * clientNum, codecallback_playercommand, 1);
-#elif COD_VERSION == COD4_1_7
-	short ret = codscript_call_callback_entity(/*gentity*/0x0841F260 + 628 * clientNum, codecallback_playercommand, 1);
-#elif COD_VERSION == COD4_1_7_L
-	short ret = codscript_call_callback_entity(/*gentity*/0x0841FFE0 + 628 * clientNum, codecallback_playercommand, 1);
-#else
-#warning short ret = codscript_call_callback_entity(NULL, codecallback_playercommand, 1);
-	short ret = codscript_call_callback_entity(NULL, codecallback_playercommand, 1);
 #endif
 
 	//printf("codecallback_playercommand=%.8x ret=%i\n", codecallback_playercommand, ret);
@@ -302,29 +214,6 @@ char * hook_AuthorizeState( int arg )
 		return "accept";
 
 	return s;
-}
-
-int hook_StateCompare(char * state, char * base)
-{
-	if ((CvarVariableValue == NULL || CvarVariableValue("sv_cracked") == 1) && strcmp (state, "deny") == 0) // when sv_cracked 1 and deny state
-	{
-		if(strcmp(base, "accept") == 0) // when compare value is accept return true
-			return 0;
-		else
-			return 1; // when compare to value is deny return false
-	}
-
-	return strcmp(state, base);
-}
-
-int hook_BadKeyCompare(char * s1, char * s2)
-{
-	if (CvarVariableValue == NULL || CvarVariableValue("sv_cracked") == 1)
-	{
-		return 0; // when sv_cracked 1 no bad keys
-	}
-
-	return strcmp(s1, s2);
 }
 
 void hook_SV_BeginDownload_f( int a1 )
@@ -354,13 +243,6 @@ int hook_ClientUserinfoChanged(int clientNum)
 	short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * clientNum, codecallback_userinfochanged, 1);
 #elif COD_VERSION == COD2_1_3
 	short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * clientNum, codecallback_userinfochanged, 1);
-#elif COD_VERSION == COD4_1_7
-	short ret = codscript_call_callback_entity(/*gentity*/0x0841F260 + 628 * clientNum, codecallback_userinfochanged, 1);
-#elif COD_VERSION == COD4_1_7_L
-	short ret = codscript_call_callback_entity(/*gentity*/0x0841FFE0 + 628 * clientNum, codecallback_userinfochanged, 1);
-#else
-#warning short ret = codscript_call_callback_entity(NULL, codecallback_userinfochanged, 1);
-	short ret = codscript_call_callback_entity(NULL, codecallback_userinfochanged, 1);
 #endif
 
 	//printf("codecallback_playercommand=%.8x ret=%i\n", codecallback_userinfochanged, ret);
@@ -368,29 +250,6 @@ int hook_ClientUserinfoChanged(int clientNum)
 	//printf("after codscript_callback_finish\n");
 
 	return 0;
-}
-
-char *hook_beginDownloadCopy(char *a1, char *a2, int a3)
-{
-	typedef char* (*beginDownloadCopy_t)(char *a1, char *a2, int a3);
-
-#if COD_VERSION == COD4_1_7
-	beginDownloadCopy_t beginDownloadCopy = (beginDownloadCopy_t)0x81A9E1C;
-#elif COD_VERSION == COD4_1_7_L
-	beginDownloadCopy_t beginDownloadCopy = (beginDownloadCopy_t)0x81AA54C;
-#else
-	beginDownloadCopy_t beginDownloadCopy = (beginDownloadCopy_t)NULL;
-#endif
-
-	int len = strlen(a2);
-
-	if((len > 3 && !strcmp(a2 + len - 4, ".iwd")) || (len > 2 && !strcmp(a2 + len - 3, ".ff")))
-		return beginDownloadCopy(a1, a2, a3);
-	else
-	{
-		printf("Invalid download attempt: %s\n", a2);
-		return beginDownloadCopy(a1, (char*)"fail.iwd", a3);
-	}
 }
 
 int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
@@ -604,11 +463,6 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	int sub_80E9758_offset = 0x80EBE8C;
 	int sub_80D9E84_offset = 0x80DC5A8;
 	int getWeaponStruct_offset = 0x80EB9A4;
-#else
-#warning hook_BG_IsWeaponValid got no working addresses
-	int sub_80E9758_offset = 0x0;
-	int sub_80D9E84_offset = 0x0;
-	int getWeaponStruct_offset = 0x0;
 #endif
 
 	int weapon;
@@ -654,11 +508,6 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 	int scriptError_offset = 0x80788D2;
 	int runtimeError_offset = 0x80787DC;
 	int developer_offset = 0x81A2174;
-#else
-#warning hook_BG_IsWeaponValid got no working addresses
-	int scriptError_offset = 0x0;
-	int runtimeError_offset = 0x0;
-	int developer_offset = 0x0;
 #endif
 
 	int (*scriptError)(int a1, int a2, int a3, void *a4);
@@ -688,9 +537,6 @@ void hook_gamestate_info(char *format, ...)
 	int gamestate_info_offset = 0x8060E42;
 #elif COD_VERSION == COD2_1_3
 	int gamestate_info_offset = 0x8060E3A;
-#else
-#warning gamestate_info got no working addresses
-	int gamestate_info_offset = 0x0;
 #endif
 
 	char *s;
@@ -772,10 +618,6 @@ void set_bot_pings()
 #elif COD_VERSION == COD2_1_3
 	int offset = 0x0849F74C;
 	int p = 113069;
-#else
-#warning set_bot_pings() got no working addresses
-	int offset = 0x0;
-	int p = 0;
 #endif
 
 	for (i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
@@ -807,9 +649,6 @@ int play_movement(int a1, int a2)
 	int offset = 0x842200C;
 #elif COD_VERSION == COD2_1_3
 	int offset = 0x842308C;
-#else
-#warning play_movement() got no working addresses
-	int offset = 0x0;
 #endif
 
 	extern int playerinfo_base, playerinfo_size;
@@ -863,7 +702,7 @@ int play_movement(int a1, int a2)
 	return ret;
 }
 
-#if COD_VERSION < COD4_1_7 && COMPILE_RATELIMITER == 1
+#if COMPILE_RATELIMITER == 1
 // ioquake3 rate limit connectionless requests
 // https://github.com/ioquake/ioq3/commits/dd82b9d1a8d0cf492384617aff4712a683e70007/code/server/sv_main.c
 
@@ -915,11 +754,10 @@ leakyBucket_t outboundLeakyBucket;
 static long SVC_HashForAddress( netadr_t address )
 {
 	unsigned char *ip = address.ip;
-	size_t size = 4;
 	int	i;
 	long hash = 0;
 
-	for ( i = 0; i < size; i++ )
+	for ( i = 0; i < 4; i++ )
 	{
 		hash += (long)( ip[ i ] ) * ( i + 119 );
 	}
@@ -1061,11 +899,6 @@ SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
 SVC_Info_t SVC_Info = (SVC_Info_t)0x0809537C;
 SVC_Status_t SVC_Status = (SVC_Status_t)0x08094C84;
 NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
-#else
-SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)NULL;
-SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)NULL;
-SVC_Status_t SVC_Status = (SVC_Status_t)NULL;
-NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)NULL;
 #endif
 
 int hook_SVC_RemoteCommand(netadr_t from)
@@ -1195,19 +1028,19 @@ void manymaps_prepare(char *mapname, int read)
 	if(strcmp(map, mapname) == 0)
 		return;									// Same map is about to load, no need to trigger manymap (equals map_restart)
 
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	char map_check[512];
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
+
 #if COD_VERSION == COD2_1_0
 	char *stock_maps[13] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
-#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+#else
 	char *stock_maps[15] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
 	bool map_found = false;
 	bool from_stock_map = false;
 	int map_exists = access(map_check, F_OK) != -1;
-	for (int i = 0; i < ( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
+	for (int i = 0; i < int( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
 	{
 		if (strcmp(map, stock_maps[i]) == 0)
 		{
@@ -1216,7 +1049,7 @@ void manymaps_prepare(char *mapname, int read)
 		}
 	}
 
-	for (int i = 0; i < ( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
+	for (int i = 0; i < int( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
 	{
 		if (strcmp(mapname, stock_maps[i]) == 0)
 		{
@@ -1230,7 +1063,6 @@ void manymaps_prepare(char *mapname, int read)
 
 	if (!map_exists && !map_found)
 		return;
-#endif
 
 	printf("manymaps> map=%s sv_iwdNames: %s\n", mapname, sv_iwdNames);
 	char *tok;
@@ -1271,8 +1103,6 @@ void manymaps_prepare(char *mapname, int read)
 	}
 }
 
-#define TOSTRING2(str) #str
-#define TOSTRING1(str) TOSTRING2(str) // else there is written "__LINE__"
 class cCallOfDuty2Pro
 {
 public:
@@ -1281,35 +1111,17 @@ public:
 		setbuf(stdout, NULL); // otherwise the printf()'s are printed at crash/end
 
 #if COD_VERSION == COD2_1_0
-		printf("> [INFO] Compiled for: CoD2 1.0\n");
+		printf("> [LIBCOD] Compiled for: CoD2 1.0\n");
 #elif COD_VERSION == COD2_1_2
-		printf("> [INFO] Compiled for: CoD2 1.2\n");
+		printf("> [LIBCOD] Compiled for: CoD2 1.2\n");
 #elif COD_VERSION == COD2_1_3
-		printf("> [INFO] Compiled for: CoD2 1.3\n");
-#elif COD_VERSION == COD4_1_7
-		printf("> [INFO] Compiled for: CoD4 1.7\n");
-#elif COD_VERSION == COD4_1_7_L
-		printf("> [INFO] Compiled for: CoD4 1.7 L\n");
-#else
-		printf("> [WARNING] Compiled for: %s\n", TOSTRING1(COD_VERSION));
+		printf("> [LIBCOD] Compiled for: CoD2 1.3\n");
 #endif
 
-		printf("> [INFO] Compiled: " __DATE__ " " __TIME__ " using GCC " __VERSION__ "\n");
-
-#if COD_VERSION == COD4_1_7
-
-		//08048000-0817d000 rwxp 00000000 00:8e 8716292                            /root/helper/game_cod4/cod4_1_7-bin
-		//0817d000-0826a000 r-xp 00135000 00:8e 8716292                            /root/helper/game_cod4/cod4_1_7-bin
-		//0826a000-08274000 rw-p 00221000 00:8e 8716292                            /root/helper/game_cod4/cod4_1_7-bin
-
-		mprotect((void *)0x08048000, 0x135000, PROT_READ | PROT_WRITE | PROT_EXEC);
-		mprotect((void *)0x0817d000, 0xED000, PROT_READ | PROT_WRITE | PROT_EXEC);
-		mprotect((void *)0x0826a000, 0xA000, PROT_READ | PROT_WRITE | PROT_EXEC);
-#else
+		printf("> [LIBCOD] Compiled %s %s using GCC %s\n", __DATE__, __TIME__, __VERSION__);
 
 		// allow to write in executable memory
 		mprotect((void *)0x08048000, 0x135000, PROT_READ | PROT_WRITE | PROT_EXEC);
-#endif
 
 #if COD_VERSION == COD2_1_0
 		int *addressToPickUpItemPointer = (int *)0x08167B34;
@@ -1317,14 +1129,9 @@ public:
 		int *addressToPickUpItemPointer = (int *)0x08186F94;
 #elif COD_VERSION == COD2_1_3
 		int *addressToPickUpItemPointer = (int *)0x08187FB4;
-#else
-#warning int *addressToPickUpItemPointer = NULL;
-		int *addressToPickUpItemPointer = NULL;
 #endif
 
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 		*addressToPickUpItemPointer = (int)hook_pickup_item;
-#endif
 
 #if COD_VERSION == COD2_1_0
 		int * addressToDownloadPointer = (int *)0x0815D584;
@@ -1332,35 +1139,16 @@ public:
 		int * addressToDownloadPointer = (int *)0x0817C9E4;
 #elif COD_VERSION == COD2_1_3
 		int * addressToDownloadPointer = (int *)0x0817DA04;
-#else
-#warning int *addressToDownloadPointer = NULL;
-		int *addressToDownloadPointer = NULL;
 #endif
 
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 		SV_BeginDownload_f = (SV_BeginDownload_f_t)*addressToDownloadPointer;
 		*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
-#endif
-
-#if COD_VERSION == COD4_1_7
-		cracking_hook_call(0x081721AE, (int)hook_beginDownloadCopy);
-		cracking_hook_call(0x0816FE8C, (int)hook_StateCompare);
-		cracking_hook_call(0x08170102, (int)hook_StateCompare);
-		cracking_hook_call(0x0816FFB8, (int)hook_BadKeyCompare);
-#endif
-
-#if COD_VERSION == COD4_1_7_L
-		cracking_hook_call(0x0817225E, (int)hook_beginDownloadCopy);
-		cracking_hook_call(0x0816FF42, (int)hook_StateCompare);
-		cracking_hook_call(0x081701D6, (int)hook_StateCompare);
-		cracking_hook_call(0x0817006E, (int)hook_BadKeyCompare);
-#endif
 
 #if COD_VERSION == COD2_1_0
+		cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
-		cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
 		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
 		cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
@@ -1386,6 +1174,7 @@ public:
 		cracking_write_hex(0x080951E0, (char *)"EB"); // skip `time - lasttime` check
 		cracking_write_hex(0x080951E7, (char *)"9090909090909090"); // lasttime = time;
 #endif
+
 #elif COD_VERSION == COD2_1_2
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
@@ -1415,6 +1204,7 @@ public:
 		cracking_write_hex(0x080970F8, (char *)"EB"); // skip `time - lasttime` check
 		cracking_write_hex(0x080970FF, (char *)"9090909090909090"); // lasttime = time;
 #endif
+
 #elif COD_VERSION == COD2_1_3
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
@@ -1444,22 +1234,13 @@ public:
 		cracking_write_hex(0x080971DE, (char *)"EB"); // skip `time - lasttime` check
 		cracking_write_hex(0x080971F3, (char *)"9090909090909090"); // lasttime = time;
 #endif
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-		extern cHook *hook_Scr_GetFunction;
-		extern cHook *hook_Scr_GetMethod;
-		hook_Scr_GetFunction = new cHook(0x080bd238, (int)Scr_GetCustomFunction);
-		hook_Scr_GetMethod = new cHook(0x080bfef4, (int)Scr_GetCustomMethod);
-		hook_Scr_GetFunction->hook();
-		hook_Scr_GetMethod->hook();
-#endif
 
+#endif
 		cracking_hook_function((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
 		cracking_hook_call(hook_ClientCommand_call, (int)hook_ClientCommand);
 
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 		cracking_hook_call(hook_AuthorizeState_call, (int)hook_AuthorizeState);
 		cracking_hook_call(hook_findMap_call, (int)hook_findMap);
-#endif
 
 		gsc_utils_init();
 		printf("> [PLUGIN LOADED]\n");

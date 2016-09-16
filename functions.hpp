@@ -12,13 +12,6 @@ static int trap_Argc()
 	return *(int *)0x0819E080;
 #elif COD_VERSION == COD2_1_3
 	return *(int *)0x0819F100;
-#elif COD_VERSION == COD4_1_7
-	return ((int *)0x08878D04)[*(int *)0x08878CC0];
-#elif COD_VERSION == COD4_1_7_L
-	return ((int *)0x08879A84)[*(int *)0x08879A40];
-#else
-#warning trap_Argc() return *(int *)NULL;
-	return *(int *)NULL;
 #endif
 }
 
@@ -29,9 +22,6 @@ static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x0806001C;
 static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x08060228;
 #elif COD_VERSION == COD2_1_3
 static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x08060220;
-#else
-#warning static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)NULL;
-static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)NULL;
 #endif
 
 typedef int (*trap_Argv_t)(unsigned int param, char *buf, int bufLen);
@@ -41,11 +31,6 @@ static trap_Argv_t trap_Argv = (trap_Argv_t)0x08060074;
 static trap_Argv_t trap_Argv = (trap_Argv_t)0x08060280;
 #elif COD_VERSION == COD2_1_3
 static trap_Argv_t trap_Argv = (trap_Argv_t)0x08060278;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-static trap_Argv_t trap_Argv = (trap_Argv_t)0x08110E08;
-#else
-#warning static trap_Argv_t trap_Argv = (trap_Argv_t)NULL;
-static trap_Argv_t trap_Argv = (trap_Argv_t)NULL;
 #endif
 
 typedef int (*Com_Printf_t)(const char *format, ...);
@@ -60,23 +45,8 @@ static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E42;
 #elif COD_VERSION == COD2_1_3
 static Com_Printf_t Com_Printf = (Com_Printf_t)0x08060DEA;
 static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E3A;
-#elif COD_VERSION == COD4_1_7
-static Com_Printf_t Com_Printf = (Com_Printf_t)0x08122B0E;
-static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08122D74;
-#elif COD_VERSION == COD4_1_7_L
-static Com_Printf_t Com_Printf = (Com_Printf_t)0x08122B2E;
-static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08122D94;
-#else
-#warning static Com_Printf_t Com_Printf = (Com_Printf_t)NULL;
-#warning static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)NULL;
-static Com_Printf_t Com_Printf = (Com_Printf_t)NULL;
-static Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)NULL;
 #endif
 
-/*
-	search for '\"%s\" is: \"%s^7\" default: \"%s^7\"\n'
-	Now see code ref. Now you need find a function that only calls that function
-*/
 typedef int (*Cmd_ExecuteString_t)(const char *text);
 
 #if COD_VERSION == COD2_1_0
@@ -85,11 +55,6 @@ static Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x08060754;
 static Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x080609D4;
 #elif COD_VERSION == COD2_1_3
 static Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x080609CC;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-static Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x08111F32;
-#else
-static Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)NULL;
-#warning Cmd_ExecuteString_t Cmd_ExecuteString = NULL;
 #endif
 
 typedef int (*ClientCommand_t)(int clientNum);
@@ -102,17 +67,6 @@ static int hook_ClientCommand_call = 0x08090B0C;
 #elif COD_VERSION == COD2_1_3
 static ClientCommand_t ClientCommand = (ClientCommand_t)0x08100E62;
 static int hook_ClientCommand_call = 0x08090BA0;
-#elif COD_VERSION == COD4_1_7
-static ClientCommand_t ClientCommand = (ClientCommand_t)0x080B070C;
-static int hook_ClientCommand_call = 0x08170E70;
-#elif COD_VERSION == COD4_1_7_L
-static ClientCommand_t ClientCommand = (ClientCommand_t)0x080B070C;
-static int hook_ClientCommand_call = 0x08170F20;
-#else
-#warning static ClientCommand_t ClientCommand = (ClientCommand_t)NULL;
-#warning static int hook_ClientCommand_call = NULL;
-static ClientCommand_t ClientCommand = (ClientCommand_t)NULL;
-static int hook_ClientCommand_call = (int)NULL;
 #endif
 
 typedef int (*Cvar_VariableValue_t)(const char *var_name); // search for 'sv_allowAnonymous'
@@ -122,13 +76,6 @@ static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B0BB6
 static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B2E66;
 #elif COD_VERSION == COD2_1_3
 static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B2FAA;
-#elif COD_VERSION == COD4_1_7
-static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x0819E090;
-#elif COD_VERSION == COD4_1_7_L
-static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x0819E7C0;
-#else
-#warning static Cvar_VariableValue_t CvarVariableValue = NULL;
-static Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)NULL;
 #endif
 
 typedef char * (*Cvar_VariableString_t)(const char *var_name);
@@ -138,9 +85,6 @@ static Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B
 static Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B3046;
 #elif COD_VERSION == COD2_1_3
 static Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B318A;
-#else
-#warning static Cvar_VariableValue_t CvarVariableValue = NULL;
-static Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)NULL;
 #endif
 
 typedef int (*FS_ReadFile_t)(const char *qpath, void **buffer);
@@ -150,12 +94,8 @@ static FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x0809E892;
 static FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x080A0958;
 #elif COD_VERSION == COD2_1_3
 static FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x080A0A9C;
-#else
-#warning static FS_ReadFile_t FS_ReadFile = NULL;
-static FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)NULL;
 #endif
 
-// e.g. FS_LoadDir("/home/ns_test", "NsZombiesV4.3");
 typedef int (*FS_LoadDir_t)(char *path, char *dir);
 #if COD_VERSION == COD2_1_0
 static FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A01A4;
@@ -163,9 +103,6 @@ static FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A01A4;
 static FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A22D8;
 #elif COD_VERSION == COD2_1_3
 static FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
-#else
-#warning static FS_LoadDir_t FS_LoadDir = NULL;
-static FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0
@@ -174,9 +111,6 @@ static int rconPasswordAddress = 0x0848B1C0;
 static int rconPasswordAddress = 0x0849E6C0;
 #elif COD_VERSION == COD2_1_3
 static int rconPasswordAddress = 0x0849F740;
-#else
-#warning static int rconPasswordAddress = NULL;
-static int rconPasswordAddress = (int)NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0
@@ -185,9 +119,6 @@ static int hook_findMap_call = 0x0808AD00;
 static int hook_findMap_call = 0x0808BCFC;
 #elif COD_VERSION == COD2_1_3
 static int hook_findMap_call = 0x0808BDC8;
-#else
-#warning static int hook_findMap_call = NULL;
-static int hook_findMap_call = (int)NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0
@@ -196,9 +127,6 @@ static int hook_AuthorizeState_call = 0x0808C8C0;
 static int hook_AuthorizeState_call = 0x0808DA52;
 #elif COD_VERSION == COD2_1_3
 static int hook_AuthorizeState_call = 0x0808DB12;
-#else
-#warning static int hook_AuthorizeState_call = NULL;
-static int hook_AuthorizeState_call = (int)NULL;
 #endif
 
 typedef enum
@@ -237,9 +165,6 @@ static SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPac
 static SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPacket_t)0x08095894;
 #elif COD_VERSION == COD2_1_3
 static SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPacket_t)0x0809594E;
-#else
-#warning static SV_ConnectionlessPacket_t SV_ConnectionlessPacket = NULL;
-static SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPacket_t)NULL;
 #endif
 
 typedef int (*NET_OutOfBandPrint_t)( int sock, netadr_t adr, const char *msg );
@@ -249,9 +174,6 @@ static NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C40
 static NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C8D4;
 #elif COD_VERSION == COD2_1_3
 static NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C8CC;
-#else
-#warning NET_OutOfBandPrint_t NET_OutOfBandPrint =  NULL;
-static NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)NULL;
 #endif
 
 typedef int (*SV_FlushRedirect_t)(const char *outputbuf);
@@ -261,9 +183,6 @@ static SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x0809507C;
 static SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x08096F94;
 #elif COD_VERSION == COD2_1_3
 static SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x08097050;
-#else
-#warning SV_FlushRedirect_t SV_FlushRedirect = NULL;
-static SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)NULL;
 #endif
 
 typedef int (*SV_GameSendServerCommand_t)(int clientNum, signed int a2, const char *msg);
@@ -273,21 +192,6 @@ static SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerC
 static SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)0x080916A6;
 #elif COD_VERSION == COD2_1_3
 static SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)0x080917AA;
-#else
-#warning static SV_GameSendServerCommand_t SV_GameSendServerCommand = NULL;
-static SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)NULL;
-#endif
-
-typedef int (*SV_StopDownload_f_t)(int a1);
-#if COD_VERSION == COD2_1_0
-static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808E348;
-#elif COD_VERSION == COD2_1_2
-static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808F6EC;
-#elif COD_VERSION == COD2_1_3
-static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)0x0808F780;
-#else
-#warning SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)NULL;
-static SV_StopDownload_f_t SV_StopDownload_f = (SV_StopDownload_f_t)NULL;
 #endif
 
 typedef int (*SV_DropClient_t)(int a1, char* message);
@@ -297,9 +201,6 @@ static SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808DC8C;
 static SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808EF9A;
 #elif COD_VERSION == COD2_1_3
 static SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808F02E;
-#else
-#warning SV_DropClient_t SV_DropClient = (SV_DropClient_t)NULL;
-static SV_DropClient_t SV_DropClient = (SV_DropClient_t)NULL;
 #endif
 
 typedef int (*SV_WriteDownloadToClient_t)(int a1, int a2);
@@ -309,9 +210,6 @@ static SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadTo
 static SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)0x0808FD2E;
 #elif COD_VERSION == COD2_1_3
 static SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)0x0808FDC2;
-#else
-#warning static SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)NULL;
-static SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)NULL;
 #endif
 
 typedef int (*SV_BeginDownload_f_t)(int a1);
@@ -327,9 +225,6 @@ static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0
 static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F8B1A;
 #elif COD_VERSION == COD2_1_3
 static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F8C5E;
-#else
-#warning ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)NULL;
-static ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)NULL;
 #endif
 
 typedef int (*SV_ClientHasClientMuted_t)(int a1, int a2);
@@ -339,9 +234,6 @@ static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMu
 static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C0B6;
 #elif COD_VERSION == COD2_1_3
 static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C1FA;
-#else
-#warning SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)NULL;
-static SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)NULL;
 #endif
 
 typedef int (*Info_SetValueForKey_t)(char *s, const char *key, const char *value);
@@ -351,9 +243,6 @@ static Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B
 static Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B848A;
 #elif COD_VERSION == COD2_1_3
 static Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B85CE;
-#else
-#warning Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)NULL;
-static Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)NULL;
 #endif
 
 typedef char* (*Info_ValueForKey_t)(char *s, const char *key);
@@ -363,9 +252,6 @@ static Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B5B30;
 static Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B7FC4;
 #elif COD_VERSION == COD2_1_3
 static Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B8108;
-#else
-#warning Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)NULL;
-static Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)NULL;
 #endif
 
 typedef short (*codscript_call_callback_entity_t)(int self, int callback, int params);
@@ -375,11 +261,6 @@ static codscript_call_callback_entity_t codscript_call_callback_entity = (codscr
 static codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x0811B128;
 #elif COD_VERSION == COD2_1_3
 static codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x0811B284;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-static codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x080C765C;
-#else
-#warning static codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)NULL;
-static codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)NULL;
 #endif
 
 typedef int (*codscript_callback_finish_t)(short callback_handle);
@@ -389,13 +270,6 @@ static codscript_callback_finish_t codscript_callback_finish = (codscript_callba
 static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x0808410A;
 #elif COD_VERSION == COD2_1_3
 static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x080841D6;
-#elif COD_VERSION == COD4_1_7
-static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x0815D042;
-#elif COD_VERSION == COD4_1_7_L
-static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x0815D062;
-#else
-#warning static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)NULL;
-static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)NULL;
 #endif
 
 #endif

@@ -13,39 +13,6 @@ Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117C8E;
 #elif COD_VERSION == COD2_1_3
 Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117CB2;
 Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117DEA;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-//Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x080BD238;
-//Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x080BFEF4;
-
-cHook *hook_Scr_GetFunction;
-cHook *hook_Scr_GetMethod;
-
-Scr_FunctionCall Scr_GetFunction(const char **fname, int *fdev)
-{
-	//printf("CoD4 Scr_GetFunction: fdev=%d fname=%s\n", *fdev, *fname);
-
-	hook_Scr_GetFunction->unhook();
-	int (*sig)(const char **fname, int *fdev);
-	*(int *)&sig = hook_Scr_GetFunction->from;
-	int m = sig(fname, fdev);
-	hook_Scr_GetFunction->hook();
-	return (Scr_FunctionCall)m;
-}
-Scr_MethodCall Scr_GetMethod(const char **fname, int *fdev)
-{
-	//printf("CoD4 Scr_GetMethod: fdev=%d fname=%s\n", *fdev, *fname);
-	hook_Scr_GetMethod->unhook();
-	int (*sig)(const char **fname, int *fdev);
-	*(int *)&sig = hook_Scr_GetMethod->from;
-	int m = sig(fname, fdev);
-	hook_Scr_GetMethod->hook();
-	return (Scr_MethodCall)m;
-}
-#else
-#warning Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)NULL;
-#warning Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)NULL;
-Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)NULL;
-Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0 // search "animation '%s' not defined in anim tree '%s'"
@@ -57,9 +24,6 @@ unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned 
 #elif COD_VERSION == COD2_1_3
 unsigned short (*GetVariableName)(unsigned short) = (unsigned short(*)(unsigned short))0x0807D0C2;
 unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned short))0x0807D01E; //idk original funcname
-#else
-unsigned short (*GetVariableName)(unsigned short) = (unsigned short(*)(unsigned short))NULL;
-unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned short))NULL;
 #endif
 
 #if COD_VERSION == COD2_1_0
@@ -68,11 +32,6 @@ char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x080788
 char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x08078E1A;
 #elif COD_VERSION == COD2_1_3
 char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x08078EE6;
-#else
-char *SL_ConvertToString(unsigned short)
-{
-	return NULL;    //error_wrong_patch
-}
 #endif
 
 char *stackGetParamTypeAsString(int param)
@@ -80,82 +39,111 @@ char *stackGetParamTypeAsString(int param)
 	aStackElement *scriptStack = *(aStackElement**)getStack();
 	aStackElement *arg = scriptStack - param;
 
-	char *type = "UNKNOWN TYPE!";
+	char *type;
+
 	switch (arg->type)
 	{
 	case  0:
 		type = "UNDEFINED";
 		break;
+
 	case  1:
 		type = "OBJECT";
 		break;
+
 	case  2:
 		type = "STRING";
 		break;
+
 	case  3:
 		type = "LOCALIZED_STRING";
 		break;
+
 	case  4:
 		type = "VECTOR";
 		break;
+
 	case  5:
 		type = "FLOAT";
 		break;
+
 	case  6:
 		type = "INT";
 		break;
+
 	case  7:
 		type = "CODEPOS";
 		break;
+
 	case  8:
 		type = "PRECODEPOS";
 		break;
+
 	case  9:
 		type = "FUNCTION";
 		break;
+
 	case 10:
 		type = "STACK";
 		break;
+
 	case 11:
 		type = "ANIMATION";
 		break;
+
 	case 12:
 		type = "DEVELOPER_CODEPOS";
 		break;
+
 	case 13:
 		type = "INCLUDE_CODEPOS";
 		break;
+
 	case 14:
 		type = "THREAD_LIST";
 		break;
+
 	case 15:
 		type = "THREAD_1";
 		break;
+
 	case 16:
 		type = "THREAD_2";
 		break;
+
 	case 17:
 		type = "THREAD_3";
 		break;
+
 	case 18:
 		type = "THREAD_4";
 		break;
+
 	case 19:
 		type = "STRUCT";
 		break;
+
 	case 20:
 		type = "REMOVED_ENTITY";
 		break;
+
 	case 21:
 		type = "ENTITY";
 		break;
+
 	case 22:
 		type = "ARRAY";
 		break;
+
 	case 23:
 		type = "REMOVED_THREAD";
 		break;
+
+	default:
+		type = "UNKNOWN TYPE";
+		break;
 	}
+
 	return type;
 }
 
@@ -171,16 +159,19 @@ int stackPrintParam(int param)
 		stackGetParamString(param, &str); // no error checking, since we know it's a string
 		printf("%s", str);
 		return 1;
+
 	case STACK_VECTOR:
 		float vec[3];
 		stackGetParamVector(param, vec);
 		printf("(%.2f, %.2f, %.2f)", vec[0], vec[1], vec[2]);
 		return 1;
+
 	case STACK_FLOAT:
 		float tmp_float;
 		stackGetParamFloat(param, &tmp_float);
 		printf("%.3f", tmp_float); // need a way to define precision
 		return 1;
+
 	case STACK_INT:
 		int tmp_int;
 		stackGetParamInt(param, &tmp_int);
@@ -262,9 +253,7 @@ Scr_Function scriptFunctions[] =
 	{"printfline", gsc_utils_printfline, 0}, // adds \n at end
 	{"com_printf", gsc_utils_com_printf, 0},
 	{"redirectprintf", gsc_utils_redirectprintf, 0},
-#if COD_VERSION < COD4_1_7
 	{"getArrayKeys", Scr_GetArrayKeys, 0},
-#endif
 
 #if COMPILE_MYSQL == 1
 	{"mysql_init"              , gsc_mysql_init              , 0},
@@ -445,11 +434,9 @@ Scr_Method scriptMethods[] =
 	{"getlastgamestatesize"  , gsc_player_getlastgamestatesize , 0},
 	{"resetfps"              , gsc_player_resetfps           , 0},
 	{"getfps"                , gsc_player_getfps             , 0},
-#if COD_VERSION < COD4_1_7
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},
 	{"isonladder"            , gsc_player_isonladder         , 0},
-#endif
 #endif
 
 	{NULL, NULL, 0} /* terminator */
@@ -466,6 +453,7 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 	{
 		if (strcasecmp(*fname, scriptMethods[i].name))
 			continue;
+
 		Scr_Method func = scriptMethods[i];
 		*fname = func.name;
 		*fdev = func.developer;
@@ -481,19 +469,12 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 */
 int getStack()
 {
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	return 0x083D7610;
 #elif COD_VERSION == COD2_1_2
 	return 0x083D7A10; // diff to 1.3: 1080
 #elif COD_VERSION == COD2_1_3
 	return 0x083D8A90;
-#elif COD_VERSION == COD4_1_7
-	return 0x08c055b0;
-#elif COD_VERSION == COD4_1_7_L
-	return 0x08C06330;
-#else
-#warning int getStack() return NULL;
-	return (int)NULL;
 #endif
 }
 
@@ -517,8 +498,9 @@ int stackGetParams(char *params, ...)
 	{
 		switch (params[i])
 		{
-		case ' ': // ignore param
+		case ' ': // ignore param (e.g. to ignore the function-id from closer()-wrapper)
 			break;
+
 		case 'i':
 		{
 			int *tmp = va_arg(args, int *);
@@ -529,6 +511,7 @@ int stackGetParams(char *params, ...)
 			}
 			break;
 		}
+
 		case 'v':
 		{
 			float *tmp = va_arg(args, float *);
@@ -539,6 +522,7 @@ int stackGetParams(char *params, ...)
 			}
 			break;
 		}
+
 		case 'f':
 		{
 			float *tmp = va_arg(args, float *);
@@ -549,6 +533,7 @@ int stackGetParams(char *params, ...)
 			}
 			break;
 		}
+
 		case 's':
 		{
 			char **tmp = va_arg(args, char **);
@@ -563,6 +548,7 @@ int stackGetParams(char *params, ...)
 		default:
 			errors++;
 			printf("[WARNING] stackGetParams: errors=%d Identifier '%c' is not implemented!\n", errors, params[i]);
+			break;
 		}
 	}
 
@@ -573,19 +559,12 @@ int stackGetParams(char *params, ...)
 // function can be found in same context as getStack()
 int getNumberOfParams() // as in stackNew()
 {
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	return 0x083D761C;
 #elif COD_VERSION == COD2_1_2
 	return 0x083D7A1C; // diff to 1.3: 1080
 #elif COD_VERSION == COD2_1_3
 	return 0x083D8A9C;
-#elif COD_VERSION == COD4_1_7
-	return 0x08c055bc;
-#elif COD_VERSION == COD4_1_7_L
-	return 0x08C0633C;
-#else
-#warning int getNumberOfParams() return NULL;
-	return (int)NULL;
 #endif
 }
 
@@ -595,45 +574,29 @@ int stackGetParamInt(int param, int *value)
 	//printf("stackGetParamInt() start...");
 	aStackElement *scriptStack = *(aStackElement**)getStack();
 	aStackElement *arg = scriptStack - param;
+
 	if (arg->type != STACK_INT)
 		return 0;
+
 	*value = (int)arg->offsetData;
 	//printf("... end\n");
 	return 1;
 }
 
-/*
-CoD2: just look in getent() e.g.
-int __cdecl sub_8078DFC(int a1)
-{
-  return stringtable_8205E80 + 8 * a1;
-}
-*/
-
 int stackGetParamString(int param, char **value) // as in the sub-functions in getentarray (hard one, use the graph to find it)
 {
 	aStackElement *scriptStack = *(aStackElement**)getStack();
 	aStackElement *arg = scriptStack - param;
+
 	if (arg->type != STACK_STRING)
 		return 0;
-	//*value = "bla";
-	//printf("offsetData=%.8x ", arg->offsetData);
-	// lnxded 1.3: get_string_stack_element_by_id_sub_8078ec8(int id)
-	//printf("datatable + 8*%d = %.8x \"%s\"\n", arg->offsetData, *(int *)0x08206F00 + 8*(int)arg->offsetData, *(int *)0x08206F00 + 8*(int)arg->offsetData + 4);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*value = (char *)(*(int *)0x08283E80 + 8*(int)arg->offsetData + 4);
 #elif COD_VERSION == COD2_1_2
 	*value = (char *)(*(int *)0x08205E80 + 8*(int)arg->offsetData + 4);
 #elif COD_VERSION == COD2_1_3
 	*value = (char *)(*(int *)0x08206F00 + 8*(int)arg->offsetData + 4);
-#elif COD_VERSION == COD4_1_7
-	*value = (char *)(*(int *)0x0897ca00 + 12 * (int)arg->offsetData + 4);
-#elif COD_VERSION == COD4_1_7_L
-	*value = (char *)(*(int *)0x0897D780 + 12 * (int)arg->offsetData + 4);
-#else
-#warning stackGetParamString(int param, char **value) *value = (char *)(*(int *)NULL + 8*(int)arg->offsetData + 4);
-	*value = (char *)(*(int *)NULL + 8*(int)arg->offsetData + 4);
 #endif
 
 	return 1;
@@ -643,11 +606,14 @@ int stackGetParamVector(int param, float value[3])
 {
 	aStackElement *scriptStack = *(aStackElement**)getStack();
 	aStackElement *arg = scriptStack - param;
+
 	if (arg->type != STACK_VECTOR)
 		return 0;
+
 	value[0] = *(float *)((int)(arg->offsetData) + 0);
 	value[1] = *(float *)((int)(arg->offsetData) + 4);
 	value[2] = *(float *)((int)(arg->offsetData) + 8);
+
 	return 1;
 }
 
@@ -660,9 +626,12 @@ int stackGetParamFloat(int param, float *value)
 	{
 		int asInteger;
 		int ret = stackGetParamInt(param, &asInteger);
+
 		if (!ret)
 			return 0;
+
 		*value = (float) asInteger;
+
 		return 1;
 	}
 
@@ -670,13 +639,16 @@ int stackGetParamFloat(int param, float *value)
 	// gcc: error: pointer value used where a floating point value was expected
 	// so i use the tmp for casting
 	float tmp;
+
 	if (arg->type != STACK_FLOAT)
 		return 0;
+
 	//swapEndian(&arg->offsetData); // DOESEN WORK EVEN WITH SWAP
 	//*value = (float)(int)arg->offsetData; // DOESNT WORK
 	// jeah gcc, you fucked me off!
 	memcpy(&tmp, &arg->offsetData, 4); // cast to float xD
 	*value = tmp;
+
 	return 1;
 }
 
@@ -684,20 +656,6 @@ int stackGetNumberOfParams()
 {
 	int numberOfParams = *(int *)getNumberOfParams();
 	return numberOfParams;
-}
-
-unsigned short get_var_by_idx(unsigned short index)
-{
-#if COD_VERSION == COD2_1_0
-	unsigned short *words = (unsigned short*)0x0815AB82;
-#elif COD_VERSION == COD2_1_2
-	unsigned short *words = (unsigned short*)0x0817C902;
-#elif COD_VERSION == COD2_1_3
-	unsigned short *words = (unsigned short*)0x0817D922;
-#else
-	unsigned short *words = (unsigned short*)0xdeadbeef;
-#endif
-	return words[6 * index];
 }
 
 //thanks to riicchhaarrd/php
@@ -715,6 +673,7 @@ unsigned short Scr_GetArray(int index)
 
 	if(vartype == STACK_OBJECT) //VT_OBJECT
 		return *(unsigned short*)base;
+
 	printf("scriptengine> Scr_GetArray: the parameter must be an array\n");
 	return 0;
 }
@@ -723,19 +682,17 @@ void Scr_GetArrayKeys()
 {
 	unsigned short arrIndex = Scr_GetArray(0);
 	stackPushArray();
+
 	if(arrIndex == 0)
 		return; // we didn't find a valid array
 
-	unsigned short i, var;
+	unsigned short i;
 	for(i = GetNextVariable(arrIndex); i != 0;)
 	{
-		//printf("%d: %s = %s\n", i, SL_ConvertToString(GetVariableName(i)), SL_ConvertToString(var));
-
 		stackPushString(SL_ConvertToString(GetVariableName(i)));
 		stackPushArrayLast();
 
 		i = GetNextVariable(i);
-		var = get_var_by_idx(i);
 	}
 }
 
@@ -756,13 +713,6 @@ int stackNew()
 	*((int *)(&signature)) = 0x08083D2C;
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08083DF8;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815EC48;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815EC68;
-#else
-#warning int stackNew() *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature();
@@ -817,19 +767,12 @@ int stackPushInt(int ret) // as in isalive
 {
 	int (*signature)(int);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08084B1C;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x08085098; // difference to 1.3: CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085164;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815EFFA;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815F01A;
-#else
-#warning int stackPushInt(int ret)
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature(ret);
@@ -844,19 +787,12 @@ int stackPushVector(float *ret) // as in vectornormalize
 {
 	int (*signature)(float *);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08084CBE;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x0808523A; // difference to 1.3: CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085306;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815EDF2;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815EE12;
-#else
-#warning int stackPushVector(float *ret) *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature(ret);
@@ -866,19 +802,12 @@ int stackPushFloat(float ret) // as in distance
 {
 	int (*signature)(float);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08084B40;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x080850BC; // difference to 1.3: CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085188;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815EF7A;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815EF9A;
-#else
-#warning int stackPushFloat(float ret) *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature(ret);
@@ -888,19 +817,12 @@ int stackPushString(char *toPush) // as in getcvar()
 {
 	int (*signature)(char *);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08084C1A;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x08085196; // difference to 1.3: CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085262;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815EC48;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815EC68;
-#else
-#warning int stackPushString(char *toPush) *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature(toPush);
@@ -910,17 +832,12 @@ int stackPushEntity(int arg) // as in getent() // todo: find out how to represen
 {
 	int (*signature)(int);
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08118CC0;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x0811AFF4; // difference OTHER then CC
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08117F50;
-#elif COD_VERSION == COD4_1_7 || COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x080C7770;
-#else
-#warning int stackPushEntity(int arg) *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature(arg);
@@ -931,19 +848,12 @@ int stackPushArray()
 {
 	int (*signature)();
 
-#  if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0
 	*((int *)(&signature)) = 0x08084CF0;
 #elif COD_VERSION == COD2_1_2
 	*((int *)(&signature)) = 0x0808526C;
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085338;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815ED6A;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815ED8A;
-#else
-#warning int stackPushArray() *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature();
@@ -959,13 +869,6 @@ int stackPushArrayLast()   // as in getentarray
 	*((int *)(&signature)) = 0x08085298;
 #elif COD_VERSION == COD2_1_3
 	*((int *)(&signature)) = 0x08085364;
-#elif COD_VERSION == COD4_1_7
-	*((int *)(&signature)) = 0x0815D5A0;
-#elif COD_VERSION == COD4_1_7_L
-	*((int *)(&signature)) = 0x0815D5C0;
-#else
-#warning int stackPushArrayLast() *((int *)(&signature)) = NULL;
-	*((int *)(&signature)) = (int)NULL;
 #endif
 
 	return signature();

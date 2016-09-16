@@ -25,7 +25,6 @@ void gsc_binarybuffer_free();
 void gsc_binarybuffer_seek();
 void gsc_binarybuffer_write();
 void gsc_binarybuffer_read();
-
 #endif
 
 #ifdef __cplusplus

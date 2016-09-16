@@ -3,7 +3,6 @@ The Call of Duty extension *libcod* is adding new server-side functions to:
  - Call Of Duty 2 1.0
  - Call Of Duty 2 1.2
  - Call Of Duty 2 1.3
- - Call Of Duty 4 1.7
 
 Requirements:
 ```
@@ -27,8 +26,6 @@ Working with the source / Compiling:
 ./doit.sh cod2_1_0
 ./doit.sh cod2_1_2
 ./doit.sh cod2_1_3
-./doit.sh cod4_1_7
-./doit.sh cod4_1_7_l
 ```
 
 Mods depending on *libcod*:
@@ -55,3 +52,5 @@ Community / Help: http://killtube.org/forum.php
 CoD1 users:
 Libcod support for CoD1 was very basic and without almost all functions and it's been dropped.
 Use php's CoDExtended: https://github.com/riicchhaarrd/CoDExtended
+
+CoD4 users: use CoD4x: https://github.com/callofduty4x/CoD4x_Server
