@@ -636,7 +636,7 @@ int bot_shoot[64] = {0};
 int bot_wepType[64] = {0};
 int bot_throwNade[64] = {0};
 
-int clfps[64][20] = {0};
+int clfps[64][20] = {{0}};
 int clfpstemp[64] = {0};
 int clfpsindex = 0;
 
