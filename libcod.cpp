@@ -646,6 +646,7 @@ int bot_stance[64] = {0};
 int bot_shoot[64] = {0};
 int bot_melee[64] = {0};
 int bot_ads[64] = {0};
+int bot_lean[64] = {0};
 
 int clfps[64][20] = {{0}};
 int clfpstemp[64] = {0};
@@ -674,12 +675,7 @@ int play_movement(int a1, int a2)
 
 		if (addrtype == 0) //bot stuff here
 		{
-			if (bot_melee[clientnum])
-				bot_state[clientnum] = 32772;
-			else if (bot_grenade[clientnum])
-				bot_state[clientnum] = 65536;
-			else
-				bot_state[clientnum] = (bot_stance[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum]);
+			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum]);
 
 			*(int *)(a2 + 4) = bot_state[clientnum];
 			*(int *)(a2 + 24) = bot_movement[clientnum];

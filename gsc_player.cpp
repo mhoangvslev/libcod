@@ -213,6 +213,30 @@ void gsc_player_button_jump(int id)
 	stackReturnInt(jumpButtonPressed);
 }
 
+int isInArray(int val, int *array, int array_size)
+{
+	for (int i = 0; i < array_size; i++)
+	{
+		if (array[i] == val)
+			return 1;
+	}
+	return 0;
+}
+
+void gsc_player_button_reload(int id)
+{
+	int offset = PLAYERBASE(id) + 133156 + 4;
+	int states[9] = {0, 1, 16, 64, 128, 256, 384, 512, 1024};
+	stackReturnInt( isInArray( (*(int *)(offset) - 16), states, 9) );
+}
+
+void gsc_player_button_frag(int id)
+{
+	int offset = PLAYERBASE(id) + 133156 + 4;
+	int states[9] = {0, 1, 16, 64, 128, 256, 384, 512, 1024};
+	stackReturnInt( isInArray( (*(int *)(offset) - 65536), states, 9) );
+}
+
 void gsc_player_stance_get(int id)
 {
 	int entity = gentities + id * gentities_size;
@@ -695,26 +719,46 @@ void gsc_player_set_anim(int id)
 
 void gsc_player_set_walkdir(int id)
 {
-	char* walkDir;
+	char* dir;
 
-	if ( ! stackGetParams("s", &walkDir))
+	if ( ! stackGetParams("s", &dir))
 	{
-		printf("scriptengine> ERROR: gsc_player_set_walkdir(): param \"walkDir\"[1] has to be an string!\n");
+		printf("scriptengine> ERROR: gsc_player_set_walkdir(): param \"dir\"[1] has to be an string!\n");
 		stackPushUndefined();
 		return;
 	}
 
 	extern int bot_movement[64];
-	if(!strcmp(walkDir, "none"))
+	if(!strcmp(dir, "none"))
 		bot_movement[id] = (0);
-	else if(!strcmp(walkDir, "forward"))
+	else if(!strcmp(dir, "forward"))
 		bot_movement[id] = (127);
-	else if(!strcmp(walkDir, "back"))
+	else if(!strcmp(dir, "back"))
 		bot_movement[id] = (129);
-	else if(!strcmp(walkDir, "right"))
+	else if(!strcmp(dir, "right"))
 		bot_movement[id] = (127 << 8);
-	else if(!strcmp(walkDir, "left"))
+	else if(!strcmp(dir, "left"))
 		bot_movement[id] = (129 << 8);
+}
+
+void gsc_player_set_lean(int id)
+{
+	char* lean;
+
+	if ( ! stackGetParams("s", &lean))
+	{
+		printf("scriptengine> ERROR: gsc_player_set_lean(): param \"lean\"[1] has to be an string!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	extern int bot_lean[64];
+	if(!strcmp(lean, "none"))
+		bot_lean[id] = (0);
+	else if(!strcmp(lean, "left"))
+		bot_lean[id] = (64);
+	else if(!strcmp(lean, "right"))
+		bot_lean[id] = (128);
 }
 
 void gsc_player_set_stance(int id)
@@ -741,20 +785,20 @@ void gsc_player_set_stance(int id)
 
 void gsc_player_thrownade(int id)
 {
-	int throwNade;
+	int grenade;
 
-	if ( ! stackGetParams("i", &throwNade))
+	if ( ! stackGetParams("i", &grenade))
 	{
-		printf("scriptengine> ERROR: gsc_player_thrownade(): param \"throwNade\"[1] has to be an int!\n");
+		printf("scriptengine> ERROR: gsc_player_thrownade(): param \"grenade\"[1] has to be an int!\n");
 		stackPushUndefined();
 		return;
 	}
 
 	extern int bot_grenade[64];
-	if (!throwNade)
+	if (!grenade)
 		bot_grenade[id] = (0);
 	else
-		bot_grenade[id] = (1);
+		bot_grenade[id] = (65536);
 }
 
 void gsc_player_fireweapon(int id)
@@ -790,7 +834,7 @@ void gsc_player_meleeweapon(int id)
 	if (!melee)
 		bot_melee[id] = (0);
 	else
-		bot_melee[id] = (1);
+		bot_melee[id] = (32772);
 }
 
 void gsc_player_adsaim(int id)
