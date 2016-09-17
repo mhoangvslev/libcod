@@ -639,10 +639,13 @@ void set_bot_pings()
 	}
 }
 
-int client_movement[64] = {0};
+int bot_movement[64] = {0};
+int bot_state[64] = {0};
+int bot_grenade[64] = {0};
+int bot_stance[64] = {0};
 int bot_shoot[64] = {0};
-int bot_wepType[64] = {0};
-int bot_throwNade[64] = {0};
+int bot_melee[64] = {0};
+int bot_ads[64] = {0};
 
 int clfps[64][20] = {{0}};
 int clfpstemp[64] = {0};
@@ -664,40 +667,22 @@ int play_movement(int a1, int a2)
 
 	clientnum = (a1 - *(int*)offset) / playerinfo_size;
 	clfpstemp[clientnum]++; // FPS
+
 	if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
 	{
 		addrtype = getAddressType(clientnum);
 
-		if(addrtype == 0) //bot stuff here
+		if (addrtype == 0) //bot stuff here
 		{
-			if(!bot_throwNade[clientnum])
-			{
-				if(!bot_wepType[clientnum])
-				{
-					if(bot_shoot[clientnum] == 4097)
-						bot_shoot[clientnum] = 0;
-					else
-						bot_shoot[clientnum] = 4097;
-				}
-				else
-					bot_shoot[clientnum] = 4097;
-			}
+			if (bot_melee[clientnum])
+				bot_state[clientnum] = 32772;
+			else if (bot_grenade[clientnum])
+				bot_state[clientnum] = 65536;
 			else
-			{
-				bot_shoot[clientnum] = 65536;
-			}
+				bot_state[clientnum] = (bot_stance[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum]);
 
-			*(int *)(a2 + 4) = bot_shoot[clientnum];
-
-			if(!client_movement[clientnum])
-				*(int *)(a2 + 24) = 0;
-			else
-				*(int *)(a2 + 24) = client_movement[clientnum];
-		}
-		else     //player stuff here
-		{
-			if(client_movement[clientnum])
-				*(int *)(a2 + 24) = client_movement[clientnum];
+			*(int *)(a2 + 4) = bot_state[clientnum];
+			*(int *)(a2 + 24) = bot_movement[clientnum];
 		}
 	}
 
@@ -1169,7 +1154,7 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x0808F488, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810C1F6, (int) fire_grenade);
+		hook_fire_grenade = new cHook(0x810C1F6, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
 
@@ -1200,7 +1185,7 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x08090D18, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810E532, (int) fire_grenade);
+		hook_fire_grenade = new cHook(0x810E532, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
 
@@ -1231,7 +1216,7 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810E68E, (int) fire_grenade);
+		hook_fire_grenade = new cHook(0x810E68E, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
 

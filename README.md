@@ -39,13 +39,14 @@ Little overview of added functions:
 - setVelocity, getVelocity, addVelocity (needed for the mods: portal, surf)
 - keyPressed-functions for left, right, forward, backward, leanleft, leanright, jump etc., (needed for: surf, doublejump made by IzNoGod)
 - setAlive-function (needed for: zombots, so xmodels are damagable without damage-trigger... zombots in stockmaps)
-- disableGlobalPlayerCollision()
+- disableGlobalPlayerCollision() also disableGlobalPlayerEject()
+- native bot functions (bots can move, shoot, jump, melee, ads, set stance)
 
 Engine fixes:
- - Faster download for CoD2 1.0
- - Directory traversal fix
- - Weapon struct segfault fix
- - Rate Limiter
+- Faster download for CoD2 1.0
+- Directory traversal fix
+- Weapon struct segfault fix
+- Rate Limiter
 	
 Community / Help: http://killtube.org/forum.php
 
