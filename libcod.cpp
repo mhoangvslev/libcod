@@ -252,6 +252,14 @@ int hook_ClientUserinfoChanged(int clientNum)
 	return 0;
 }
 
+void hook_SV_WriteDownloadToClient(int cl, int msg)
+{
+	if((*(int*)(cl + 134248)) && (*(int*)(cl+452280)**(int*)(cl+452280+4)/2048000 > 6))
+		SV_DropClient(cl, "broken download");
+	else
+		SV_WriteDownloadToClient(cl, msg);
+}
+
 int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
 {
 	char errorMessage[COD2_MAX_STRINGLENGTH];
@@ -1176,6 +1184,7 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_2
+		cracking_hook_call(0x0809AD68, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
@@ -1206,6 +1215,7 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_3
+		cracking_hook_call(0x0809AEAC, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
