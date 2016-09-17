@@ -723,7 +723,7 @@ void gsc_player_set_stance(int id)
 
 	if ( ! stackGetParams("s", &stance))
 	{
-		printf("scriptengine> ERROR: gsc_player_set_walkdir(): param \"stance\"[1] has to be a string!\n");
+		printf("scriptengine> ERROR: gsc_player_set_stance(): param \"stance\"[1] has to be a string!\n");
 		stackPushUndefined();
 		return;
 	}
