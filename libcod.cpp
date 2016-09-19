@@ -1065,18 +1065,6 @@ int hook_findMap(const char *qpath, void **buffer)
 		return FS_ReadFile(qpath, buffer);
 }
 
-int FS_AddGameDirectory(char *path, char *dir)
-{
-	printf("FS_AddGameDirectory(char *path=%s, char *dir=%s)\n", path, dir);
-	return 1;
-}
-
-int FS_LoadIWD(char *a, char *b)
-{
-	printf("FS_LoadIWD(char *a=%s, char *b=%s)\n", a, b);
-	return 1;
-}
-
 class cCallOfDuty2Pro
 {
 public:
