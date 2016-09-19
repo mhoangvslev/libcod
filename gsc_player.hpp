@@ -63,7 +63,6 @@ int hook_pickup_item(int weapon, int player, int message);
 void gsc_player_disable_item_pickup(int id);
 void gsc_player_enable_item_pickup(int id);
 void gsc_player_set_anim(int id);
-#if COMPILE_BOTS == 1
 void gsc_player_set_walkdir(int id);
 void gsc_player_set_lean(int id);
 void gsc_player_set_stance(int id);
@@ -72,7 +71,6 @@ void gsc_player_fireweapon(int id);
 void gsc_player_meleeweapon(int id);
 void gsc_player_reloadweapon(int id);
 void gsc_player_adsaim(int id);
-#endif
 void gsc_player_getcooktime(int id);
 void gsc_player_setguid(int id);
 void gsc_player_clienthasclientmuted(int id);
