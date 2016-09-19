@@ -205,36 +205,20 @@ void gsc_player_button_leanright(int id)
 	stackReturnInt(leanrightButtonPressed);
 }
 
+void gsc_player_button_reload(int id)
+{
+	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
+
+	int reloadButtonPressed = (*aim_address & 0x10)==0x10;
+	stackReturnInt(reloadButtonPressed);
+}
+
 void gsc_player_button_jump(int id)
 {
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E9);
 
 	int jumpButtonPressed = (*aim_address & 0x04)==0x04;
 	stackReturnInt(jumpButtonPressed);
-}
-
-int isInArray(int val, int *array, int array_size)
-{
-	for (int i = 0; i < array_size; i++)
-	{
-		if (array[i] == val)
-			return 1;
-	}
-	return 0;
-}
-
-void gsc_player_button_reload(int id)
-{
-	int offset = PLAYERBASE(id) + 133156 + 4;
-	int states[9] = {0, 1, 16, 64, 128, 256, 384, 512, 1024};
-	stackReturnInt( isInArray( (*(int *)(offset) - 16), states, 9) );
-}
-
-void gsc_player_button_frag(int id)
-{
-	int offset = PLAYERBASE(id) + 133156 + 4;
-	int states[9] = {0, 1, 16, 64, 128, 256, 384, 512, 1024};
-	stackReturnInt( isInArray( (*(int *)(offset) - 65536), states, 9) );
 }
 
 void gsc_player_stance_get(int id)
@@ -717,6 +701,7 @@ void gsc_player_set_anim(int id)
 	custom_animation[id] = (animationIndex);
 }
 
+#if COMPILE_BOTS == 1
 void gsc_player_set_walkdir(int id)
 {
 	char* dir;
@@ -837,6 +822,24 @@ void gsc_player_meleeweapon(int id)
 		bot_melee[id] = (32772);
 }
 
+void gsc_player_reloadweapon(int id)
+{
+	int reload;
+
+	if ( ! stackGetParams("i", &reload))
+	{
+		printf("scriptengine> ERROR: gsc_player_reloadweapon(): param \"reload\"[1] has to be an int!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	extern int bot_reload[64];
+	if (!reload)
+		bot_reload[id] = (0);
+	else
+		bot_reload[id] = (16);
+}
+
 void gsc_player_adsaim(int id)
 {
 	int ads;
@@ -854,6 +857,7 @@ void gsc_player_adsaim(int id)
 	else
 		bot_ads[id] = (4096);
 }
+#endif
 
 void gsc_player_getcooktime(int id)
 {

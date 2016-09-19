@@ -9,6 +9,7 @@
 // GSC MODULES
 #define COMPILE_MYSQL 1
 #define COMPILE_PLAYER 1
+#define COMPILE_BOTS 1
 #define COMPILE_MEMORY 1
 #define COMPILE_UTILS 1
 

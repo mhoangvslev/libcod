@@ -639,6 +639,7 @@ void set_bot_pings()
 	}
 }
 
+#if COMPILE_BOTS == 1
 int bot_movement[64] = {0};
 int bot_state[64] = {0};
 int bot_grenade[64] = {0};
@@ -647,6 +648,8 @@ int bot_shoot[64] = {0};
 int bot_melee[64] = {0};
 int bot_ads[64] = {0};
 int bot_lean[64] = {0};
+int bot_reload[64] = {0};
+#endif
 
 int clfps[64][20] = {{0}};
 int clfpstemp[64] = {0};
@@ -669,18 +672,20 @@ int play_movement(int a1, int a2)
 	clientnum = (a1 - *(int*)offset) / playerinfo_size;
 	clfpstemp[clientnum]++; // FPS
 
+#if COMPILE_BOTS == 1
 	if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
 	{
 		addrtype = getAddressType(clientnum);
 
-		if (addrtype == 0) //bot stuff here
+		if (addrtype == 0)
 		{
-			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum]);
+			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum] + bot_reload[clientnum]);
 
 			*(int *)(a2 + 4) = bot_state[clientnum];
 			*(int *)(a2 + 24) = bot_movement[clientnum];
 		}
 	}
+#endif
 
 	hook_play_movement->unhook();
 	int (*sig)(int a1, int a2);
