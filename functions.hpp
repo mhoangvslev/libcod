@@ -15,6 +15,24 @@ static int trap_Argc()
 #endif
 }
 
+typedef void (*gametype_scripts_t)();
+#if COD_VERSION == COD2_1_0
+static gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
+#elif COD_VERSION == COD2_1_2
+static gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0811012A;
+#elif COD_VERSION == COD2_1_3
+static gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x08110286;
+#endif
+
+typedef int (*codscript_load_function_t)(char *file, char *function, int isNeeded);
+#if COD_VERSION == COD2_1_0
+static codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x0810DD70;
+#elif COD_VERSION == COD2_1_2
+static codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x081100AC;
+#elif COD_VERSION == COD2_1_3
+static codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x08110208;
+#endif
+
 typedef char * (*Cmd_Argv_t)(int arg);
 #if COD_VERSION == COD2_1_0
 static Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x0806001C;

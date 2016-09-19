@@ -14,41 +14,22 @@ int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
 int codecallback_vid_restart = 0;
 
-typedef void (*gametype_scripts_t)();
-#if COD_VERSION == COD2_1_0
-gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
-#elif COD_VERSION == COD2_1_2
-gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0811012A;
-#elif COD_VERSION == COD2_1_3
-gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x08110286;
-#endif
-
-typedef int (*codscript_load_function_t)(char *file, char *function, int isNeeded);
-#if COD_VERSION == COD2_1_0
-codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x0810DD70;
-#elif COD_VERSION == COD2_1_2
-codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x081100AC;
-#elif COD_VERSION == COD2_1_3
-codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x08110208;
-#endif
-
-void hook_codscript_gametype_scripts()
+cHook *hook_gametype_scripts;
+int hook_codscript_gametype_scripts()
 {
+	hook_gametype_scripts->unhook();
+
 	codecallback_playercommand = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
 	codecallback_userinfochanged = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
 	codecallback_fire_grenade = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
 	codecallback_vid_restart = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
 
-	//printf("codecallback_playercommand=%.8x\n", codecallback_playercommand);
+	int (*sig)();
+	*(int *)&sig = hook_gametype_scripts->from;
+	int ret = sig();
+	hook_gametype_scripts->hook();
 
-	// unhook
-	cracking_write_hex((int)gametype_scripts, (char *)"5589E583EC58"); // todo: hook->unhook()
-
-	// call original
-	gametype_scripts();
-
-	// hook again
-	cracking_hook_function((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
+	return ret;
 }
 
 cHook *hook_fire_grenade;
@@ -985,30 +966,6 @@ int hook_SVC_Status(netadr_t from)
 }
 #endif
 
-void manymaps_prepare(char *mapname, int read);
-int hook_findMap(const char *qpath, void **buffer)
-{
-	int read = FS_ReadFile(qpath, buffer);
-	manymaps_prepare(Cmd_Argv(1), read);
-
-	if(read != -1)
-		return read;
-	else
-		return FS_ReadFile(qpath, buffer);
-}
-
-int FS_AddGameDirectory(char *path, char *dir)
-{
-	printf("FS_AddGameDirectory(char *path=%s, char *dir=%s)\n", path, dir);
-	return 1;
-}
-
-int FS_LoadIWD(char *a, char *b)
-{
-	printf("FS_LoadIWD(char *a=%s, char *b=%s)\n", a, b);
-	return 1;
-}
-
 void manymaps_prepare(char *mapname, int read)
 {
 	char *sv_iwdNames = Cvar_VariableString("sv_iwdNames");
@@ -1095,6 +1052,29 @@ void manymaps_prepare(char *mapname, int read)
 		if(read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
 			FS_LoadDir(Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
 	}
+}
+
+int hook_findMap(const char *qpath, void **buffer)
+{
+	int read = FS_ReadFile(qpath, buffer);
+	manymaps_prepare(Cmd_Argv(1), read);
+
+	if(read != -1)
+		return read;
+	else
+		return FS_ReadFile(qpath, buffer);
+}
+
+int FS_AddGameDirectory(char *path, char *dir)
+{
+	printf("FS_AddGameDirectory(char *path=%s, char *dir=%s)\n", path, dir);
+	return 1;
+}
+
+int FS_LoadIWD(char *a, char *b)
+{
+	printf("FS_LoadIWD(char *a=%s, char *b=%s)\n", a, b);
+	return 1;
 }
 
 class cCallOfDuty2Pro
@@ -1232,11 +1212,12 @@ public:
 #endif
 
 #endif
-		cracking_hook_function((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
 		cracking_hook_call(hook_ClientCommand_call, (int)hook_ClientCommand);
-
 		cracking_hook_call(hook_AuthorizeState_call, (int)hook_AuthorizeState);
 		cracking_hook_call(hook_findMap_call, (int)hook_findMap);
+
+		hook_gametype_scripts = new cHook((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
+		hook_gametype_scripts->hook();
 
 		gsc_utils_init();
 		printf("> [PLUGIN LOADED]\n");
