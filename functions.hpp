@@ -291,7 +291,7 @@ static SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
 static NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
 #elif COD_VERSION == COD2_1_2
 static SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080970CC;
-static V_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
+static SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
 static SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
 static SVC_Status_t SVC_Status = (SVC_Status_t)0x08094BCC;
 static NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
