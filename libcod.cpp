@@ -654,6 +654,16 @@ int play_movement(int a1, int a2)
 	clfpstemp[clientnum]++; // FPS
 
 #if COMPILE_BOTS == 1
+
+#if DEBUG_BOT_STATES == 1
+	printf("a2 + 4 == %d\n", *(int *)(a2 + 4));
+	printf("a2 + 8 == %d\n", *(int *)(a2 + 8));
+	printf("a2 + 12 == %d\n", *(int *)(a2 + 12));
+	printf("a2 + 16 == %d\n", *(int *)(a2 + 16));
+	printf("a2 + 20 == %d\n", *(int *)(a2 + 20));
+	printf("a2 + 24 == %d\n", *(int *)(a2 + 24));
+#endif
+
 	if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
 	{
 		addrtype = getAddressType(clientnum);
