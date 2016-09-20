@@ -676,10 +676,7 @@ int play_movement(int a1, int a2)
 			*(int *)(a2 + 4) = bot_state[clientnum];
 
 			if (bot_weapon[clientnum])
-			{
 				*(int *)(a2 + 8) = bot_weapon[clientnum];
-				bot_weapon[clientnum] = 0;
-			}
 
 			*(int *)(a2 + 24) = bot_movement[clientnum];
 		}
