@@ -5,7 +5,7 @@
 /*
 	Had the problem, that a query failed but no mysql_errno() was set
 	Reason: mysql_query() didnt even got executed, because the str was undefined
-	So the function quittet with stackReturnInt(0)
+	So the function quittet with stackPushInt(0)
 	Now its undefined, and i shall test it every time
 */
 
@@ -320,7 +320,7 @@ void gsc_mysql_init()
 	printf("gsc_mysql_init()\n");
 #endif
 	MYSQL *my = mysql_init(NULL);
-	stackReturnInt((int) my);
+	stackPushInt((int) my);
 }
 
 void gsc_mysql_reuse_connection()
@@ -357,7 +357,7 @@ void gsc_mysql_real_connect()
 	mysql_options((MYSQL*)mysql, MYSQL_OPT_RECONNECT, &reconnect);
 	if(cod_mysql_connection == NULL)
 		cod_mysql_connection = (MYSQL*) mysql;
-	stackReturnInt(mysql);
+	stackPushInt(mysql);
 }
 
 void gsc_mysql_close()
@@ -375,7 +375,7 @@ void gsc_mysql_close()
 #endif
 
 	mysql_close((MYSQL *)mysql);
-	stackReturnInt(0);
+	stackPushInt(0);
 }
 
 void gsc_mysql_query()
@@ -394,7 +394,7 @@ void gsc_mysql_query()
 #endif
 
 	int ret = mysql_query((MYSQL *)mysql, sql);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_errno()
@@ -412,7 +412,7 @@ void gsc_mysql_errno()
 #endif
 
 	int ret = mysql_errno((MYSQL *)mysql);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_error()
@@ -448,7 +448,7 @@ void gsc_mysql_affected_rows()
 #endif
 
 	int ret = mysql_affected_rows((MYSQL *)mysql);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_store_result()
@@ -466,7 +466,7 @@ void gsc_mysql_store_result()
 #endif
 
 	MYSQL_RES *result = mysql_store_result((MYSQL *)mysql);
-	stackReturnInt((int) result);
+	stackPushInt((int) result);
 }
 
 void gsc_mysql_num_rows()
@@ -484,7 +484,7 @@ void gsc_mysql_num_rows()
 #endif
 
 	int ret = mysql_num_rows((MYSQL_RES *)result);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_num_fields()
@@ -502,7 +502,7 @@ void gsc_mysql_num_fields()
 #endif
 
 	int ret = mysql_num_fields((MYSQL_RES *)result);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_field_seek()
@@ -521,7 +521,7 @@ void gsc_mysql_field_seek()
 #endif
 
 	int ret = mysql_field_seek((MYSQL_RES *)result, offset);
-	stackReturnInt(ret);
+	stackPushInt(ret);
 }
 
 void gsc_mysql_fetch_field()

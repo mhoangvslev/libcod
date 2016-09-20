@@ -59,7 +59,6 @@ typedef struct
 
 int getStack();
 int stackNew();
-int stackPushUndefined();
 
 int stackGetParamInt(int param, int *value);
 int stackGetParamString(int param, char **value);
@@ -70,9 +69,8 @@ int stackGetParamType(int param);
 char *stackGetParamTypeAsString(int param);
 int stackGetParams(char *params, ...);
 
-int stackReturnInt(int ret); // obsolete
+int stackPushUndefined();
 int stackPushInt(int ret);
-int stackReturnVector(float *ret); // obsolete
 int stackPushVector(float *ret);
 int stackPushFloat(float ret);
 int stackPushString(char *toPush);
@@ -80,14 +78,8 @@ int stackPushEntity(int arg);
 int stackPushArray();
 int stackPushArrayLast();
 
-unsigned short get_var_by_idx(unsigned short index);
 unsigned short Scr_GetArray(int index);
 void Scr_GetArrayKeys();
-
-// might put it in an extra file later, but atm its just one FS function
-// int FS_LoadDir(char *path, char *dir);
-
-// real functions and methods
 
 // functions
 typedef void (*Scr_FunctionCall)();

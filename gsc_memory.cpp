@@ -16,7 +16,7 @@ void gsc_memory_malloc()
 	printf("gsc_memory_malloc(bytes=%d)\n", bytes);
 #endif
 
-	stackReturnInt((int) malloc(bytes));
+	stackPushInt((int) malloc(bytes));
 }
 
 void gsc_memory_free()
@@ -34,7 +34,7 @@ void gsc_memory_free()
 #endif
 
 	free((void*)memory);
-	stackReturnInt(0);
+	stackPushInt(0);
 }
 
 void gsc_memory_int_get()
@@ -51,7 +51,7 @@ void gsc_memory_int_get()
 	printf("gsc_memory_int_get(memory=%d)\n", memory);
 #endif
 
-	stackReturnInt(*(int*)memory);
+	stackPushInt(*(int*)memory);
 }
 
 void gsc_memory_int_set()
@@ -69,7 +69,7 @@ void gsc_memory_int_set()
 #endif
 
 	*(int*)memory = value;
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_memory_memset()
@@ -87,7 +87,7 @@ void gsc_memory_memset()
 #endif
 
 	memset((void*)memory, value, bytes);
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 #include <vector>
@@ -125,7 +125,7 @@ void gsc_binarybuffer_free()
 		free(*i);
 	delete bb->strings;
 	free(bb);
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 void gsc_binarybuffer_seek()
 {
@@ -138,7 +138,7 @@ void gsc_binarybuffer_seek()
 		return;
 	}
 	bb->pos = pos;
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 void gsc_binarybuffer_write()
 {
@@ -228,7 +228,7 @@ void gsc_binarybuffer_write()
 		break;
 	}
 	}
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 void gsc_binarybuffer_read()
 {

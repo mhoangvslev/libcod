@@ -69,7 +69,7 @@ void gsc_player_velocity_set(int id)
 	*player_0_velocity_y = velocity[1];
 	*player_0_velocity_z = velocity[2];
 
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_player_clientuserinfochanged(int id)
@@ -96,7 +96,7 @@ void gsc_player_velocity_add(int id)
 	*player_0_velocity_y += velocity[1];
 	*player_0_velocity_z += velocity[2];
 
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_get_userinfo(int id)
@@ -145,7 +145,7 @@ void gsc_player_velocity_get(int id)
 {
 	//int currentPlayer = playerStates + id * sizeOfPlayer;
 	float *vectorVelocity = (float *)PLAYERSTATE_VELOCITY(id); // (currentPlayer + 0x20);
-	stackReturnVector(vectorVelocity);
+	stackPushVector(vectorVelocity);
 }
 
 // aimButtonPressed (toggleads or +speed/-speed)
@@ -154,7 +154,7 @@ void gsc_player_button_ads(int id)
 	int currentPlayer = playerStates + id * sizeOfPlayer;
 	unsigned char *aim_address = (unsigned char *)(currentPlayer + 0x26CD);
 	int aimButtonPressed = *aim_address & 0xF0; // just the first 4 bits tell the state
-	stackReturnInt(aimButtonPressed);
+	stackPushInt(aimButtonPressed);
 }
 
 void gsc_player_button_left(int id)
@@ -162,7 +162,7 @@ void gsc_player_button_left(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
 
 	int leftButtonPressed = (*aim_address & 0x81)==0x81;
-	stackReturnInt(leftButtonPressed);
+	stackPushInt(leftButtonPressed);
 }
 
 void gsc_player_button_right(int id)
@@ -170,7 +170,7 @@ void gsc_player_button_right(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FD);
 
 	int rightButtonPressed = (*aim_address & 0x7F)==0x7F;
-	stackReturnInt(rightButtonPressed);
+	stackPushInt(rightButtonPressed);
 }
 
 void gsc_player_button_forward(int id)
@@ -178,7 +178,7 @@ void gsc_player_button_forward(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
 
 	int forwardButtonPressed = (*aim_address & 0x7F)==0x7F;
-	stackReturnInt(forwardButtonPressed);
+	stackPushInt(forwardButtonPressed);
 }
 
 void gsc_player_button_back(int id)
@@ -186,7 +186,7 @@ void gsc_player_button_back(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26FC);
 
 	int backButtonPressed = (*aim_address & 0x81)==0x81;
-	stackReturnInt(backButtonPressed);
+	stackPushInt(backButtonPressed);
 }
 
 void gsc_player_button_leanleft(int id)
@@ -194,7 +194,7 @@ void gsc_player_button_leanleft(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
 
 	int leanleftButtonPressed = (*aim_address & 0x40)==0x40;
-	stackReturnInt(leanleftButtonPressed);
+	stackPushInt(leanleftButtonPressed);
 }
 
 void gsc_player_button_leanright(int id)
@@ -202,7 +202,7 @@ void gsc_player_button_leanright(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
 
 	int leanrightButtonPressed = (*aim_address & 0x80)==0x80;
-	stackReturnInt(leanrightButtonPressed);
+	stackPushInt(leanrightButtonPressed);
 }
 
 void gsc_player_button_reload(int id)
@@ -210,7 +210,7 @@ void gsc_player_button_reload(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E8);
 
 	int reloadButtonPressed = (*aim_address & 0x10)==0x10;
-	stackReturnInt(reloadButtonPressed);
+	stackPushInt(reloadButtonPressed);
 }
 
 void gsc_player_button_jump(int id)
@@ -218,7 +218,7 @@ void gsc_player_button_jump(int id)
 	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26E9);
 
 	int jumpButtonPressed = (*aim_address & 0x04)==0x04;
-	stackReturnInt(jumpButtonPressed);
+	stackPushInt(jumpButtonPressed);
 }
 
 void gsc_player_stance_get(int id)
@@ -428,7 +428,7 @@ void gsc_player_outofbandprint(int id)
 	netadr_t * from = (netadr_t*)(info_player + remoteaddress_offset);
 	NET_OutOfBandPrint(0, *from, cmd); // 0 = SERVER, 1 = CLIENT
 
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_player_connectionlesspacket(int id)
@@ -467,7 +467,7 @@ void gsc_player_connectionlesspacket(int id)
 	netadr_t * from = (netadr_t*)(info_player + remoteaddress_offset);
 	SV_ConnectionlessPacket(*from, &msg);
 
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_player_resetNextReliableTime(int id)
@@ -882,7 +882,7 @@ void gsc_entity_setalive(int id)   // as in isAlive?
 	}
 
 	*(char *)(gentities + gentities_size*id + 353) = isAlive;
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_entity_setbounds(int id)
@@ -903,7 +903,7 @@ void gsc_entity_setbounds(int id)
 	*(float*)(gentities + gentities_size*id + 260) = -width;
 
 	// printf("id=%d height=%f width=%f\n", id, height, width);
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_free_slot()
@@ -936,7 +936,7 @@ void gsc_kick_slot()
 
 	if(getAddressType(id) == NA_LOOPBACK)
 	{
-		stackReturnInt(0);
+		stackPushInt(0);
 		return; // host
 	}
 
@@ -958,12 +958,12 @@ void gsc_kick_slot()
 	if(!stackGetParamString(2, &reason))
 	{
 		Com_Printf("%s (guid %i) was kicked.\n", name, guid);
-		stackReturnInt(1);
+		stackPushInt(1);
 		return;
 	}
 
 	Com_Printf("%s (guid %i) was kicked for %s.\n", name, guid, reason);
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_player_setguid(int id)
@@ -987,7 +987,7 @@ void gsc_player_setguid(int id)
 
 	int cl = PLAYERBASE(id);
 	*(int*)(cl + guid_offset) = guid;
-	stackReturnInt(1);
+	stackPushInt(1);
 }
 
 void gsc_player_clienthasclientmuted(int id)
@@ -1056,7 +1056,7 @@ void gsc_fpsnextframe()
 	clfpsindex++;
 	if(clfpsindex >= int( sizeof(clfps[0]) / sizeof(int) ))
 		clfpsindex = 0;
-	stackReturnInt(0);
+	stackPushInt(0);
 }
 
 #endif

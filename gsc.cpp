@@ -195,7 +195,7 @@ void gsc_utils_printf()
 	int param = 1; // maps to first %
 	int len = strlen(str);
 
-	for (int i=0; i<len; i++)
+	for (int i = 0; i < len; i++)
 	{
 		if (str[i] == '%')
 		{
@@ -366,10 +366,11 @@ Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
 	if (m)
 		return m;
 
-	for (int i=0; scriptFunctions[i].name; i++)
+	for (int i = 0; scriptFunctions[i].name; i++)
 	{
 		if (strcasecmp(*fname, scriptFunctions[i].name))
 			continue;
+
 		Scr_Function func = scriptFunctions[i];
 		*fname = func.name;
 		*fdev = func.developer;
@@ -456,7 +457,7 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 	if (m)
 		return m;
 
-	for (int i=0; scriptMethods[i].name; i++)
+	for (int i = 0; scriptMethods[i].name; i++)
 	{
 		if (strcasecmp(*fname, scriptMethods[i].name))
 			continue;
@@ -501,11 +502,11 @@ int stackGetParams(char *params, ...)
 
 	int len = strlen(params);
 	int i;
-	for (i=0; i<len; i++)
+	for (i = 0; i < len; i++)
 	{
 		switch (params[i])
 		{
-		case ' ': // ignore param (e.g. to ignore the function-id from closer()-wrapper)
+		case ' ': // ignore param
 			break;
 
 		case 'i':
@@ -759,17 +760,6 @@ int stackPushUndefined()
 	6) go into function and get the offset of the internal function
 */
 
-int stackReturnInt(int ret) /*obsolete - not guaranteed to be available later*/
-{
-	return stackPushInt(ret);
-
-	/*
-	int (*signature)(int);
-	*((int *)(&signature)) = 0x08085164;
-	return signature(ret);
-	*/
-}
-
 int stackPushInt(int ret) // as in isalive
 {
 	int (*signature)(int);
@@ -783,11 +773,6 @@ int stackPushInt(int ret) // as in isalive
 #endif
 
 	return signature(ret);
-}
-
-int stackReturnVector(float *ret) // obsolete
-{
-	return stackPushVector(ret);
 }
 
 int stackPushVector(float *ret) // as in vectornormalize

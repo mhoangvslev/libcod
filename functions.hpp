@@ -290,4 +290,29 @@ static codscript_callback_finish_t codscript_callback_finish = (codscript_callba
 static codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x080841D6;
 #endif
 
+typedef int (*SVC_RemoteCommand_t)(netadr_t from);
+typedef int (*SV_GetChallenge_t)(netadr_t from);
+typedef int (*SVC_Info_t)(netadr_t from);
+typedef int (*SVC_Status_t)(netadr_t from);
+typedef const char* (*NET_AdrToString_t)(netadr_t a);
+#if COD_VERSION == COD2_1_0
+static SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080951B4;
+static SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808BE54;
+static SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
+static SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
+static NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
+#elif COD_VERSION == COD2_1_2
+static SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080970CC;
+static V_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
+static SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
+static SVC_Status_t SVC_Status = (SVC_Status_t)0x08094BCC;
+static NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
+#elif COD_VERSION == COD2_1_3
+static SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x08097188;
+static SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
+static SVC_Info_t SVC_Info = (SVC_Info_t)0x0809537C;
+static SVC_Status_t SVC_Status = (SVC_Status_t)0x08094C84;
+static NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
+#endif
+
 #endif

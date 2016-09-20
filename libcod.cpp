@@ -851,31 +851,6 @@ bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
 	return SVC_RateLimit( bucket, burst, period );
 }
 
-typedef int (*SVC_RemoteCommand_t)(netadr_t from);
-typedef int (*SV_GetChallenge_t)(netadr_t from);
-typedef int (*SVC_Info_t)(netadr_t from);
-typedef int (*SVC_Status_t)(netadr_t from);
-typedef const char* (*NET_AdrToString_t)(netadr_t a);
-#if COD_VERSION == COD2_1_0
-SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080951B4;
-SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808BE54;
-SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
-SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
-NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
-#elif COD_VERSION == COD2_1_2
-SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080970CC;
-SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
-SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
-SVC_Status_t SVC_Status = (SVC_Status_t)0x08094BCC;
-NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
-#elif COD_VERSION == COD2_1_3
-SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x08097188;
-SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
-SVC_Info_t SVC_Info = (SVC_Info_t)0x0809537C;
-SVC_Status_t SVC_Status = (SVC_Status_t)0x08094C84;
-NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
-#endif
-
 int hook_SVC_RemoteCommand(netadr_t from)
 {
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
