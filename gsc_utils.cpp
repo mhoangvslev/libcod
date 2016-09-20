@@ -978,7 +978,6 @@ void gsc_dlsym()
 void gsc_dlclose()
 {
 	int handle;
-	char *arg_function;
 	if ( ! stackGetParams("i", &handle))
 	{
 		printf("scriptengine> wrongs args for: dlclose(handle)\n");

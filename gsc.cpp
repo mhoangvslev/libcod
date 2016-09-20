@@ -743,12 +743,10 @@ int stackPushUndefined()
 	printf("stackPushUndefined(): type=%d value=%.8x\n", scriptStack->type, scriptStack->offsetData);
 #endif
 
-	//aStackElement *scriptStack = *(aStackElement**)getStack();
-	//aStackElement *scriptStack = *(aStackElement**)ret;
 	scriptStack->type = STACK_UNDEFINED;
-	scriptStack->offsetData = NULL; // never tested anything else for UNDEFINED
-	//return (int) *(aStackElement**) getStack(); // dunno...
-	return 1; // dunno... works also lol. so no need to return some specific stackelement
+	scriptStack->offsetData = NULL;
+
+	return ret;
 }
 
 /*

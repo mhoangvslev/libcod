@@ -146,6 +146,15 @@ int hook_ClientCommand(int clientNum)
 		return ClientCommand(clientNum);
 	}
 
+	int (*trap_Argc)();
+#if COD_VERSION == COD2_1_0
+	*(int *)&trap_Argc = 0x0805FFDC;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&trap_Argc = 0x080601E8;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&trap_Argc = 0x080601E0;
+#endif
+
 	stackPushArray();
 	int args = trap_Argc();
 	for (int i=0; i<args; i++)
@@ -245,7 +254,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 {
 	char errorMessage[COD2_MAX_STRINGLENGTH];
 	int iwdFile;
-	int blockspersnap;
 	int curindex;
 
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
@@ -585,7 +593,7 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 
 int getAddressType(int id);
 cHook *hook_set_bot_pings;
-void set_bot_pings()
+int set_bot_pings()
 {
 	hook_set_bot_pings->unhook();
 	int (*sig)();
@@ -618,6 +626,8 @@ void set_bot_pings()
 				*(int*)(*(int*)playerinfo_base + i * playerinfo_size + (p*4)) = 0;
 		}
 	}
+
+	return ret;
 }
 
 #if COMPILE_BOTS == 1

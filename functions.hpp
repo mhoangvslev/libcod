@@ -3,18 +3,6 @@
 
 /* MAKE FUNCTIONS STATIC, SO THEY CAN BE IN EVERY FILE */
 
-// CoD2 1.2 = 80601F2
-static int trap_Argc()
-{
-#if COD_VERSION == COD2_1_0
-	return *(int *)0x0819BE80;
-#elif COD_VERSION == COD2_1_2
-	return *(int *)0x0819E080;
-#elif COD_VERSION == COD2_1_3
-	return *(int *)0x0819F100;
-#endif
-}
-
 typedef void (*gametype_scripts_t)();
 #if COD_VERSION == COD2_1_0
 static gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
