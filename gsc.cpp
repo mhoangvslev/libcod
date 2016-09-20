@@ -337,6 +337,7 @@ Scr_Function scriptFunctions[] =
 	{"ignoreweapon"                   , gsc_utils_ignoreweapon                , 0},
 	{"setdefaultweapon"               , gsc_utils_setdefaultweapon            , 0},
 	{"getweaponmaxammo"               , gsc_utils_getweaponmaxammo            , 0},
+	{"getweaponclipsize"              , gsc_utils_getweaponclipsize           , 0},
 	{"getweapondamage"                , gsc_utils_getweapondamage             , 0},
 	{"setweapondamage"                , gsc_utils_setweapondamage             , 0},
 	{"getweaponmeleedamage"           , gsc_utils_getweaponmeleedamage        , 0},

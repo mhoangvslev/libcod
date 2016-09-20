@@ -62,6 +62,7 @@ void gsc_utils_resetignoredweapons();
 void gsc_utils_ignoreweapon();
 void gsc_utils_setdefaultweapon();
 void gsc_utils_getweaponmaxammo();
+void gsc_utils_getweaponclipsize();
 void gsc_utils_getweapondamage();
 void gsc_utils_setweapondamage();
 void gsc_utils_getweaponmeleedamage();

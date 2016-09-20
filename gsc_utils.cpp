@@ -1212,6 +1212,11 @@ void gsc_utils_getweaponmaxammo()
 	gsc_utils_getweaponoffsetint("getweaponmaxammo", 468);
 }
 
+void gsc_utils_getweaponclipsize()
+{
+	gsc_utils_getweaponoffsetint("getweaponclipsize", 472);
+}
+
 void gsc_utils_getweapondamage()
 {
 	gsc_utils_getweaponoffsetint("getweapondamage", 492);
@@ -1224,7 +1229,7 @@ void gsc_utils_setweapondamage()
 
 void gsc_utils_getweaponmeleedamage()
 {
-	gsc_utils_getweaponoffsetint("getweapondamage", 500);
+	gsc_utils_getweaponoffsetint("getweapondamagemelee", 500);
 }
 
 void gsc_utils_setweaponmeleedamage()
@@ -1357,7 +1362,7 @@ void gsc_utils_getloadedweapons()
 	// 0 = weapon_mp
 	// 4 = display name
 	// 468 = max ammo
-	// 472 = start ammo
+	// 472 = clip size
 	// 476 = shot count
 	// 492 = damage
 	// 500 = melee damage
