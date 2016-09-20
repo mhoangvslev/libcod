@@ -436,6 +436,7 @@ Scr_Method scriptMethods[] =
 	{"meleeweapon"           , gsc_player_meleeweapon        , 0},
 	{"reloadweapon"          , gsc_player_reloadweapon       , 0},
 	{"adsaim"                , gsc_player_adsaim             , 0},
+	{"switchtoweaponid"      , gsc_player_switchtoweaponid   , 0},
 #endif
 	{"getcooktime"           , gsc_player_getcooktime        , 0},
 	{"setguid"               , gsc_player_setguid            , 0},

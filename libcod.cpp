@@ -630,6 +630,7 @@ int bot_melee[64] = {0};
 int bot_ads[64] = {0};
 int bot_lean[64] = {0};
 int bot_reload[64] = {0};
+int bot_weapon[64] = {0};
 #endif
 
 int clfps[64][20] = {{0}};
@@ -673,6 +674,13 @@ int play_movement(int a1, int a2)
 			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum] + bot_reload[clientnum]);
 
 			*(int *)(a2 + 4) = bot_state[clientnum];
+
+			if (bot_weapon[clientnum])
+			{
+				*(int *)(a2 + 8) = bot_weapon[clientnum];
+				bot_weapon[clientnum] = 0;
+			}
+
 			*(int *)(a2 + 24) = bot_movement[clientnum];
 		}
 	}

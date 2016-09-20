@@ -857,6 +857,21 @@ void gsc_player_adsaim(int id)
 	else
 		bot_ads[id] = (4096);
 }
+
+void gsc_player_switchtoweaponid(int id)
+{
+	int weaponid;
+
+	if ( ! stackGetParams("i", &weaponid))
+	{
+		printf("scriptengine> ERROR: gsc_player_switchtoweaponid(): param \"weaponid\"[1] has to be an int!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	extern int bot_weapon[64];
+	bot_weapon[id] = (weaponid);
+}
 #endif
 
 void gsc_player_getcooktime(int id)

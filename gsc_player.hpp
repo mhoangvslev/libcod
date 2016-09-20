@@ -71,6 +71,7 @@ void gsc_player_fireweapon(int id);
 void gsc_player_meleeweapon(int id);
 void gsc_player_reloadweapon(int id);
 void gsc_player_adsaim(int id);
+void gsc_player_switchtoweaponid(int id);
 void gsc_player_getcooktime(int id);
 void gsc_player_setguid(int id);
 void gsc_player_clienthasclientmuted(int id);
