@@ -120,7 +120,7 @@ void hook_vid_restart(char *format, ...)
 			for (int i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
 			{
 				char *playername = (char*)(*(int*)playerinfo_base + i * playerinfo_size + 134216);
-				if (strcmp(name, playername) == 0)
+				if (strncmp(name, playername, 32) == 0)
 				{
 					stackPushInt(i);
 #if COD_VERSION == COD2_1_0
