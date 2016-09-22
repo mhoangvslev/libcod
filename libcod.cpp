@@ -573,7 +573,7 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 	int clientnum = clientaddress_to_num(a1);
 	extern int playerinfo_base, playerinfo_size;
 
-	if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4 && custom_animation[clientnum])
+	if (*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4 && custom_animation[clientnum])
 	{
 		a2 = custom_animation[clientnum];
 		a4 = 0;
@@ -603,7 +603,6 @@ int set_bot_pings()
 
 	extern int playerinfo_base;
 	extern int playerinfo_size;
-	int addrtype;
 	int i;
 
 #if COD_VERSION == COD2_1_0
@@ -619,13 +618,39 @@ int set_bot_pings()
 
 	for (i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
 	{
-		if(*(int*)(*(int*)playerinfo_base + i * playerinfo_size) == 4)
+		if (*(int*)(*(int*)playerinfo_base + i * playerinfo_size) == 4)
 		{
-			addrtype = getAddressType(i);
-			if(addrtype == 0)
+			if (getAddressType(i) == 0)
 				*(int*)(*(int*)playerinfo_base + i * playerinfo_size + (p*4)) = 0;
 		}
 	}
+
+	return ret;
+}
+
+cHook *hook_fire_antilag;
+int fire_antilag(int a1, int a2)
+{
+	hook_fire_antilag->unhook();
+
+#if COD_VERSION == COD2_1_0
+	int offset = 0x0859B5EC;
+#elif COD_VERSION == COD2_1_2
+	int offset = 0x085AF4EC;
+#elif COD_VERSION == COD2_1_3
+	int offset = 0x0864C56C;
+#endif
+
+	int clientnum = gentityaddress_to_num(a1);
+
+	if (getAddressType(clientnum) == 0)
+		a2 = *(int *)offset;
+
+	int (*sig)(int a1, int a2);
+	*(int *)&sig = hook_fire_antilag->from;
+	int ret = sig(a1, a2);
+
+	hook_fire_antilag->hook();
 
 	return ret;
 }
@@ -659,7 +684,7 @@ int play_movement(int a1, int a2)
 #endif
 
 	extern int playerinfo_base, playerinfo_size;
-	int addrtype, clientnum;
+	int clientnum;
 
 	clientnum = (a1 - *(int*)offset) / playerinfo_size;
 	clfpstemp[clientnum]++; // FPS
@@ -675,11 +700,9 @@ int play_movement(int a1, int a2)
 	printf("a2 + 24 == %d\n", *(int *)(a2 + 24));
 #endif
 
-	if(*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
+	if (*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
 	{
-		addrtype = getAddressType(clientnum);
-
-		if (addrtype == 0)
+		if (getAddressType(clientnum) == 0)
 		{
 			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum] + bot_reload[clientnum]);
 
@@ -1123,8 +1146,10 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x0808F488, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810C1F6, (int)fire_grenade);
+		hook_fire_grenade = new cHook(0x0810C1F6, (int)fire_grenade);
 		hook_fire_grenade->hook();
+		hook_fire_antilag = new cHook(0x0811E3E0, (int)fire_antilag);
+		hook_fire_antilag->hook();
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
@@ -1154,8 +1179,10 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x08090D18, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810E532, (int)fire_grenade);
+		hook_fire_grenade = new cHook(0x0810E532, (int)fire_grenade);
 		hook_fire_grenade->hook();
+		hook_fire_antilag = new cHook(0x08120714, (int)fire_antilag);
+		hook_fire_antilag->hook();
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
@@ -1185,8 +1212,10 @@ public:
 		hook_set_bot_pings->hook();
 		hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
 		hook_play_movement->hook();
-		hook_fire_grenade = new cHook(0x810E68E, (int)fire_grenade);
+		hook_fire_grenade = new cHook(0x0810E68E, (int)fire_grenade);
 		hook_fire_grenade->hook();
+		hook_fire_antilag = new cHook(0x08120870, (int)fire_antilag);
+		hook_fire_antilag->hook();
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
