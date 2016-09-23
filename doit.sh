@@ -7,7 +7,7 @@
 # ./doit.sh cod2_1_3
 
 cc="gcc"
-options="-I. -m32 -fPIC -Wall -Wno-write-strings -Wno-unused-variable"
+options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
 mysql_link=""
 mysql_config=""

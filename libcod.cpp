@@ -1119,14 +1119,13 @@ public:
 		*addressToPickUpItemPointer = (int)hook_pickup_item;
 
 #if COD_VERSION == COD2_1_0
-		int * addressToDownloadPointer = (int *)0x0815D584;
+		int *addressToDownloadPointer = (int *)0x0815D584;
 #elif COD_VERSION == COD2_1_2
-		int * addressToDownloadPointer = (int *)0x0817C9E4;
+		int *addressToDownloadPointer = (int *)0x0817C9E4;
 #elif COD_VERSION == COD2_1_3
-		int * addressToDownloadPointer = (int *)0x0817DA04;
+		int *addressToDownloadPointer = (int *)0x0817DA04;
 #endif
 
-		SV_BeginDownload_f = (SV_BeginDownload_f_t)*addressToDownloadPointer;
 		*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
 
 #if COD_VERSION == COD2_1_0
