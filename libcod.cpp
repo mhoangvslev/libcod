@@ -591,6 +591,7 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 	return ret;
 }
 
+#if COMPILE_BOTS == 1
 int getAddressType(int id);
 cHook *hook_set_bot_pings;
 int set_bot_pings()
@@ -655,7 +656,6 @@ int fire_antilag(int a1, int a2)
 	return ret;
 }
 
-#if COMPILE_BOTS == 1
 int bot_movement[64] = {0};
 int bot_state[64] = {0};
 int bot_grenade[64] = {0};
@@ -1142,14 +1142,16 @@ public:
 		cracking_hook_call(0x08081CFE, (int)hook_scriptError);
 		hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
 		hook_set_anim->hook();
+#if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x0809443E, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
+		hook_fire_antilag = new cHook(0x0811E3E0, (int)fire_antilag);
+		hook_fire_antilag->hook();
+#endif
 		hook_play_movement = new cHook(0x0808F488, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810C1F6, (int)fire_grenade);
 		hook_fire_grenade->hook();
-		hook_fire_antilag = new cHook(0x0811E3E0, (int)fire_antilag);
-		hook_fire_antilag->hook();
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
@@ -1175,14 +1177,16 @@ public:
 		cracking_hook_call(0x0808227A, (int)hook_scriptError);
 		hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
 		hook_set_anim->hook();
+#if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x0809630E, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
+		hook_fire_antilag = new cHook(0x08120714, (int)fire_antilag);
+		hook_fire_antilag->hook();
+#endif
 		hook_play_movement = new cHook(0x08090D18, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810E532, (int)fire_grenade);
 		hook_fire_grenade->hook();
-		hook_fire_antilag = new cHook(0x08120714, (int)fire_antilag);
-		hook_fire_antilag->hook();
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
@@ -1208,14 +1212,16 @@ public:
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
 		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
 		hook_set_anim->hook();
+#if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x080963C8, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
+		hook_fire_antilag = new cHook(0x08120870, (int)fire_antilag);
+		hook_fire_antilag->hook();
+#endif
 		hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810E68E, (int)fire_grenade);
 		hook_fire_grenade->hook();
-		hook_fire_antilag = new cHook(0x08120870, (int)fire_antilag);
-		hook_fire_antilag->hook();
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
 
 #if COMPILE_RATELIMITER == 1
