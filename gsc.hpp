@@ -1,6 +1,5 @@
 #ifndef _GSC_HPP_
 #define _GSC_HPP_
-#define COD2_MAX_STRINGLENGTH 1024
 
 #ifdef __cplusplus
 extern "C" {
@@ -9,6 +8,8 @@ extern "C" {
 #define COD2_1_0 210
 #define COD2_1_2 212
 #define COD2_1_3 213
+
+#define COD2_MAX_STRINGLENGTH 1024
 
 /* default stuff */
 #include <stdio.h>
@@ -58,7 +59,6 @@ typedef struct
 } aStackElement;
 
 int getStack();
-int stackNew();
 
 int stackGetParamInt(int param, int *value);
 int stackGetParamString(int param, char **value);
@@ -77,9 +77,6 @@ int stackPushString(char *toPush);
 int stackPushEntity(int arg);
 int stackPushArray();
 int stackPushArrayLast();
-
-unsigned short Scr_GetArray(int index);
-void Scr_GetArrayKeys();
 
 // functions
 typedef void (*Scr_FunctionCall)();

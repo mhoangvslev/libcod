@@ -15,25 +15,6 @@ Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117CB2;
 Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117DEA;
 #endif
 
-#if COD_VERSION == COD2_1_0 // search "animation '%s' not defined in anim tree '%s'"
-unsigned short (*GetVariableName)(unsigned short) = (unsigned short(*)(unsigned short))0x0807CA72;
-unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned short))0x0807C9CE; //idk original funcname
-#elif COD_VERSION == COD2_1_2
-unsigned short (*GetVariableName)(unsigned short) = (unsigned short(*)(unsigned short))0x0807CFF6;
-unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned short))0x0807CF52; //idk original funcname
-#elif COD_VERSION == COD2_1_3
-unsigned short (*GetVariableName)(unsigned short) = (unsigned short(*)(unsigned short))0x0807D0C2;
-unsigned short (*GetNextVariable)(unsigned short) = (unsigned short(*)(unsigned short))0x0807D01E; //idk original funcname
-#endif
-
-#if COD_VERSION == COD2_1_0
-char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x08078896;
-#elif COD_VERSION == COD2_1_2
-char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x08078E1A;
-#elif COD_VERSION == COD2_1_3
-char *(*SL_ConvertToString)(unsigned short) = (char*(*)(unsigned short))0x08078EE6;
-#endif
-
 char *stackGetParamTypeAsString(int param)
 {
 	aStackElement *scriptStack = *(aStackElement**)getStack();
@@ -147,114 +128,8 @@ char *stackGetParamTypeAsString(int param)
 	return type;
 }
 
-int stackPrintParam(int param)
-{
-	if (param >= stackGetNumberOfParams())
-		return 0;
-
-	switch (stackGetParamType(param))
-	{
-	case STACK_STRING:
-		char *str;
-		stackGetParamString(param, &str); // no error checking, since we know it's a string
-		printf("%s", str);
-		return 1;
-
-	case STACK_VECTOR:
-		float vec[3];
-		stackGetParamVector(param, vec);
-		printf("(%.2f, %.2f, %.2f)", vec[0], vec[1], vec[2]);
-		return 1;
-
-	case STACK_FLOAT:
-		float tmp_float;
-		stackGetParamFloat(param, &tmp_float);
-		printf("%.3f", tmp_float); // need a way to define precision
-		return 1;
-
-	case STACK_INT:
-		int tmp_int;
-		stackGetParamInt(param, &tmp_int);
-		printf("%d", tmp_int);
-		return 1;
-	}
-	printf("(%s)", stackGetParamTypeAsString(param));
-	return 0;
-}
-
-void gsc_utils_printf()
-{
-	char *str;
-	if ( ! stackGetParams("s", &str))
-	{
-		printf("scriptengine> WARNING: printf undefined argument!\n");
-		stackPushUndefined();
-		return;
-	}
-
-	int param = 1; // maps to first %
-	int len = strlen(str);
-
-	for (int i = 0; i < len; i++)
-	{
-		if (str[i] == '%')
-		{
-			if(str[i + 1] == '%')
-			{
-				putchar('%');
-				i++;
-			}
-			else
-				stackPrintParam(param++);
-		}
-		else
-			putchar(str[i]);
-	}
-
-	stackPushInt(1);
-}
-void gsc_utils_printfline()
-{
-	gsc_utils_printf();
-	printf("\n");
-}
-
-void gsc_utils_com_printf()
-{
-	char *str;
-	if ( ! stackGetParams("s", &str))
-	{
-		printf("scriptengine> WARNING: com_printf undefined argument!\n");
-		stackPushUndefined();
-		return;
-	}
-
-	Com_Printf("%s", str);
-	stackPushInt(1);
-}
-
-void gsc_utils_redirectprintf()
-{
-	char *str;
-	if ( ! stackGetParams("s", &str))
-	{
-		printf("scriptengine> WARNING: gsc_utils_redirectprintf undefined argument!\n");
-		stackPushUndefined();
-		return;
-	}
-
-	SV_FlushRedirect(str);
-	stackPushInt(1);
-}
-
 Scr_Function scriptFunctions[] =
 {
-	{"printf", gsc_utils_printf, 0},
-	{"printfline", gsc_utils_printfline, 0}, // adds \n at end
-	{"com_printf", gsc_utils_com_printf, 0},
-	{"redirectprintf", gsc_utils_redirectprintf, 0},
-	{"getArrayKeys", Scr_GetArrayKeys, 0},
-
 #if COMPILE_MYSQL == 1
 	{"mysql_init"              , gsc_mysql_init              , 0},
 	{"mysql_real_connect"      , gsc_mysql_real_connect      , 0},
@@ -299,6 +174,8 @@ Scr_Function scriptFunctions[] =
 #endif
 
 #if COMPILE_UTILS == 1
+	{"printf"                         , gsc_utils_printf                      , 0},
+	{"getArrayKeys"                   , gsc_utils_getarraykeys                , 0},
 	{"disableGlobalPlayerCollision"   , gsc_utils_disableGlobalPlayerCollision, 0},
 	{"disableGlobalPlayerEject"       , gsc_utils_disableGlobalPlayerEject    , 0},
 	{"getAscii"                       , gsc_utils_getAscii                    , 0},
@@ -381,14 +258,8 @@ Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
 	return NULL;
 }
 
-void gsc_player_printf(int id)
-{
-	printf("id: %.8x\n", id);
-}
-
 Scr_Method scriptMethods[] =
 {
-	{"printf", gsc_player_printf, 0}, // rather use sprintf() to re-use iprintlnbold() etc.?
 
 #if COMPILE_PLAYER == 1
 	{"getStance"             , gsc_player_stance_get         , 0},
@@ -668,97 +539,20 @@ int stackGetNumberOfParams()
 	return numberOfParams;
 }
 
-//thanks to riicchhaarrd/php
-unsigned short Scr_GetArray(int index)
-{
-	if(index >= stackGetNumberOfParams())
-	{
-		printf("scriptengine> Scr_GetArray: one parameter is required\n");
-		return 0;
-	}
-
-	int stack = getStack();
-	int base = *(int*)(stack - 8 * index);
-	int vartype = *(int*)(base + 4);
-
-	if(vartype == STACK_OBJECT) //VT_OBJECT
-		return *(unsigned short*)base;
-
-	printf("scriptengine> Scr_GetArray: the parameter must be an array\n");
-	return 0;
-}
-
-void Scr_GetArrayKeys()
-{
-	unsigned short arrIndex = Scr_GetArray(0);
-	stackPushArray();
-
-	if(arrIndex == 0)
-		return; // we didn't find a valid array
-
-	unsigned short i;
-	for(i = GetNextVariable(arrIndex); i != 0;)
-	{
-		stackPushString(SL_ConvertToString(GetVariableName(i)));
-		stackPushArrayLast();
-
-		i = GetNextVariable(i);
-	}
-}
-
-/* THE BEGINNING of generalizing the push-value-functions! */
-// pushing a new stack-element on stack
-// available through getStack()
-// 11.03.2013, Sido|Meine Jordans Instrumental, Generalisation is unstable!
-
-/* search for "Internal script stack overflow", thats stackNew() */
-/* can also be found in the next stackPush-functions */
-int stackNew()
+int stackPushUndefined()
 {
 	int (*signature)();
 
 #if COD_VERSION == COD2_1_0
-	*((int *)(&signature)) = 0x080837B0;
+	*((int *)(&signature)) = 0x08084B88;
 #elif COD_VERSION == COD2_1_2
-	*((int *)(&signature)) = 0x08083D2C;
+	*((int *)(&signature)) = 0x08085104;
 #elif COD_VERSION == COD2_1_3
-	*((int *)(&signature)) = 0x08083DF8;
+	*((int *)(&signature)) = 0x080851D0;
 #endif
 
 	return signature();
 }
-
-int stackPushUndefined()
-{
-	aStackElement *scriptStack;
-
-	scriptStack = *(aStackElement**)getStack();
-#if DEBUG_GSC
-	printf("stackPushUndefined(): type=%d value=%.8x\n", scriptStack->type, scriptStack->offsetData);
-#endif
-	int ret = stackNew();
-
-	scriptStack = *(aStackElement**)getStack();
-#if DEBUG_GSC
-	printf("stackPushUndefined(): type=%d value=%.8x\n", scriptStack->type, scriptStack->offsetData);
-#endif
-
-	scriptStack->type = STACK_UNDEFINED;
-	scriptStack->offsetData = NULL;
-
-	return ret;
-}
-
-/*
-
-	HOWTO: how to find the addresses of a binary?
-	1) find the function-string in winhex
-	2) go to file offset in IDA -> then copy the real address
-	3) then search for the SWAPPED value in winhex again
-	4) go for it in ida
-	5) convert the crazy numbers to str/func-pair
-	6) go into function and get the offset of the internal function
-*/
 
 int stackPushInt(int ret) // as in isalive
 {
@@ -851,7 +645,7 @@ int stackPushArray()
 	return signature();
 }
 
-int stackPushArrayLast()   // as in getentarray
+int stackPushArrayLast() // as in getentarray
 {
 	int (*signature)();
 

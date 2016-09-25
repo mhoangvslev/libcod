@@ -77,20 +77,8 @@ char * substr(const char * text, int beg, int end)
 
 void hook_vid_restart(char *format, ...)
 {
-
-#if COD_VERSION == COD2_1_0
-	int vdr_info_offset = 0x8060B7C;
-#elif COD_VERSION == COD2_1_2
-	int vdr_info_offset = 0x8060E42;
-#elif COD_VERSION == COD2_1_3
-	int vdr_info_offset = 0x8060E3A;
-#endif
-
 	char *s;
 	va_list va;
-
-	int (*Com_DPrintf)(char *format, ...);
-	*(int *)&Com_DPrintf = vdr_info_offset;
 
 	va_start(va, format);
 	vasprintf(&s, format, va);
@@ -269,12 +257,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 	int (*FS_Read)(void *a1, size_t a2, signed int a3);
 	*(int *)&FS_Read = 0x809E328;
-
-	int (*Com_DPrintf)(char *format, ...);
-	*(int *)&Com_DPrintf = 0x8060B7C;
-
-	int (*Com_Printf)(char *format, ...);
-	*(int *)&Com_Printf = 0x8060B2C;
 
 	int (*MSG_WriteByte)(int a1, char a2);
 	*(int *)&MSG_WriteByte = 0x8067B4C;
@@ -527,20 +509,8 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 int gamestate_size[64] = {0};
 void hook_gamestate_info(char *format, ...)
 {
-
-#if COD_VERSION == COD2_1_0
-	int gamestate_info_offset = 0x8060B7C;
-#elif COD_VERSION == COD2_1_2
-	int gamestate_info_offset = 0x8060E42;
-#elif COD_VERSION == COD2_1_3
-	int gamestate_info_offset = 0x8060E3A;
-#endif
-
 	char *s;
 	va_list va;
-
-	int (*Com_DPrintf)(char *format, ...);
-	*(int *)&Com_DPrintf = gamestate_info_offset;
 
 	va_start(va, format);
 	vasprintf(&s, format, va);

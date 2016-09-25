@@ -385,6 +385,110 @@ void gsc_themetext()
 	stackPushString(result);
 }
 
+//thanks to riicchhaarrd/php
+unsigned short Scr_GetArray(int index)
+{
+	if (index >= stackGetNumberOfParams())
+	{
+		printf("scriptengine> Scr_GetArray: one parameter is required\n");
+		return 0;
+	}
+
+	int stack = getStack();
+	int base = *(int*)(stack - 8 * index);
+	int vartype = *(int*)(base + 4);
+
+	if (vartype == STACK_OBJECT)
+		return *(unsigned short*)base;
+
+	printf("scriptengine> Scr_GetArray: the parameter must be an array\n");
+	return 0;
+}
+
+void gsc_utils_getarraykeys()
+{
+	unsigned short arrIndex = Scr_GetArray(0);
+	stackPushArray();
+
+	if (arrIndex == 0)
+		return; // we didn't find a valid array
+
+	unsigned short i;
+	for(i = GetNextVariable(arrIndex); i != 0;)
+	{
+		stackPushString(SL_ConvertToString(GetVariableName(i)));
+		stackPushArrayLast();
+		i = GetNextVariable(i);
+	}
+}
+
+int stackPrintParam(int param)
+{
+	if (param >= stackGetNumberOfParams())
+		return 0;
+
+	switch (stackGetParamType(param))
+	{
+	case STACK_STRING:
+		char *str;
+		stackGetParamString(param, &str); // no error checking, since we know it's a string
+		printf("%s", str);
+		return 1;
+
+	case STACK_VECTOR:
+		float vec[3];
+		stackGetParamVector(param, vec);
+		printf("(%.2f, %.2f, %.2f)", vec[0], vec[1], vec[2]);
+		return 1;
+
+	case STACK_FLOAT:
+		float tmp_float;
+		stackGetParamFloat(param, &tmp_float);
+		printf("%.3f", tmp_float); // need a way to define precision
+		return 1;
+
+	case STACK_INT:
+		int tmp_int;
+		stackGetParamInt(param, &tmp_int);
+		printf("%d", tmp_int);
+		return 1;
+	}
+	printf("(%s)", stackGetParamTypeAsString(param));
+	return 0;
+}
+
+void gsc_utils_printf()
+{
+	char *str;
+	if ( ! stackGetParams("s", &str))
+	{
+		printf("scriptengine> WARNING: printf undefined argument!\n");
+		stackPushUndefined();
+		return;
+	}
+
+	int param = 1; // maps to first %
+	int len = strlen(str);
+
+	for (int i = 0; i < len; i++)
+	{
+		if (str[i] == '%')
+		{
+			if(str[i + 1] == '%')
+			{
+				putchar('%');
+				i++;
+			}
+			else
+				stackPrintParam(param++);
+		}
+		else
+			putchar(str[i]);
+	}
+
+	stackPushInt(1);
+}
+
 void gsc_utils_sprintf()
 {
 	char result[COD2_MAX_STRINGLENGTH];
@@ -411,6 +515,7 @@ void gsc_utils_sprintf()
 			{
 				if(param >= stackGetNumberOfParams())
 					continue;
+
 				switch (stackGetParamType(param))
 				{
 				case STACK_STRING:
@@ -418,16 +523,19 @@ void gsc_utils_sprintf()
 					stackGetParamString(param, &tmp_str); // no error checking, since we know it's a string
 					num += sprintf(&(result[num]), "%s", tmp_str);
 					break;
+
 				case STACK_VECTOR:
 					float vec[3];
 					stackGetParamVector(param, vec);
 					num += sprintf(&(result[num]), "(%.2f, %.2f, %.2f)", vec[0], vec[1], vec[2]);
 					break;
 				case STACK_FLOAT:
+
 					float tmp_float;
 					stackGetParamFloat(param, &tmp_float);
 					num += sprintf(&(result[num]), "%.3f", tmp_float); // need a way to define precision
 					break;
+
 				case STACK_INT:
 					int tmp_int;
 					stackGetParamInt(param, &tmp_int);

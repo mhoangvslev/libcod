@@ -3,6 +3,33 @@
 
 /* MAKE FUNCTIONS STATIC, SO THEY CAN BE IN EVERY FILE */
 
+typedef unsigned short (*GetVariableName_t)(unsigned short a1);
+#if COD_VERSION == COD2_1_0
+static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807CA72;
+#elif COD_VERSION == COD2_1_2
+static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807CFF6;
+#elif COD_VERSION == COD2_1_3
+static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807D0C2;
+#endif
+
+typedef unsigned short (*GetNextVariable_t)(unsigned short a1);
+#if COD_VERSION == COD2_1_0
+static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807C9CE;
+#elif COD_VERSION == COD2_1_2
+static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807CF52;
+#elif COD_VERSION == COD2_1_3
+static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807D01E;
+#endif
+
+typedef char * (*SL_ConvertToString_t)(int a1);
+#if COD_VERSION == COD2_1_0
+static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078896;
+#elif COD_VERSION == COD2_1_2
+static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078E1A;
+#elif COD_VERSION == COD2_1_3
+static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078EE6;
+#endif
+
 typedef void (*gametype_scripts_t)();
 #if COD_VERSION == COD2_1_0
 static const gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
@@ -40,16 +67,20 @@ static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060278;
 #endif
 
 typedef int (*Com_Printf_t)(const char *format, ...);
-/// A Com_Printf that only shows up if the "developer" cvar is set
-typedef int (*Com_DPrintf_t)(const char *format, ...);
 #if COD_VERSION == COD2_1_0
 static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060B2C;
-static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060B7C;
 #elif COD_VERSION == COD2_1_2
 static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060DF2;
-static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E42;
 #elif COD_VERSION == COD2_1_3
 static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060DEA;
+#endif
+
+typedef int (*Com_DPrintf_t)(const char *format, ...);
+#if COD_VERSION == COD2_1_0
+static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060B7C;
+#elif COD_VERSION == COD2_1_2
+static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E42;
+#elif COD_VERSION == COD2_1_3
 static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E3A;
 #endif
 
@@ -182,15 +213,6 @@ static const NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0
 static const NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C8CC;
 #endif
 
-typedef int (*SV_FlushRedirect_t)(const char *outputbuf);
-#if COD_VERSION == COD2_1_0
-static const SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x0809507C;
-#elif COD_VERSION == COD2_1_2
-static const SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x08096F94;
-#elif COD_VERSION == COD2_1_3
-static const SV_FlushRedirect_t SV_FlushRedirect = (SV_FlushRedirect_t)0x08097050;
-#endif
-
 typedef int (*SV_GameSendServerCommand_t)(int clientNum, signed int a2, const char *msg);
 #if COD_VERSION == COD2_1_0
 static const SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)0x0808FE96;
@@ -282,27 +304,47 @@ static const codscript_callback_finish_t codscript_callback_finish = (codscript_
 #endif
 
 typedef int (*SVC_RemoteCommand_t)(netadr_t from);
-typedef int (*SV_GetChallenge_t)(netadr_t from);
-typedef int (*SVC_Info_t)(netadr_t from);
-typedef int (*SVC_Status_t)(netadr_t from);
-typedef const char* (*NET_AdrToString_t)(netadr_t a);
 #if COD_VERSION == COD2_1_0
 static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080951B4;
-static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808BE54;
-static const SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
-static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
-static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
 #elif COD_VERSION == COD2_1_2
 static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080970CC;
-static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
-static const SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
-static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08094BCC;
-static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
 #elif COD_VERSION == COD2_1_3
 static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x08097188;
+#endif
+
+typedef int (*SV_GetChallenge_t)(netadr_t from);
+#if COD_VERSION == COD2_1_0
+static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808BE54;
+#elif COD_VERSION == COD2_1_2
+static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
+#elif COD_VERSION == COD2_1_3
 static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
+#endif
+
+typedef int (*SVC_Info_t)(netadr_t from);
+#if COD_VERSION == COD2_1_0
+static const SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
+#elif COD_VERSION == COD2_1_2
+static const SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
+#elif COD_VERSION == COD2_1_3
 static const SVC_Info_t SVC_Info = (SVC_Info_t)0x0809537C;
+#endif
+
+typedef int (*SVC_Status_t)(netadr_t from);
+#if COD_VERSION == COD2_1_0
+static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
+#elif COD_VERSION == COD2_1_2
+static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08094BCC;
+#elif COD_VERSION == COD2_1_3
 static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08094C84;
+#endif
+
+typedef const char* (*NET_AdrToString_t)(netadr_t a);
+#if COD_VERSION == COD2_1_0
+static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
+#elif COD_VERSION == COD2_1_2
+static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
+#elif COD_VERSION == COD2_1_3
 static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
 #endif
 

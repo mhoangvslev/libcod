@@ -3,7 +3,6 @@
 
 // that makes debugging easier after some months
 #define DEBUG_MYSQL 0
-#define DEBUG_GSC 0
 #define DEBUG_MEMORY 0
 #define DEBUG_BOT_STATES 0
 
