@@ -302,6 +302,7 @@ Scr_Method scriptMethods[] =
 	{"disableitempickup"     , gsc_player_disable_item_pickup, 0},
 	{"enableitempickup"      , gsc_player_enable_item_pickup , 0},
 	{"setanim"               , gsc_player_set_anim           , 0},
+	{"getjumpslowdowntimer"  , gsc_player_getjumpslowdowntimer, 0},
 #if COMPILE_BOTS == 1
 	{"setwalkdir"            , gsc_player_set_walkdir        , 0},
 	{"setlean"               , gsc_player_set_lean           , 0},
