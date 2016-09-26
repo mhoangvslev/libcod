@@ -502,7 +502,8 @@ void gsc_player_isonladder(int id)
 		stackPushInt(0);
 }
 
-void gsc_player_getjumpslowdowntimer(int id) {
+void gsc_player_getjumpslowdowntimer(int id)
+{
 	int value = PLAYERSTATE(id) + 16;
 	stackPushInt(*(int*)value);
 }
