@@ -1040,7 +1040,11 @@ void manymaps_prepare(char *mapname, int read)
 	printf("manymaps> link src=%s dst=%s\n", src, dst);
 	if (access(src, F_OK) != -1)
 	{
-		int link_success = link(src, dst) == 0;
+		char cmd[COD2_MAX_STRINGLENGTH];
+		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
+		snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", src, dst);
+		cmd[COD2_MAX_STRINGLENGTH] = '\0';
+		int link_success = system(cmd) == 0;
 		printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
 		if(read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
 			FS_LoadDir(Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));

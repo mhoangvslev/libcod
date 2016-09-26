@@ -726,7 +726,12 @@ void gsc_utils_file_link()
 		stackPushUndefined();
 		return;
 	}
-	stackPushInt( link(source, dest) ); // 0 == success
+	char cmd[COD2_MAX_STRINGLENGTH];
+	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
+	snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", source, dest);
+	cmd[COD2_MAX_STRINGLENGTH] = '\0';
+	int link_failed = system(cmd);
+	stackPushInt( link_failed ); // 0 == success
 }
 
 void gsc_utils_file_unlink()
