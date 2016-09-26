@@ -27,6 +27,10 @@ extern "C" {
 #include "gsc_utils.hpp"
 #include "cracking.hpp"
 
+#ifdef EXTRA_INCLUDES_INC
+#include "extra_includes.hpp"
+#endif
+
 #define STACK_UNDEFINED 0
 #define STACK_OBJECT 1
 #define STACK_STRING 2

@@ -74,6 +74,22 @@ else
 	exit 0
 fi
 
+if [ -f extra_functions.hpp ]; then
+	constants+=" -D EXTRA_FUNCTIONS_INC"
+fi
+
+if [ -f extra_config.hpp ]; then
+	constants+=" -D EXTRA_CONFIG_INC"
+fi
+
+if [ -f extra_includes.hpp ]; then
+	constants+=" -D EXTRA_INCLUDES_INC"
+fi
+
+if [ -f extra_methods.hpp ]; then
+	constants+=" -D EXTRA_METHODS_INC"
+fi
+
 mkdir -p bin
 mkdir -p objects_$1
 
@@ -101,6 +117,11 @@ $cc $options $constants -c gsc_player.cpp -o objects_$1/gsc_player.opp
 
 echo "##### COMPILE $1 GSC_UTILS.CPP #####"
 $cc $options $constants -c gsc_utils.cpp -o objects_$1/gsc_utils.opp
+
+if [ -f extra_code.cpp ]; then
+	echo "##### COMPILE $1 EXTRA_CODE.CPP #####"
+	$cc $options $constants -c extra_code.cpp -o objects_$1/extra_code.opp
+fi
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"

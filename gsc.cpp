@@ -234,6 +234,10 @@ Scr_Function scriptFunctions[] =
 	{"sqrtInv"                        , gsc_utils_sqrtInv                     , 0},
 #endif
 
+#ifdef EXTRA_FUNCTIONS_INC
+#include "extra_functions.hpp"
+#endif
+
 	{NULL, NULL, 0} /* terminator */
 };
 
@@ -318,6 +322,10 @@ Scr_Method scriptMethods[] =
 	{"setmovespeedscale"     , gsc_player_setmovespeedscale  , 0},
 	{"ismantling"            , gsc_player_ismantling         , 0},
 	{"isonladder"            , gsc_player_isonladder         , 0},
+#endif
+
+#ifdef EXTRA_METHODS_INC
+#include "extra_methods.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */

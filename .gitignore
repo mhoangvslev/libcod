@@ -1,7 +1,22 @@
-bin/
-objects_*
-libcod.tar
-*.o
-*.so
-*.orig
-*.*~
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!config.hpp
+!cracking.cpp
+!cracking.hpp
+!doit.sh
+!functions.hpp
+!gsc.cpp
+!gsc.hpp
+!gsc_memory.cpp
+!gsc_memory.hpp
+!gsc_mysql.cpp
+!gsc_mysql.hpp
+!gsc_player.cpp
+!gsc_player.hpp
+!gsc_utils.cpp
+!gsc_utils.hpp
+!libcod.cpp
+!README.md

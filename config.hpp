@@ -16,4 +16,9 @@
 // RATE LIMITER
 #define COMPILE_RATELIMITER 1
 
+// EXTRA STUFF
+#ifdef EXTRA_CONFIG_INC
+#include "extra_config.hpp"
+#endif
+
 #endif
