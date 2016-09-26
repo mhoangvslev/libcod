@@ -22,7 +22,6 @@ export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
 	
 Working with the source / Compiling:
 ```
-./doit.sh tar
 ./doit.sh cod2_1_0
 ./doit.sh cod2_1_2
 ./doit.sh cod2_1_3

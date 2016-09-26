@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# ./doit.sh tar
 # ./doit.sh clean
 # ./doit.sh cod2_1_0
 # ./doit.sh cod2_1_2
@@ -23,7 +22,7 @@ else
 	mysql_libpath2="/usr/lib/libmysqlclient.so.18"
 fi
 
-if [ "$1" != "tar" ] && [ "$1" != "clean" ]; then
+if [ "$1" != "clean" ]; then
 	if [ -e $mysql_libpath ] || [ -e $mysql_libpath2 ]; then
 		mysql_enable="true"
 		mysql_config="`mysql_config --cflags --libs`"
@@ -36,24 +35,10 @@ if [ "$1" != "tar" ] && [ "$1" != "clean" ]; then
 	fi
 fi
 
-if [ "$1" == "tar" ]; then
-	echo "##### TAR LIBCOD #####"
-	
-	rm libcod.tar -rf
-	tar -cf  libcod.tar plugins
-	tar -rf  libcod.tar *.c
-	tar -rf  libcod.tar *.cpp
-	tar -rf  libcod.tar *.hpp
-	tar -rf  libcod.tar doit.sh
-
-	echo "libcod.tar created: $?"
-	exit 1
-
-elif [ "$1" == "clean" ]; then
+if [ "$1" == "clean" ]; then
 	echo "##### CLEAN OBJECTS #####"
 	rm objects_* -rf
 	rm bin -rf
-	rm libcod.tar -rf
 	exit 1
 
 elif [ "$1" == "cod2_1_0" ]; then
