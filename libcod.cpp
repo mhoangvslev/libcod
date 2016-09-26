@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h> // gettimeofday
+#include <dirent.h> // dir stuff
 
 #include <sys/mman.h> // mprotect
 #include <execinfo.h> // stacktrace
@@ -961,16 +962,15 @@ int hook_SVC_Status(netadr_t from)
 
 void manymaps_prepare(char *mapname, int read)
 {
-	char *sv_iwdNames = Cvar_VariableString("sv_iwdNames");
 	char library_path[512];
-	if(Cvar_VariableString("fs_library")[0] == '\0')
+	if (Cvar_VariableString("fs_library")[0] == '\0')
 		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
 	else
 		strncpy(library_path, Cvar_VariableString("fs_library"), sizeof(library_path));
 
 	char *map = Cvar_VariableString("mapname");
-	if(strcmp(map, mapname) == 0)
-		return;									// Same map is about to load, no need to trigger manymap (equals map_restart)
+	if (strcmp(map, mapname) == 0) // Same map is about to load, no need to trigger manymap (equals map_restart)
+		return;
 
 	char map_check[512];
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
@@ -981,14 +981,15 @@ void manymaps_prepare(char *mapname, int read)
 	char *stock_maps[15] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
-	bool map_found = false;
-	bool from_stock_map = false;
+	int map_found = 0;
+	int from_stock_map = 0;
 	int map_exists = access(map_check, F_OK) != -1;
+
 	for (int i = 0; i < int( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
 	{
 		if (strcmp(map, stock_maps[i]) == 0)
 		{
-			from_stock_map = true;
+			from_stock_map = 1;
 			break;
 		}
 	}
@@ -997,9 +998,9 @@ void manymaps_prepare(char *mapname, int read)
 	{
 		if (strcmp(mapname, stock_maps[i]) == 0)
 		{
-			map_found = true;
-			if (from_stock_map)
-				return;			// When changing from stock map to stock map do not trigger manymap
+			map_found = 1;
+			if (from_stock_map) // When changing from stock map to stock map do not trigger manymap
+				return;
 			else
 				break;
 		}
@@ -1008,46 +1009,44 @@ void manymaps_prepare(char *mapname, int read)
 	if (!map_exists && !map_found)
 		return;
 
-	printf("manymaps> map=%s sv_iwdNames: %s\n", mapname, sv_iwdNames);
-	char *tok;
-	tok = strtok(sv_iwdNames, " ");
-	while (tok)
+	DIR *dir;
+	struct dirent *dir_ent;
+	dir = opendir(library_path);
+
+	if (!dir)
+		return;
+
+	while ( (dir_ent = readdir(dir)) != NULL)
 	{
-		int i = 0;
-		while(tok[i] != '\0')
-			i++;
-		if(i >= 5 && strcmp(&tok[i - 5], "Empty") == 0)
-		{
-			tok = strtok(NULL, " ");
+		if (strncmp(dir_ent->d_name, ".", 1) == 0 || strncmp(dir_ent->d_name, "..", 2) == 0)
 			continue;
-		}
-		char file[512];
-		snprintf(file, sizeof(file), "%s/%s.iwd", library_path, tok);
-		int exists = access(file, F_OK) != -1;
-		printf("manymaps> exists in /Library=%d iwd=%s \n", exists, tok);
+
+		char fileDelete[512];
+		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), dir_ent->d_name);
+		int exists = access(fileDelete, F_OK) != -1;
 		if (exists)
-		{
-			char fileDelete[512];
-			snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s.iwd", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), tok);
-			printf("manymaps> REMOVE MANYMAP: %s result of unlink: %d\n", fileDelete, unlink(fileDelete));
-		}
-		tok = strtok(NULL, " ");
+			printf("manymaps> REMOVED MANYMAP: %s result of unlink: %d\n", fileDelete, unlink(fileDelete));
 	}
 
-	char src[512], dst[512];
-	snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
-	snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), mapname);
-	printf("manymaps> link src=%s dst=%s\n", src, dst);
-	if (access(src, F_OK) != -1)
+	closedir(dir);
+
+	if (map_exists)
 	{
-		char cmd[COD2_MAX_STRINGLENGTH];
-		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
-		snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", src, dst);
-		cmd[1023] = '\0';
-		int link_success = system(cmd) == 0;
-		printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
-		if(read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
-			FS_LoadDir(Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
+		char src[512], dst[512];
+		snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
+		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), mapname);
+		printf("manymaps> LINK src=%s dst=%s\n", src, dst);
+		if (access(src, F_OK) != -1)
+		{
+			char cmd[COD2_MAX_STRINGLENGTH];
+			setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
+			snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", src, dst);
+			cmd[1023] = '\0';
+			int link_success = system(cmd) == 0;
+			printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
+			if (read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
+				FS_LoadDir(Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
+		}
 	}
 }
 
@@ -1056,7 +1055,7 @@ int hook_findMap(const char *qpath, void **buffer)
 	int read = FS_ReadFile(qpath, buffer);
 	manymaps_prepare(Cmd_Argv(1), read);
 
-	if(read != -1)
+	if (read != -1)
 		return read;
 	else
 		return FS_ReadFile(qpath, buffer);
