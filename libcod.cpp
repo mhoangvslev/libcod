@@ -880,6 +880,14 @@ int hook_SVC_RemoteCommand(netadr_t from)
 		return 0;
 	}
 
+#if COD_VERSION == COD2_1_0
+	static const int rconPasswordAddress = 0x0848B1C0;
+#elif COD_VERSION == COD2_1_2
+	static const int rconPasswordAddress = 0x0849E6C0;
+#elif COD_VERSION == COD2_1_3
+	static const int rconPasswordAddress = 0x0849F740;
+#endif
+
 	char * rconPassword = *(char **)(*(int *)rconPasswordAddress + 8);
 	if(!strlen(rconPassword) || strcmp(Cmd_Argv(1), rconPassword) != 0)
 	{
@@ -1101,6 +1109,9 @@ public:
 		*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
 
 #if COD_VERSION == COD2_1_0
+		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
+		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808AD00, (int)hook_findMap);
 		cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
@@ -1111,14 +1122,18 @@ public:
 		cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
 		cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x08081CFE, (int)hook_scriptError);
+		hook_gametype_scripts = new cHook(0x0810DDEE, (int)hook_codscript_gametype_scripts);
+		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
 		hook_set_anim->hook();
+
 #if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x0809443E, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
 		hook_fire_antilag = new cHook(0x0811E3E0, (int)fire_antilag);
 		hook_fire_antilag->hook();
 #endif
+
 		hook_play_movement = new cHook(0x0808F488, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810C1F6, (int)fire_grenade);
@@ -1136,6 +1151,9 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_2
+		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
+		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
 		cracking_hook_call(0x0809AD68, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
@@ -1146,14 +1164,18 @@ public:
 		cracking_hook_call(0x080F76BF, (int)hook_player_g_speed);
 		cracking_hook_call(0x080EBB14, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x0808227A, (int)hook_scriptError);
+		hook_gametype_scripts = new cHook(0x0811012A, (int)hook_codscript_gametype_scripts);
+		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
 		hook_set_anim->hook();
+
 #if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x0809630E, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
 		hook_fire_antilag = new cHook(0x08120714, (int)fire_antilag);
 		hook_fire_antilag->hook();
 #endif
+
 		hook_play_movement = new cHook(0x08090D18, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810E532, (int)fire_grenade);
@@ -1171,6 +1193,9 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_3
+		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
+		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
 		cracking_hook_call(0x0809AEAC, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
@@ -1181,14 +1206,18 @@ public:
 		cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
 		cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
+		hook_gametype_scripts = new cHook(0x08110286, (int)hook_codscript_gametype_scripts);
+		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
 		hook_set_anim->hook();
+
 #if COMPILE_BOTS == 1
 		hook_set_bot_pings = new cHook(0x080963C8, (int)set_bot_pings);
 		hook_set_bot_pings->hook();
 		hook_fire_antilag = new cHook(0x08120870, (int)fire_antilag);
 		hook_fire_antilag->hook();
 #endif
+
 		hook_play_movement = new cHook(0x08090DAC, (int)play_movement);
 		hook_play_movement->hook();
 		hook_fire_grenade = new cHook(0x0810E68E, (int)fire_grenade);
@@ -1206,12 +1235,6 @@ public:
 #endif
 
 #endif
-		cracking_hook_call(hook_ClientCommand_call, (int)hook_ClientCommand);
-		cracking_hook_call(hook_AuthorizeState_call, (int)hook_AuthorizeState);
-		cracking_hook_call(hook_findMap_call, (int)hook_findMap);
-
-		hook_gametype_scripts = new cHook((int)gametype_scripts, (int)hook_codscript_gametype_scripts);
-		hook_gametype_scripts->hook();
 
 		gsc_utils_init();
 		printf("> [PLUGIN LOADED]\n");

@@ -30,15 +30,6 @@ static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078EE6;
 #endif
 
-typedef void (*gametype_scripts_t)();
-#if COD_VERSION == COD2_1_0
-static const gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0810DDEE;
-#elif COD_VERSION == COD2_1_2
-static const gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x0811012A;
-#elif COD_VERSION == COD2_1_3
-static const gametype_scripts_t gametype_scripts = (gametype_scripts_t)0x08110286;
-#endif
-
 typedef int (*codscript_load_function_t)(char *file, char *function, int isNeeded);
 #if COD_VERSION == COD2_1_0
 static const codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x0810DD70;
@@ -97,13 +88,10 @@ static const Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x0806
 typedef int (*ClientCommand_t)(int clientNum);
 #if COD_VERSION == COD2_1_0
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x080FE998; // search 'say_team' and see code xref function
-static const int hook_ClientCommand_call = 0x0808F281;
 #elif COD_VERSION == COD2_1_2
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x08100D1E;
-static const int hook_ClientCommand_call = 0x08090B0C;
 #elif COD_VERSION == COD2_1_3
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x08100E62;
-static const int hook_ClientCommand_call = 0x08090BA0;
 #endif
 
 typedef int (*Cvar_VariableValue_t)(const char *var_name); // search for 'sv_allowAnonymous'
@@ -140,30 +128,6 @@ static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A01A4;
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A22D8;
 #elif COD_VERSION == COD2_1_3
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
-#endif
-
-#if COD_VERSION == COD2_1_0
-static const int rconPasswordAddress = 0x0848B1C0;
-#elif COD_VERSION == COD2_1_2
-static const int rconPasswordAddress = 0x0849E6C0;
-#elif COD_VERSION == COD2_1_3
-static const int rconPasswordAddress = 0x0849F740;
-#endif
-
-#if COD_VERSION == COD2_1_0
-static const int hook_findMap_call = 0x0808AD00;
-#elif COD_VERSION == COD2_1_2
-static const int hook_findMap_call = 0x0808BCFC;
-#elif COD_VERSION == COD2_1_3
-static const int hook_findMap_call = 0x0808BDC8;
-#endif
-
-#if COD_VERSION == COD2_1_0
-static const int hook_AuthorizeState_call = 0x0808C8C0;
-#elif COD_VERSION == COD2_1_2
-static const int hook_AuthorizeState_call = 0x0808DA52;
-#elif COD_VERSION == COD2_1_3
-static const int hook_AuthorizeState_call = 0x0808DB12;
 #endif
 
 typedef enum
