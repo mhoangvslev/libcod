@@ -3,7 +3,6 @@
 #if COMPILE_UTILS == 1
 
 #include <dirent.h> // dir stuff
-#include <assert.h>
 #include <ctype.h> // toupper
 
 #define MAX_LANGUAGES 16
@@ -897,7 +896,14 @@ void gsc_utils_fread()
 		stackPushUndefined();
 		return;
 	}
-	assert(file);
+
+	if (!file)
+	{
+		printf("scriptengine> WARNING: gsc_utils_fread() returned a error!\n");
+		stackPushUndefined();
+		return;
+	}
+
 	char buffer[256];
 	int ret = fread(buffer, 1, 255, file);
 	if ( ! ret)
@@ -918,7 +924,14 @@ void gsc_utils_fwrite()
 		stackPushUndefined();
 		return;
 	}
-	assert(file);
+
+	if (!file)
+	{
+		printf("scriptengine> WARNING: gsc_utils_fwrite() returned a error!\n");
+		stackPushUndefined();
+		return;
+	}
+
 	int bytesWritten = fwrite(buffer, 1, strlen(buffer), file);
 	stackPushInt(bytesWritten);
 }
@@ -931,7 +944,14 @@ void gsc_utils_fclose()
 		stackPushUndefined();
 		return;
 	}
-	assert(file);
+
+	if (!file)
+	{
+		printf("scriptengine> WARNING: gsc_utils_fclose() returned a error!\n");
+		stackPushUndefined();
+		return;
+	}
+
 	stackPushInt( fclose(file) );
 }
 
