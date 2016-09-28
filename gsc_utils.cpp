@@ -878,13 +878,23 @@ void gsc_utils_scandir()
 
 void gsc_utils_fopen()
 {
+	FILE *file;
 	char *filename, *mode;
 	if ( ! stackGetParams("ss", &filename, &mode))
 	{
 		stackPushUndefined();
 		return;
 	}
-	FILE *file = fopen(filename, mode);
+
+	file = fopen(filename, mode);
+
+	if (!file)
+	{
+		printf("scriptengine> WARNING: gsc_utils_fopen() returned a error!\n");
+		stackPushUndefined();
+		return;
+	}
+
 	stackPushInt((int)file);
 }
 
