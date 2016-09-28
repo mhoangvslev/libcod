@@ -881,11 +881,11 @@ int hook_SVC_RemoteCommand(netadr_t from)
 	}
 
 #if COD_VERSION == COD2_1_0
-	static const int rconPasswordAddress = 0x0848B1C0;
+	int rconPasswordAddress = 0x0848B1C0;
 #elif COD_VERSION == COD2_1_2
-	static const int rconPasswordAddress = 0x0849E6C0;
+	int rconPasswordAddress = 0x0849E6C0;
 #elif COD_VERSION == COD2_1_3
-	static const int rconPasswordAddress = 0x0849F740;
+	int rconPasswordAddress = 0x0849F740;
 #endif
 
 	char * rconPassword = *(char **)(*(int *)rconPasswordAddress + 8);
