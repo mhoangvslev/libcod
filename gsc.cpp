@@ -155,7 +155,6 @@ Scr_Function scriptFunctions[] =
 #endif
 
 #if COMPILE_PLAYER == 1
-	{"free_slot"                   , gsc_free_slot                         , 0},
 	{"kick2"                       , gsc_kick_slot                         , 0},
 	{"fpsnextframe"                , gsc_fpsnextframe                      , 0},
 #endif
@@ -198,10 +197,6 @@ Scr_Function scriptFunctions[] =
 	{"fwrite"                         , gsc_utils_fwrite                      , 0},
 	{"fclose"                         , gsc_utils_fclose                      , 0},
 	{"sprintf"                        , gsc_utils_sprintf                     , 0},
-	{"add_language"                   , gsc_add_language                      , 0},
-	{"load_languages"                 , gsc_load_languages                    , 0},
-	{"get_language_item"              , gsc_get_language_item                 , 0},
-	{"themetext"                      , gsc_themetext                         , 0},
 	{"G_FindConfigstringIndex"        , gsc_G_FindConfigstringIndex           , 0},
 	{"G_FindConfigstringIndexOriginal", gsc_G_FindConfigstringIndexOriginal   , 0},
 	{"getconfigstring"                , gsc_get_configstring                  , 0},
@@ -243,7 +238,6 @@ Scr_Function scriptFunctions[] =
 
 Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
 {
-	//printf("Scr_GetCustomFunction: fdev=%d fname=%s\n", *fdev, *fname);
 	Scr_FunctionCall m = Scr_GetFunction(fname, fdev);
 	if (m)
 		return m;
@@ -334,7 +328,6 @@ Scr_Method scriptMethods[] =
 
 Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 {
-	//printf("Scr_GetCustomMethod: fdev=%d fname=%s\n", *fdev, *fname);
 	Scr_MethodCall m = Scr_GetMethod(fname, fdev);
 	if (m)
 		return m;
@@ -375,16 +368,27 @@ int stackGetParamType(int param)
 	return arg->type;
 }
 
+void stackError(char *format, ...)
+{
+	char errorMessage[COD2_MAX_STRINGLENGTH];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(errorMessage, sizeof(errorMessage), format, va);
+	va_end(va);
+
+	Scr_Error(errorMessage);
+}
+
 int stackGetParams(char *params, ...)
 {
 	va_list args;
 	va_start(args, params);
 
 	int errors = 0;
-
 	int len = strlen(params);
-	int i;
-	for (i = 0; i < len; i++)
+
+	for (int i = 0; i < len; i++)
 	{
 		switch (params[i])
 		{
@@ -396,7 +400,7 @@ int stackGetParams(char *params, ...)
 			int *tmp = va_arg(args, int *);
 			if ( ! stackGetParamInt(i, tmp))
 			{
-				printf("Param %d needs to be an int, %s=%d given! NumParams=%d\n", i, ">make function for this<", stackGetParamType(i), stackGetNumberOfParams());
+				Com_DPrintf("\nstackGetParams() Param %i is not an int\n", i);
 				errors++;
 			}
 			break;
@@ -407,7 +411,7 @@ int stackGetParams(char *params, ...)
 			float *tmp = va_arg(args, float *);
 			if ( ! stackGetParamVector(i, tmp))
 			{
-				printf("Param %d needs to be a vector, %s=%d given! NumParams=%d\n", i, ">make function for this<", stackGetParamType(i), stackGetNumberOfParams());
+				Com_DPrintf("\nstackGetParams() Param %i is not a vector\n", i);
 				errors++;
 			}
 			break;
@@ -418,7 +422,7 @@ int stackGetParams(char *params, ...)
 			float *tmp = va_arg(args, float *);
 			if ( ! stackGetParamFloat(i, tmp))
 			{
-				printf("Param %d needs to be a float, %s=%d given! NumParams=%d\n", i, ">make function for this<", stackGetParamType(i), stackGetNumberOfParams());
+				Com_DPrintf("\nstackGetParams() Param %i is not a float\n", i);
 				errors++;
 			}
 			break;
@@ -429,7 +433,7 @@ int stackGetParams(char *params, ...)
 			char **tmp = va_arg(args, char **);
 			if ( ! stackGetParamString(i, tmp))
 			{
-				printf("Param %d needs to be a string, %s=%d given! NumParams=%d\n", i, ">make function for this<", stackGetParamType(i), stackGetNumberOfParams());
+				Com_DPrintf("\nstackGetParams() Param %i is not a string\n", i);
 				errors++;
 			}
 			break;
@@ -437,7 +441,7 @@ int stackGetParams(char *params, ...)
 
 		default:
 			errors++;
-			printf("[WARNING] stackGetParams: errors=%d Identifier '%c' is not implemented!\n", errors, params[i]);
+			Com_DPrintf("\nUnknown identifier passed to stackGetParams()\n");
 			break;
 		}
 	}
@@ -461,7 +465,6 @@ int getNumberOfParams() // as in stackNew()
 // todo: check if the parameter really exists (number_of_params)
 int stackGetParamInt(int param, int *value)
 {
-	//printf("stackGetParamInt() start...");
 	aStackElement *scriptStack = *(aStackElement**)getStack();
 	aStackElement *arg = scriptStack - param;
 
@@ -469,7 +472,7 @@ int stackGetParamInt(int param, int *value)
 		return 0;
 
 	*value = (int)arg->offsetData;
-	//printf("... end\n");
+
 	return 1;
 }
 
@@ -525,17 +528,11 @@ int stackGetParamFloat(int param, float *value)
 		return 1;
 	}
 
-	// *value = (float)arg->offsetData;
-	// gcc: error: pointer value used where a floating point value was expected
-	// so i use the tmp for casting
 	float tmp;
 
 	if (arg->type != STACK_FLOAT)
 		return 0;
 
-	//swapEndian(&arg->offsetData); // DOESEN WORK EVEN WITH SWAP
-	//*value = (float)(int)arg->offsetData; // DOESNT WORK
-	// jeah gcc, you fucked me off!
 	memcpy(&tmp, &arg->offsetData, 4); // cast to float xD
 	*value = tmp;
 

@@ -64,6 +64,8 @@ typedef struct
 
 int getStack();
 
+void stackError(char *format, ...);
+
 int stackGetParamInt(int param, int *value);
 int stackGetParamString(int param, char **value);
 int stackGetParamVector(int param, float value[3]);

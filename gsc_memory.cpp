@@ -8,13 +8,10 @@ void gsc_memory_malloc()
 
 	if ( ! stackGetParams("i", &bytes))
 	{
-		printf("scriptengine> wrongs args for gsc_memory_malloc(bytes);\n");
+		stackError("gsc_memory_malloc() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MEMORY
-	printf("gsc_memory_malloc(bytes=%d)\n", bytes);
-#endif
 
 	stackPushInt((int) malloc(bytes));
 }
@@ -25,13 +22,10 @@ void gsc_memory_free()
 
 	if ( ! stackGetParams("i", &memory))
 	{
-		printf("scriptengine> wrongs args for gsc_memory_free(memory);\n");
+		stackError("gsc_memory_free() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MEMORY
-	printf("gsc_memory_free(memory=%d)\n", memory);
-#endif
 
 	free((void*)memory);
 	stackPushInt(0);
@@ -43,13 +37,10 @@ void gsc_memory_int_get()
 
 	if ( ! stackGetParams("i", &memory))
 	{
-		printf("scriptengine> wrongs args for gsc_memory_int_get(memory);\n");
+		stackError("gsc_memory_int_get() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MEMORY
-	printf("gsc_memory_int_get(memory=%d)\n", memory);
-#endif
 
 	stackPushInt(*(int*)memory);
 }
@@ -60,13 +51,10 @@ void gsc_memory_int_set()
 
 	if ( ! stackGetParams("ii", &memory, &value))
 	{
-		printf("scriptengine> wrongs args for gsc_memory_int_set(memory, value);\n");
+		stackError("gsc_memory_int_set() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MEMORY
-	printf("gsc_memory_int_set(memory=%d, value=%d)\n", memory, value);
-#endif
 
 	*(int*)memory = value;
 	stackPushInt(1);
@@ -78,13 +66,10 @@ void gsc_memory_memset()
 
 	if ( ! stackGetParams("iii", &memory, &value, &bytes))
 	{
-		printf("scriptengine> wrongs args for gsc_memory_memset(memory, value, bytes);\n");
+		stackError("gsc_memory_memset() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MEMORY
-	printf("gsc_memory_memset(memory=%d, value=%d, bytes=%d)\n", memory, value, bytes);
-#endif
 
 	memset((void*)memory, value, bytes);
 	stackPushInt(1);
@@ -97,12 +82,13 @@ struct binarybuffer
 	int pos;
 	std::vector<char *> *strings;
 };
+
 void gsc_binarybuffer_new()
 {
 	int address;
 	if ( ! stackGetParams("i", &address))
 	{
-		printf("scriptengine> wrongs args for binarybuffer_new(address);\n");
+		stackError("gsc_binarybuffer_new() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -112,12 +98,13 @@ void gsc_binarybuffer_new()
 	bb->strings = new std::vector<char *>();
 	stackPushInt((int)bb);
 }
+
 void gsc_binarybuffer_free()
 {
 	struct binarybuffer *bb;
 	if ( ! stackGetParams("i", &bb))
 	{
-		printf("scriptengine> wrongs args for binarybuffer_free(binarybuffer);\n");
+		stackError("gsc_binarybuffer_free() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -127,26 +114,28 @@ void gsc_binarybuffer_free()
 	free(bb);
 	stackPushInt(1);
 }
+
 void gsc_binarybuffer_seek()
 {
 	struct binarybuffer *bb;
 	int pos;
 	if ( ! stackGetParams("ii", &bb, &pos))
 	{
-		printf("scriptengine> wrongs args for binarybuffer_seek(binarybuffer, pos);\n");
+		stackError("gsc_binarybuffer_seek() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 	bb->pos = pos;
 	stackPushInt(1);
 }
+
 void gsc_binarybuffer_write()
 {
 	struct binarybuffer *bb;
 	char *type;
 	if ( ! stackGetParams("is", &bb, &type))
 	{
-		printf("scriptengine> wrongs args for binarybuffer_write(binarybuffer, type [, value] );\n");
+		stackError("gsc_binarybuffer_write() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -157,9 +146,6 @@ void gsc_binarybuffer_write()
 		int tmp_int;
 		stackGetParamInt(2, &tmp_int);
 		*(int *)(bb->address + bb->pos) = tmp_int;
-#if DEBUG_MEMORY
-		printf("type=i bb->address=%.8p + %d = %d\n", bb->address, bb->pos, *(int *)(bb->address + bb->pos));
-#endif
 		bb->pos += 4;
 		break;
 	}
@@ -168,9 +154,6 @@ void gsc_binarybuffer_write()
 		float tmp_float;
 		stackGetParamFloat(2, &tmp_float);
 		*(float *)(bb->address + bb->pos) = tmp_float;
-#if DEBUG_MEMORY
-		printf("type=f bb->address=%.8p + %d = %f\n", bb->address, bb->pos, *(float *)(bb->address + bb->pos));
-#endif
 		bb->pos += 4;
 		break;
 	}
@@ -179,9 +162,6 @@ void gsc_binarybuffer_write()
 		float tmp_float;
 		stackGetParamFloat(2, &tmp_float);
 		*(double *)(bb->address + bb->pos) = (double)tmp_float;
-#if DEBUG_MEMORY
-		printf("type=d bb->address=%.8p + %d = %f\n", bb->address, bb->pos, *(double *)(bb->address + bb->pos));
-#endif
 		bb->pos += 8;
 		break;
 	}
@@ -193,9 +173,6 @@ void gsc_binarybuffer_write()
 		strcpy(copy, tmp_str);
 		bb->strings->push_back(copy);
 		*(char **)(bb->address + bb->pos) = copy;
-#if DEBUG_MEMORY
-		printf("type=s bb->address=%.8p + %d = %s\n", bb->address, bb->pos, *(char **)(bb->address + bb->pos));
-#endif
 		bb->pos += 4;
 		break;
 	}
@@ -204,9 +181,6 @@ void gsc_binarybuffer_write()
 		char *tmp_str;
 		stackGetParamString(2, &tmp_str);
 		*(char *)(bb->address + bb->pos) = tmp_str[0];
-#if DEBUG_MEMORY
-		printf("type=c bb->address=%.8p + %d = %c\n", bb->address, bb->pos, *(char *)(bb->address + bb->pos));
-#endif
 		bb->pos += 1;
 		break;
 	}
@@ -217,26 +191,20 @@ void gsc_binarybuffer_write()
 		*(float *)(bb->address + bb->pos + 0) = tmp_vector[0];
 		*(float *)(bb->address + bb->pos + 4) = tmp_vector[1];
 		*(float *)(bb->address + bb->pos + 8) = tmp_vector[2];
-#if DEBUG_MEMORY
-		printf("type=v bb->address=%.8p + %d = (%f,%f,%f)\n", bb->address, bb->pos,
-		       *(float *)(bb->address + bb->pos + 0),
-		       *(float *)(bb->address + bb->pos + 4),
-		       *(float *)(bb->address + bb->pos + 8)
-		      );
-#endif
 		bb->pos += 12;
 		break;
 	}
 	}
 	stackPushInt(1);
 }
+
 void gsc_binarybuffer_read()
 {
 	struct binarybuffer *bb;
 	char *type;
 	if ( ! stackGetParams("is", &bb, &type))
 	{
-		printf("scriptengine> wrongs args for binarybuffer_read(binarybuffer, type);\n");
+		stackError("gsc_binarybuffer_read() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}

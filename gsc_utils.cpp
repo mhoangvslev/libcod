@@ -5,391 +5,12 @@
 #include <dirent.h> // dir stuff
 #include <ctype.h> // toupper
 
-#define MAX_LANGUAGES 16
-#define MAX_LANGUAGE_ITEMS 1024
-
-int languages_defined = 0;
-int language_items_defined = 0;
-char languages[MAX_LANGUAGES][3]; //add space for \0
-char *language_items[MAX_LANGUAGE_ITEMS];
-char *language_references[MAX_LANGUAGES][MAX_LANGUAGE_ITEMS];
-bool language_reference_mallocd[MAX_LANGUAGES][MAX_LANGUAGE_ITEMS];
-
-void gsc_add_language()
-{
-	char *str;
-	if(!stackGetParamString(0, &str))
-	{
-		printf("Param 0 needs to be a string for add_language\n");
-		stackPushUndefined();
-		return;
-	}
-	if(str[0] == '\0' || str[1] == '\0' || str[2] != '\0')
-	{
-		printf("Languages are defined by 2 characters\n");
-		stackPushUndefined();
-		return;
-	}
-	for(int i = 0; i < languages_defined; i++)
-	{
-		if(!strcmp(languages[i], str))
-		{
-			printf("%s is already an added language\n", str);
-			stackPushUndefined();
-			return;
-		}
-	}
-	if(languages_defined == MAX_LANGUAGES)
-	{
-		printf("Cannot add another language. Already got %d languages\n", MAX_LANGUAGES);
-		stackPushUndefined();
-		return;
-	}
-	strcpy(languages[languages_defined], str);
-	languages_defined++;
-	//printf("Added %s as language %d\n", str, languages_defined);
-	stackPushInt(0);
-}
-
-void add_lang_item(char* lang, char* item, char* txt)
-{
-	//printf("adding %s to %s, contents: %s\n", item, lang, txt);
-	int language_number = -1;
-	for(int i = 0; i < languages_defined; i++)
-	{
-		if(languages[i][0] == lang[0] && languages[i][1] == lang[1])
-		{
-			language_number = i;
-			break;
-		}
-	}
-	if(language_number == -1)
-	{
-		printf("Language (%s) not added\n", lang);
-		return;
-	}
-	int language_item_number = language_items_defined;
-	for(int i = 0; i < language_items_defined; i++)
-	{
-		if(!strcmp(language_items[i], item))
-		{
-			language_item_number = i;
-			break;
-		}
-	}
-	if(language_item_number == MAX_LANGUAGE_ITEMS)
-	{
-		printf("Maximum language items reached\n");
-		return;
-	}
-	bool fill_other_langs = false;
-	if(language_item_number == language_items_defined)
-	{
-		//printf("malloccing item\n");
-		char *item_m = (char*)malloc(sizeof(char) * (COD2_MAX_STRINGLENGTH + 1));
-		if(item_m == NULL)
-		{
-			printf("Could not malloc\n");
-			return;
-		}
-		fill_other_langs = true;
-		strncpy(item_m, item, COD2_MAX_STRINGLENGTH);
-		language_items[language_item_number] = item_m;
-		language_items_defined++;
-		for(int i = 0; i < languages_defined; i++)
-			language_reference_mallocd[i][language_item_number] = false;
-	}
-	char *txt_m;
-	if(!language_reference_mallocd[language_number][language_item_number])
-	{
-		//printf("malloccing text\n");
-		txt_m = (char*)malloc(sizeof(char) * (COD2_MAX_STRINGLENGTH + 1));
-		if(txt_m == NULL)
-		{
-			printf("Could not malloc\n");
-			return;
-		}
-		language_reference_mallocd[language_number][language_item_number] = true;
-		language_references[language_number][language_item_number] = txt_m;
-	}
-	{
-		//printf("reusing previous malloc\n");
-		txt_m = language_references[language_number][language_item_number];
-	}
-	strncpy(txt_m, txt, COD2_MAX_STRINGLENGTH);
-	if(fill_other_langs)
-	{
-		//printf("filling other items\n");
-		for(int i = 0; i < languages_defined; i++)
-		{
-			if(i == language_number)
-				continue;
-			language_references[i][language_item_number] = txt_m;
-		}
-	}
-}
-
-void gsc_load_languages()
-{
-	static bool loaded = false;
-	char *str;
-	if(!stackGetParamString(0, &str))
-	{
-		printf("Param 0 needs to be a string for load_languages\n");
-		stackPushUndefined();
-		return;
-	}
-
-	int force_reload;
-	if(!stackGetParamInt(1, &force_reload))
-		force_reload = 0;
-	if(!force_reload && loaded)
-	{
-		printf("Already loaded languages\n");
-		stackPushUndefined();
-		return;
-	}
-	char curitem[COD2_MAX_STRINGLENGTH + 1] = "";
-	char buffer[COD2_MAX_STRINGLENGTH + 1];
-	FILE * file;
-	file = fopen(str, "r");
-	int linenum = 0;
-	if(file != NULL)
-	{
-		while(fgets(buffer, sizeof(buffer), file) != NULL)
-		{
-			linenum++;
-			if(!strncmp(buffer, "REFERENCE", 9))
-			{
-				//read the rest of buffer, starting from the first non-space character
-				int start = -1;
-				int end = -1;
-				for(int i = 9; i < COD2_MAX_STRINGLENGTH; i++)
-				{
-					if(buffer[i] == '\0' || buffer[i] == '\r' || buffer[i] == '\n')
-					{
-						end = i;
-						if(end - start > 0)
-						{
-							//string has a length
-							//set it as curitem
-							strncpy(curitem, &(buffer[start]), end - start);
-							curitem[end - start] = '\0';
-							//printf("Read item: %s", curitem);
-						}
-						break;
-					}
-					else if(start == -1 && buffer[i] != ' ' && buffer[i] != '\t')
-						start = i;
-					else if(start != -1 && (buffer[i] == ' ' || buffer[i] == '\t'))
-					{
-						//error, trailing whitespace
-						//try to cut it off
-						end = i;
-						if(end - start > 0)
-						{
-							//string has a length
-							//set it as curitem
-							strncpy(curitem, &(buffer[start]), end - start);
-							curitem[end - start] = '\0';
-							//printf("Read item: %s", curitem);
-						}
-						break;
-					}
-				}
-			}
-			else if(!strncmp(buffer, "LANG_", 5))
-			{
-				//language is the [5] and [6]th element of this string
-				//rest of string, starting at the first " is the string, ending at the last "
-				bool lang_exist = false;
-				for(int i = 0; i < languages_defined; i++)
-				{
-					if(languages[i][0] == buffer[5] && buffer[5] != '\0' && languages[i][1] == buffer[6] && buffer[6] != '\0')
-					{
-						lang_exist = true;
-						break;
-					}
-				}
-				if(!lang_exist)
-				{
-					if(buffer[5] != '\0' && buffer[6] != '\0')
-						printf("Language not yet added for language: %c%c\n", buffer[5], buffer[6]);
-					else
-						printf("Line ended too soon on line %d\n", linenum);
-				}
-				else
-				{
-					//start scanning buffer, starting from 8
-					char lang[2];
-					lang[0] = buffer[5];
-					lang[1] = buffer[6];
-					int start = -1;
-					int end = -1;
-					bool ignore_next = false;
-					for(int i = 8; i < COD2_MAX_STRINGLENGTH; i++)
-					{
-						if(buffer[i] == '\\' && !ignore_next)
-						{
-							ignore_next = true;
-							continue;
-						}
-						if(buffer[i] == '\0' || buffer[i] == '\r' || buffer[i] == '\n')
-						{
-							//string ended prematurely
-							printf("Error in line %d\n", linenum);
-							break;
-						}
-						if(buffer[i] == '\"' && !ignore_next)
-						{
-							if(start == -1)
-							{
-								if(buffer[i + 1] == '\0')
-								{
-									printf("Premature line end on line %d", linenum);
-									break;
-								}
-								else
-									start = i + 1;
-							}
-							else
-							{
-								end = i;
-								//add buffer to languages stuff
-								if(end - start > 0)
-								{
-									char curdesc[COD2_MAX_STRINGLENGTH + 1];
-									strncpy(curdesc, &(buffer[start]), end - start);
-									curdesc[end - start] = '\0';
-									add_lang_item(lang, curitem, curdesc);
-									//printf("Adding %s as %s for language %c%c\n", curdesc, curitem, buffer[5], buffer[6]);
-								}
-								break;
-							}
-						}
-						ignore_next = false;
-					}
-				}
-			}
-		}
-		fclose(file);
-	}
-	else
-	{
-		printf("File %s does not exist\n", str);
-		return;
-	}
-}
-
-void gsc_get_language_item()
-{
-	char *str;
-	char *str2;
-	if(!stackGetParamString(0, &str))
-	{
-		printf("Param 0 has to be a string for get_language_item\n");
-		stackPushUndefined();
-		return;
-	}
-	if(!stackGetParamString(1, &str2))
-	{
-		printf("Param 1 has to be a string for get_language_item\n");
-		stackPushUndefined();
-		return;
-	}
-	//printf("str: %s, str2: %s\n", str, str2);
-	if(str[0] == '\0' || str[1] == '\0')
-	{
-		printf("Invalid language item requested. Should be like EN\n");
-		stackPushUndefined();
-		return;
-	}
-	int language_number = -1;
-	for(int i = 0; i < languages_defined; i++)
-	{
-		if(str[0] == languages[i][0] && str[1] == languages[i][1])
-		{
-			//found a match
-			language_number = i;
-			break;
-		}
-	}
-	if(language_number == -1)
-	{
-		printf("Invalid language selected. Load languages first\n");
-		stackPushUndefined();
-		return;
-	}
-	int language_item_number = -1;
-	for(int i = 0; i < language_items_defined; i++)
-	{
-		if(!strcmp(str2, language_items[i]))
-		{
-			//found match
-			language_item_number = i;
-			break;
-		}
-	}
-	if(language_item_number == -1)
-	{
-		printf("Invalid language item selected. Load language items first\n");
-		stackPushString(str2);
-		return;
-	}
-	//printf("found: %s\n", language_references[language_number][language_item_number]);
-	stackPushString(language_references[language_number][language_item_number]);
-}
-
-void gsc_themetext()
-{
-	char *mask = 0;
-	char *text = 0;
-	char result[COD2_MAX_STRINGLENGTH];
-	int num = 0;
-	if (!stackGetParams("ss", &mask, &text))
-	{
-		printf("scriptengine> WARNING: themetext undefined argument!\n");
-		stackPushUndefined();
-		return;
-	}
-	while(*mask != 0)
-	{
-		switch(*mask)
-		{
-		case 'c':
-			if(*text != 0)
-				result[num++] = *(text++);
-			mask++;
-			break;
-		case 'C':
-			if(*text != 0)
-				result[num++] = toupper(*(text++));
-			mask++;
-			break;
-		case 's':
-		{
-			while(*text != 0)
-				result[num++] = *(text++);
-			mask++;
-			break;
-		}
-		default:
-			result[num++] = *(mask++);
-			break;
-		}
-	}
-	while(*text != 0)
-		result[num++] = *(text++);
-	result[num] = '\0';
-	stackPushString(result);
-}
-
 //thanks to riicchhaarrd/php
 unsigned short Scr_GetArray(int index)
 {
 	if (index >= stackGetNumberOfParams())
 	{
-		printf("scriptengine> Scr_GetArray: one parameter is required\n");
+		stackError("Scr_GetArray() one parameter is required");
 		return 0;
 	}
 
@@ -400,7 +21,7 @@ unsigned short Scr_GetArray(int index)
 	if (vartype == STACK_OBJECT)
 		return *(unsigned short*)base;
 
-	printf("scriptengine> Scr_GetArray: the parameter must be an array\n");
+	stackError("Scr_GetArray() the parameter must be an array");
 	return 0;
 }
 
@@ -461,7 +82,7 @@ void gsc_utils_printf()
 	char *str;
 	if ( ! stackGetParams("s", &str))
 	{
-		printf("scriptengine> WARNING: printf undefined argument!\n");
+		stackError("gsc_utils_printf() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -494,7 +115,7 @@ void gsc_utils_sprintf()
 	char *str;
 	if (!stackGetParams("s", &str))
 	{
-		printf("scriptengine> WARNING: sprintf undefined argument!\n");
+		stackError("gsc_utils_sprintf() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -585,6 +206,7 @@ void gsc_utils_getAscii()
 	char *str;
 	if ( ! stackGetParams("s", &str) || strlen(str) == 0)
 	{
+		stackError("gsc_utils_getAscii() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -598,7 +220,8 @@ void gsc_utils_toupper()
 	int len = 0;
 	if ( ! stackGetParams("s", &str) || strlen(str) == 0)
 	{
-		stackPushString("");
+		stackError("gsc_utils_toupper() argument is undefined or has a wrong type");
+		stackPushUndefined();
 		return;
 	}
 
@@ -633,7 +256,7 @@ void gsc_utils_system()
 	char *cmd;
 	if ( ! stackGetParams("s",  &cmd))
 	{
-		printf("scriptengine> ERROR: please specify the command as string to gsc_system_command()\n");
+		stackError("gsc_utils_system() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -657,7 +280,7 @@ char* exec(const char* command)
 	fp = popen(command, "r");
 	if (fp == NULL)
 	{
-		printf("Cannot execute command:\n%s\n", command);
+		Com_DPrintf("exec() cannot execute command:\n%s\n", command);
 		free(result);
 		return NULL;
 	}
@@ -675,7 +298,7 @@ char* exec(const char* command)
 	fflush(fp);
 	if (pclose(fp) != 0)
 	{
-		perror("Cannot close stream.\n");
+		Com_DPrintf("exec() cannot close stream %i\n", fp);
 		free(result);
 		return NULL;
 	}
@@ -688,7 +311,7 @@ void gsc_utils_execute()   // Returns complete command output as a string
 	char *cmd;
 	if ( ! stackGetParams("s",  &cmd))
 	{
-		printf("scriptengine> ERROR: please specify the command as string to gsc_execute_command()\n");
+		stackError("gsc_utils_execute() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -709,7 +332,7 @@ void gsc_utils_exponent()
 	float exponent;
 	if ( ! stackGetParams("ff", &basis, &exponent))
 	{
-		printf("scriptengine> ERROR: please specify the commands as float to gsc_exponent_command()\n");
+		stackError("gsc_utils_exponent() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -721,7 +344,7 @@ void gsc_utils_file_link()
 	char *source, *dest;
 	if ( ! stackGetParams("ss",  &source, &dest))
 	{
-		printf("scriptengine> ERROR: please specify source and dest to gsc_link_file()\n");
+		stackError("gsc_utils_file_link() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -738,7 +361,7 @@ void gsc_utils_file_unlink()
 	char *file;
 	if ( ! stackGetParams("s",  &file))
 	{
-		printf("scriptengine> ERROR: please specify file to gsc_unlink_file()\n");
+		stackError("gsc_utils_file_unlink() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -750,6 +373,7 @@ void gsc_utils_file_exists()
 	char *filename;
 	if ( ! stackGetParams("s", &filename))
 	{
+		stackError("gsc_utils_file_exists() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -761,10 +385,10 @@ void gsc_utils_FS_LoadDir()
 	char *path, *dir;
 	if ( ! stackGetParams("ss", &path, &dir))
 	{
+		stackError("gsc_utils_FS_LoadDir() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	//printf("path %s dir %s \n", path, dir);
 	stackPushInt( FS_LoadDir(path, dir) );
 }
 
@@ -772,6 +396,7 @@ void gsc_utils_getType()
 {
 	if (stackGetNumberOfParams() == 0)
 	{
+		stackError("gsc_utils_getType() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -783,6 +408,7 @@ void gsc_utils_stringToFloat()
 	char *str;
 	if ( ! stackGetParams("s", &str))
 	{
+		stackError("gsc_utils_stringToFloat() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -795,32 +421,32 @@ void gsc_utils_rundll()
 	char *arg_library, *arg_function;
 	if ( ! stackGetParams("ss", &arg_library, &arg_function))
 	{
-		printf("scriptengine> wrongs args for: rundll(library, function)\n");
+		stackError("gsc_utils_rundll() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	printf("lib=%s func=%s\n", arg_library, arg_function);
+	Com_DPrintf("lib=%s func=%s\n", arg_library, arg_function);
 	//void *handle = dlopen(arg_library, RTLD_GLOBAL); // crashes
 	//void *handle = dlopen(arg_library, RTLD_LOCAL); // crashes
 	//void *handle = dlopen(arg_library, RTLD_NOW); // crashes
 	void *handle = dlopen(arg_library, RTLD_LAZY);
 	if ( ! handle)
 	{
-		printf("ERROR: dlopen(\"%s\") failed!\n", arg_library);
+		stackError("dlopen(\"%s\") failed", arg_library);
 		stackPushInt(0);
 		return;
 	}
-	printf("dlopen(\"%s\") returned: %.8x\n", arg_library, (unsigned int)handle);
+	Com_DPrintf("dlopen(\"%s\") returned: %.8x\n", arg_library, (unsigned int)handle);
 	void (*func)();
 	//*((void *)&func) = dlsym(handle, arg_function);
 	*(int *)&func = (int)dlsym(handle, arg_function);
 	if (!func)
 	{
-		printf("ERROR: dlsym(\"%s\") failed!\n", arg_function);
+		stackError("dlsym(\"%s\") failed", arg_function);
 		stackPushInt(0);
 		return;
 	}
-	printf("function-name=%s -> address=%.8x\n", arg_function, (unsigned int)func);
+	Com_DPrintf("function-name=%s -> address=%.8x\n", arg_function, (unsigned int)func);
 	func();
 	dlclose(handle);
 	stackPushInt(1);
@@ -831,6 +457,7 @@ void gsc_utils_ExecuteString()
 	char *str;
 	if ( ! stackGetParams("s", &str))
 	{
+		stackError("gsc_utils_ExecuteString() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -844,6 +471,7 @@ void gsc_utils_sendgameservercommand()
 	char *message;
 	if ( ! stackGetParams("is", &clientNum, &message))
 	{
+		stackError("gsc_utils_sendgameservercommand() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -856,6 +484,7 @@ void gsc_utils_scandir()
 	char *dirname;
 	if ( ! stackGetParams("s", &dirname))
 	{
+		stackError("gsc_utils_scandir() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -882,6 +511,7 @@ void gsc_utils_fopen()
 	char *filename, *mode;
 	if ( ! stackGetParams("ss", &filename, &mode))
 	{
+		stackError("gsc_utils_sendgameservercommand() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -890,7 +520,7 @@ void gsc_utils_fopen()
 
 	if (!file)
 	{
-		printf("scriptengine> WARNING: gsc_utils_fopen() returned a error!\n");
+		stackError("gsc_utils_fopen() returned a error");
 		stackPushUndefined();
 		return;
 	}
@@ -903,13 +533,14 @@ void gsc_utils_fread()
 	FILE *file;
 	if ( ! stackGetParams("i", &file))
 	{
+		stackError("gsc_utils_fread() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if (!file)
 	{
-		printf("scriptengine> WARNING: gsc_utils_fread() returned a error!\n");
+		stackError("gsc_utils_fread() returned a error");
 		stackPushUndefined();
 		return;
 	}
@@ -931,19 +562,19 @@ void gsc_utils_fwrite()
 	char *buffer;
 	if ( ! stackGetParams("is", &file, &buffer))
 	{
+		stackError("gsc_utils_fwrite() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if (!file)
 	{
-		printf("scriptengine> WARNING: gsc_utils_fwrite() returned a error!\n");
+		stackError("gsc_utils_fwrite() returned a error");
 		stackPushUndefined();
 		return;
 	}
 
-	int bytesWritten = fwrite(buffer, 1, strlen(buffer), file);
-	stackPushInt(bytesWritten);
+	stackPushInt(fwrite(buffer, 1, strlen(buffer), file));
 }
 
 void gsc_utils_fclose()
@@ -951,13 +582,14 @@ void gsc_utils_fclose()
 	FILE *file;
 	if ( ! stackGetParams("i", &file))
 	{
+		stackError("gsc_utils_fclose() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if (!file)
 	{
-		printf("scriptengine> WARNING: gsc_utils_fclose() returned a error!\n");
+		stackError("gsc_utils_fclose() returned a error");
 		stackPushUndefined();
 		return;
 	}
@@ -972,6 +604,7 @@ void gsc_G_FindConfigstringIndexOriginal()
 	int min, max, create;
 	if ( ! stackGetParams("siii", &name, &min, &max, &create))
 	{
+		stackError("gsc_G_FindConfigstringIndexOriginal() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -996,7 +629,7 @@ void gsc_G_FindConfigstringIndex()
 	char* (*func)(int i);
 	if ( ! stackGetParams("sii", &name, &min, &max))
 	{
-		stackPushUndefined();
+		stackError("gsc_G_FindConfigstringIndex() one or more arguments is undefined or has a wrong type");
 		return;
 	}
 #if COD_VERSION == COD2_1_0
@@ -1027,6 +660,7 @@ void gsc_get_configstring()
 	char* (*func)(int index);
 	if ( ! stackGetParams("i", &index))
 	{
+		stackError("gsc_get_configstring() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -1051,6 +685,7 @@ void gsc_set_configstring()
 	int (*func)(int index, char *string);
 	if ( ! stackGetParams("is", &index, &string))
 	{
+		stackError("gsc_set_configstring() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -1071,12 +706,11 @@ void gsc_call_function_raw()
 	unsigned char *data;
 	if ( ! stackGetParams("isi", &func_address, &args, &data))
 	{
-		printf("scriptengine> wrongs args for call_function_raw(func_address, args, data);\n");
+		stackError("gsc_call_function_raw() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	int ret = cracking_call_function(func_address, args, data);
-	stackPushInt(ret);
+	stackPushInt(cracking_call_function(func_address, args, data));
 }
 
 void gsc_dlopen()
@@ -1084,14 +718,14 @@ void gsc_dlopen()
 	char *arg_library;
 	if ( ! stackGetParams("s", &arg_library))
 	{
-		printf("scriptengine> wrongs args for: dlopen(library)\n");
+		stackError("gsc_dlopen() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 	int handle = (int)dlopen(arg_library, RTLD_LAZY);
 	if ( ! handle)
 	{
-		printf("ERROR: dlopen(\"%s\") failed! Error: %s\n", arg_library, dlerror());
+		stackError("dlopen(\"%s\") failed! Error: %s", arg_library, dlerror());
 		stackPushInt(0);
 		return;
 	}
@@ -1104,14 +738,14 @@ void gsc_dlsym()
 	char *arg_function;
 	if ( ! stackGetParams("is", &handle, &arg_function))
 	{
-		printf("scriptengine> wrongs args for: dlsym(handle, function)\n");
+		stackError("gsc_dlsym() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 	int func = (int)dlsym((void *)handle, arg_function);
 	if (!func)
 	{
-		printf("ERROR: dlsym(\"%s\") failed! Error: %s\n", arg_function, dlerror());
+		stackError("dlsym(\"%s\") failed! Error: %s", arg_function, dlerror());
 		stackPushInt(0);
 		return;
 	}
@@ -1123,14 +757,14 @@ void gsc_dlclose()
 	int handle;
 	if ( ! stackGetParams("i", &handle))
 	{
-		printf("scriptengine> wrongs args for: dlclose(handle)\n");
+		stackError("gsc_dlclose() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 	int ret = dlclose((void *)handle);
 	if (ret != 0)
 	{
-		printf("ERROR: dlclose(%d) failed! Error: %s\n", handle, dlerror());
+		stackError("dlclose(%d) failed! Error: %s", handle, dlerror());
 		stackPushInt(0);
 		return;
 	}
@@ -1148,7 +782,7 @@ void gsc_utils_init()
 	if(defaultweapon_mp == NULL)
 		defaultweapon_mp = (char*)malloc(MAX_WEAPON_NAME_SIZE);
 	if(defaultweapon_mp == NULL)
-		printf("Failed to malloc defaultweapon_mp\n");
+		stackError("gsc_utils_init() failed to malloc defaultweapon_mp");
 
 	strcpy(defaultweapon_mp, "defaultweapon_mp");
 	defaultweapon_mp[strlen(defaultweapon_mp)] = '\0';
@@ -1201,21 +835,21 @@ void gsc_utils_ignoreweapon()
 	char* weapon;
 	if ( ! stackGetParams("s", &weapon))
 	{
-		printf("scriptengine> wrongs args for: ignoreWeapon(weapon)\n");
+		stackError("gsc_utils_ignoreweapon() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if(strlen(weapon) > MAX_WEAPON_NAME_SIZE - 1)
 	{
-		printf("scriptengine> weapon name is too long: ignoreWeapon(weapon)\n");
+		stackError("gsc_utils_ignoreweapon() weapon name is too long");
 		stackPushUndefined();
 		return;
 	}
 
 	if(ignoredWeaponCount >= MAX_WEAPON_IGNORE_SIZE)
 	{
-		printf("scriptengine> Exceeded MAX_WEAPON_IGNORE_SIZE %d\n", MAX_WEAPON_IGNORE_SIZE);
+		stackError("Exceeded MAX_WEAPON_IGNORE_SIZE %d", MAX_WEAPON_IGNORE_SIZE);
 		stackPushUndefined();
 		return;
 	}
@@ -1231,14 +865,14 @@ void gsc_utils_setdefaultweapon()
 	char* weapon;
 	if ( ! stackGetParams("s", &weapon))
 	{
-		printf("scriptengine> wrongs args for: setdefaultweapon(weapon)\n");
+		stackError("gsc_utils_setdefaultweapon() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
 	if(strlen(weapon) > MAX_WEAPON_NAME_SIZE - 1)
 	{
-		printf("scriptengine> weapon name is too long: setdefaultweapon(weapon)\n");
+		stackError("gsc_utils_setdefaultweapon() weapon name is too long");
 		stackPushUndefined();
 		return;
 	}
@@ -1310,14 +944,14 @@ void gsc_utils_getweaponoffsetint(char* funcname, int offset)
 	int id;
 	if ( ! stackGetParams("i", &id))
 	{
-		printf("scriptengine> wrongs args for: %s(id)\n", funcname);
+		stackError("wrongs args for: %s(id)", funcname);
 		stackPushInt(0);
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
-		printf("scriptengine> index out of bounds: %s(id)\n", funcname);
+		stackError("index is out of bounds: %s(id)", funcname);
 		stackPushInt(0);
 		return;
 	}
@@ -1332,14 +966,14 @@ void gsc_utils_setweaponoffsetint(char* funcname, int offset)
 	int value;
 	if ( ! stackGetParams("ii", &id, &value))
 	{
-		printf("scriptengine> wrongs args for: %s(id, value)\n", funcname);
+		stackError("scriptengine> wrongs args for: %s(id, value)", funcname);
 		stackPushInt(0);
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
-		printf("scriptengine> index out of bounds: %s(id, value)\n", funcname);
+		stackError("index is out of bounds: %s(id, value)", funcname);
 		stackPushInt(0);
 		return;
 	}
@@ -1444,14 +1078,14 @@ void gsc_utils_getweaponhitlocmultiplier()
 	char* hitloc;
 	if ( ! stackGetParams("is", &id, &hitloc))
 	{
-		printf("scriptengine> wrongs args for: getweaponhitlocmultiplier(id, hitloc)\n");
+		stackError("gsc_utils_getweaponhitlocmultiplier() one or more arguments is undefined or has a wrong type");
 		stackPushInt(0);
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
-		printf("scriptengine> index out of bounds: getweaponhitlocmultiplier(id, hitloc)\n");
+		stackError("index is out of bounds: getweaponhitlocmultiplier(id, hitloc)");
 		stackPushInt(0);
 		return;
 	}
@@ -1468,14 +1102,14 @@ void gsc_utils_setweaponhitlocmultiplier()
 	char* hitloc;
 	if ( ! stackGetParams("isf", &id, &hitloc, &multiplier))
 	{
-		printf("scriptengine> wrongs args for: getweaponhitlocmultiplier(id, hitloc, multiplier)\n");
+		stackError("gsc_utils_setweaponhitlocmultiplier() one or more arguments is undefined or has a wrong type");
 		stackPushInt(0);
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
-		printf("scriptengine> index out of bounds: getweaponhitlocmultiplier(id, hitloc, multiplier)\n");
+		stackError("index out of bounds: getweaponhitlocmultiplier(id, hitloc, multiplier)");
 		stackPushInt(0);
 		return;
 	}
@@ -1511,7 +1145,6 @@ void gsc_utils_getloadedweapons()
 	// 612 = moveSpeedScale // see 80E1C58 (cod2 1.3) call 80E268A
 	// 1456 - 1528 = locNone till locGun
 	// [id][weapon_mp][worldmodel][viewmodel]: displayname
-	//printf("[%d][%s][%s][%s]: %s\n", i, *(char**)w, *(const char **)(w + 436), *(char**)(w + 12), *(char**)(w + 4));
 }
 
 void gsc_utils_sqrt()
@@ -1519,7 +1152,7 @@ void gsc_utils_sqrt()
 	float x;
 	if ( ! stackGetParams("f", &x))
 	{
-		printf("scriptengine> wrong param for sqrt(float x)\n");
+		stackError("gsc_utils_sqrt() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -1531,7 +1164,7 @@ void gsc_utils_sqrtInv()
 	float x;
 	if ( ! stackGetParams("f", &x))
 	{
-		printf("scriptengine> wrong param for sqrtInv(float x)\n");
+		stackError("gsc_utils_sqrtInv() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}

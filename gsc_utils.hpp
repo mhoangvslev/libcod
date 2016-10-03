@@ -40,11 +40,6 @@ void gsc_G_FindConfigstringIndexOriginal();
 void gsc_get_configstring();
 void gsc_set_configstring();
 
-void gsc_add_language();
-void gsc_load_languages();
-void gsc_get_language_item();
-void gsc_themetext();
-
 void gsc_utils_fopen();
 void gsc_utils_fread();
 void gsc_utils_fwrite();

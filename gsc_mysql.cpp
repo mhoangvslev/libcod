@@ -90,14 +90,14 @@ void *mysql_async_query_handler(void* input_nothing) //is threaded after initial
 	static bool started = false;
 	if(started)
 	{
-		printf("scriptengine> async handler already started. Returning\n");
+		Com_DPrintf("mysql_async_query_handler() async handler already started. Returning\n");
 		return NULL;
 	}
 	started = true;
 	mysql_async_connection *c = first_async_connection;
 	if(c == NULL)
 	{
-		printf("scriptengine> async handler started before any connection was initialized\n"); //this should never happen
+		Com_DPrintf("mysql_async_query_handler() async handler started before any connection was initialized\n"); //this should never happen
 		started = false;
 		return NULL;
 	}
@@ -123,8 +123,8 @@ void *mysql_async_query_handler(void* input_nothing) //is threaded after initial
 				int error = pthread_create(&query_doer, NULL, mysql_async_execute_query, c);
 				if(error)
 				{
-					printf("error: %d\n", error);
-					printf("Error detaching async handler thread\n");
+					Com_DPrintf("error: %i\n", error);
+					Com_DPrintf("Error detaching async handler thread\n");
 					return NULL;
 				}
 				pthread_detach(query_doer);
@@ -168,7 +168,7 @@ void gsc_mysql_async_create_query_nosave()
 	char *sql;
 	if ( ! stackGetParams("s", &sql))
 	{
-		printf("scriptengine> wrongs args for create_mysql_async_query(...);\n");
+		stackError("gsc_mysql_async_create_query_nosave() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -182,7 +182,7 @@ void gsc_mysql_async_create_query()
 	char *sql;
 	if ( ! stackGetParams("s", &sql))
 	{
-		printf("scriptengine> wrongs args for create_mysql_async_query(...);\n");
+		stackError("gsc_mysql_async_create_query() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -211,7 +211,7 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 	int id;
 	if(!stackGetParams("i", &id))
 	{
-		printf("scriptengine> wrong args for mysql_async_getresult_and_free_id\n");
+		stackError("gsc_mysql_async_getresult_and_free() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -246,7 +246,7 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 	}
 	else
 	{
-		printf("scriptengine> mysql async query id not found\n");
+		stackError("gsc_mysql_async_getresult_and_free() mysql async query id not found");
 		stackPushUndefined();
 		return;
 	}
@@ -256,7 +256,7 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 {
 	if(first_async_connection != NULL)
 	{
-		printf("scriptengine> Async mysql already initialized. Returning before adding additional connections\n");
+		Com_DPrintf("gsc_mysql_async_initializer() async mysql already initialized. Returning before adding additional connections");
 		stackPushUndefined();
 		return;
 	}
@@ -265,13 +265,13 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 
 	if ( ! stackGetParams("ssssii", &host, &user, &pass, &db, &port, &connection_count))
 	{
-		printf("scriptengine> wrongs args for mysql_async_initializer(...);\n");
+		stackError("gsc_mysql_async_initializer() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 	if(connection_count <= 0)
 	{
-		printf("Need a positive connection_count in mysql_async_initializer\n");
+		stackError("gsc_mysql_async_initializer() need a positive connection_count in mysql_async_initializer");
 		stackPushUndefined();
 		return;
 	}
@@ -306,7 +306,7 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 	pthread_t async_handler;
 	if(pthread_create(&async_handler, NULL, mysql_async_query_handler, NULL))
 	{
-		printf("Error detaching async handler thread\n");
+		stackError("gsc_mysql_async_initializer() error detaching async handler thread");
 		return;
 	}
 	pthread_detach(async_handler);
@@ -316,9 +316,6 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 
 void gsc_mysql_init()
 {
-#if DEBUG_MYSQL
-	printf("gsc_mysql_init()\n");
-#endif
 	MYSQL *my = mysql_init(NULL);
 	stackPushInt((int) my);
 }
@@ -344,13 +341,10 @@ void gsc_mysql_real_connect()
 
 	if ( ! stackGetParams("issssi", &mysql, &host, &user, &pass, &db, &port))
 	{
-		printf("scriptengine> wrongs args for mysql_real_connect(...);\n");
+		stackError("gsc_mysql_real_connect() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_real_connect(mysql=%d, host=\"%s\", user=\"%s\", pass=\"%s\", db=\"%s\", port=%d)\n", mysql, host, user, pass, db, port);
-#endif
 
 	mysql = (int) mysql_real_connect((MYSQL *)mysql, host, user, pass, db, port, NULL, 0);
 	my_bool reconnect = true;
@@ -366,13 +360,10 @@ void gsc_mysql_close()
 
 	if ( ! stackGetParams("i", &mysql))
 	{
-		printf("scriptengine> wrongs args for mysql_close(mysql);\n");
+		stackError("gsc_mysql_close() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_close(%d)\n", mysql);
-#endif
 
 	mysql_close((MYSQL *)mysql);
 	stackPushInt(0);
@@ -385,13 +376,10 @@ void gsc_mysql_query()
 
 	if ( ! stackGetParams("is", &mysql, &sql))
 	{
-		printf("scriptengine> wrongs args for mysql_query(...);\n");
+		stackError("gsc_mysql_query() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_query(%d, \"%s\")\n", mysql, sql);
-#endif
 
 	int ret = mysql_query((MYSQL *)mysql, sql);
 	stackPushInt(ret);
@@ -403,13 +391,10 @@ void gsc_mysql_errno()
 
 	if ( ! stackGetParams("i", &mysql))
 	{
-		printf("scriptengine> wrongs args for mysql_errno(mysql);\n");
+		stackError("gsc_mysql_errno() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_errno(%d)\n", mysql);
-#endif
 
 	int ret = mysql_errno((MYSQL *)mysql);
 	stackPushInt(ret);
@@ -421,13 +406,10 @@ void gsc_mysql_error()
 
 	if ( ! stackGetParams("i", &mysql))
 	{
-		printf("scriptengine> wrongs args for mysql_error(mysql);\n");
+		stackError("gsc_mysql_error() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_error(%d)\n", mysql);
-#endif
 
 	char *ret = (char *)mysql_error((MYSQL *)mysql);
 	stackPushString(ret);
@@ -439,13 +421,10 @@ void gsc_mysql_affected_rows()
 
 	if ( ! stackGetParams("i", &mysql))
 	{
-		printf("scriptengine> wrongs args for mysql_affected_rows(mysql);\n");
+		stackError("gsc_mysql_affected_rows() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_affected_rows(%d)\n", mysql);
-#endif
 
 	int ret = mysql_affected_rows((MYSQL *)mysql);
 	stackPushInt(ret);
@@ -457,13 +436,10 @@ void gsc_mysql_store_result()
 
 	if ( ! stackGetParams("i", &mysql))
 	{
-		printf("scriptengine> wrongs args for mysql_store_result(mysql);\n");
+		stackError("gsc_mysql_store_result() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_store_result(%d)\n", mysql);
-#endif
 
 	MYSQL_RES *result = mysql_store_result((MYSQL *)mysql);
 	stackPushInt((int) result);
@@ -475,13 +451,10 @@ void gsc_mysql_num_rows()
 
 	if ( ! stackGetParams("i", &result))
 	{
-		printf("scriptengine> wrongs args for mysql_num_rows(result);\n");
+		stackError("gsc_mysql_num_rows() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_num_rows(result=%d)\n", result);
-#endif
 
 	int ret = mysql_num_rows((MYSQL_RES *)result);
 	stackPushInt(ret);
@@ -493,13 +466,10 @@ void gsc_mysql_num_fields()
 
 	if ( ! stackGetParams("i", &result))
 	{
-		printf("scriptengine> wrongs args for mysql_num_fields(result);\n");
+		stackError("gsc_mysql_num_fields() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_num_fields(result=%d)\n", result);
-#endif
 
 	int ret = mysql_num_fields((MYSQL_RES *)result);
 	stackPushInt(ret);
@@ -512,13 +482,10 @@ void gsc_mysql_field_seek()
 
 	if ( ! stackGetParams("ii", &result, &offset))
 	{
-		printf("scriptengine> wrongs args for mysql_field_seek(result, offset);\n");
+		stackError("gsc_mysql_field_seek() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_field_seek(result=%d, offset=%d)\n", result, offset);
-#endif
 
 	int ret = mysql_field_seek((MYSQL_RES *)result, offset);
 	stackPushInt(ret);
@@ -530,13 +497,10 @@ void gsc_mysql_fetch_field()
 
 	if ( ! stackGetParams("i", &result))
 	{
-		printf("scriptengine> wrongs args for mysql_fetch_field(result);\n");
+		stackError("gsc_mysql_fetch_field() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_fetch_field(result=%d)\n", result);
-#endif
 
 	MYSQL_FIELD *field = mysql_fetch_field((MYSQL_RES *)result);
 	if (field == NULL)
@@ -554,20 +518,14 @@ void gsc_mysql_fetch_row()
 
 	if ( ! stackGetParams("i", &result))
 	{
-		printf("scriptengine> wrongs args for mysql_fetch_row(result);\n");
+		stackError("gsc_mysql_fetch_row() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_fetch_row(result=%d)\n", result);
-#endif
 
 	MYSQL_ROW row = mysql_fetch_row((MYSQL_RES *)result);
 	if (!row)
 	{
-#if DEBUG_MYSQL
-		printf("row == NULL\n");
-#endif
 		stackPushUndefined();
 		return;
 	}
@@ -582,9 +540,6 @@ void gsc_mysql_fetch_row()
 		else
 			stackPushString(row[i]);
 
-#if DEBUG_MYSQL
-		printf("row == \"%s\"\n", row[i]);
-#endif
 		stackPushArrayLast();
 	}
 }
@@ -595,16 +550,13 @@ void gsc_mysql_free_result()
 
 	if ( ! stackGetParams("i", &result))
 	{
-		printf("scriptengine> wrongs args for mysql_free_result(result);\n");
+		stackError("gsc_mysql_free_result() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_free_result(result=%d)\n", result);
-#endif
 	if(result == 0)
 	{
-		printf("scriptengine> Error in mysql_free_result: input is a NULL-pointer\n");
+		stackError("mysql_free_result() input is a NULL-pointer");
 		stackPushUndefined();
 		return;
 	}
@@ -619,13 +571,10 @@ void gsc_mysql_real_escape_string()
 
 	if ( ! stackGetParams("is", &mysql, &str))
 	{
-		printf("scriptengine> wrongs args for mysql_real_escape_string(...);\n");
+		stackError("gsc_mysql_real_escape_string() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if DEBUG_MYSQL
-	printf("gsc_mysql_real_escape_string(%d, \"%s\")\n", mysql, str);
-#endif
 
 	char *to = (char *) malloc(strlen(str) * 2 + 1);
 	mysql_real_escape_string((MYSQL *)mysql, to, str, strlen(str));

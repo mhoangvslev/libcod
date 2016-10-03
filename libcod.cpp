@@ -78,50 +78,37 @@ char * substr(const char * text, int beg, int end)
 
 void hook_vid_restart(char *format, ...)
 {
-	char *s;
+	char s[COD2_MAX_STRINGLENGTH];
 	va_list va;
 
 	va_start(va, format);
-	vasprintf(&s, format, va);
+	vsnprintf(s, sizeof(s), format, va);
 	va_end(va);
 
 	Com_DPrintf("%s", s);
 
 	char *command = substr(s, strlen(s) - 4, strlen(s));
 
-	if (*command && strncmp(command, "vdr", 3) == 0)
+	if (strncmp(command, "vdr", 3) == 0)
 	{
 		char *name = substr(s, 24, strlen(s) - 6);
-		if (*name)
+
+#if COD_VERSION == COD2_1_0
+		int sv_maxclients = 0x0848B1CC;
+#elif COD_VERSION == COD2_1_2
+		int sv_maxclients = 0x0849E6CC;
+#elif COD_VERSION == COD2_1_3
+		int sv_maxclients = 0x0849F74C;
+#endif
+
+		for (int i = 0; i < *(int*)(*(int*)(sv_maxclients) + 8); i++)
 		{
-
-#if COD_VERSION == COD2_1_0
-			int offset = 0x0848B1CC;
-#elif COD_VERSION == COD2_1_2
-			int offset = 0x0849E6CC;
-#elif COD_VERSION == COD2_1_3
-			int offset = 0x0849F74C;
-#endif
-
-			extern int playerinfo_base;
-			extern int playerinfo_size;
-
-			for (int i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
+			char *playername = (char*)(PLAYERBASE(i) + 134216);
+			if (strncmp(name, playername, 32) == 0)
 			{
-				char *playername = (char*)(*(int*)playerinfo_base + i * playerinfo_size + 134216);
-				if (strncmp(name, playername, 32) == 0)
-				{
-					stackPushInt(i);
-#if COD_VERSION == COD2_1_0
-					short ret = codscript_call_callback_entity(/*gentity*/0x08665480 + 560 * i, codecallback_vid_restart, 1);
-#elif COD_VERSION == COD2_1_2
-					short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * i, codecallback_vid_restart, 1);
-#elif COD_VERSION == COD2_1_3
-					short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * i, codecallback_vid_restart, 1);
-#endif
-					codscript_callback_finish(ret);
-					break;
-				}
+				stackPushInt(i);
+				short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
+				codscript_callback_finish(ret);
 			}
 		}
 	}
@@ -131,7 +118,6 @@ int hook_ClientCommand(int clientNum)
 {
 	if ( ! codecallback_playercommand)
 	{
-		//printf("NOT USING hook_ClientCommand(), because codecallback_playercommand was not defined.\n");
 		return ClientCommand(clientNum);
 	}
 
@@ -167,20 +153,9 @@ int hook_ClientCommand(int clientNum)
 		}
 	}
 
-	// todo: G_ENTITY(clientNum)
-#if COD_VERSION == COD2_1_0 // search '\\name\\badinfo'
-	short ret = codscript_call_callback_entity(/*gentity*/0x08665480 + 560 * clientNum, codecallback_playercommand, 1);
-#elif COD_VERSION == COD2_1_2
-	short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * clientNum, codecallback_playercommand, 1);
-#elif COD_VERSION == COD2_1_3
-	short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * clientNum, codecallback_playercommand, 1);
-#endif
-
-	//printf("codecallback_playercommand=%.8x ret=%i\n", codecallback_playercommand, ret);
+	short ret = codscript_call_callback_entity(G_ENTITY(clientNum), codecallback_playercommand, 1);
 
 	codscript_callback_finish(ret);
-
-	//printf("after codscript_callback_finish\n");
 
 	return 0;
 }
@@ -203,7 +178,7 @@ void hook_SV_BeginDownload_f( int a1 )
 	if((len = strlen(file)) > 3 && !strcmp(file + len - 4, ".iwd"))
 		SV_BeginDownload_f(a1);
 	else
-		printf("Invalid download attempt: %s\n", file);
+		Com_DPrintf("Invalid download attempt: %s\n", file);
 }
 
 int hook_ClientUserinfoChanged(int clientNum)
@@ -215,18 +190,9 @@ int hook_ClientUserinfoChanged(int clientNum)
 
 	stackPushInt(clientNum); // one parameter is required
 
-	// todo: G_ENTITY(clientNum)
-#if COD_VERSION == COD2_1_0 // search '\\name\\badinfo'
-	short ret = codscript_call_callback_entity(/*gentity*/0x08665480 + 560 * clientNum, codecallback_userinfochanged, 1);
-#elif COD_VERSION == COD2_1_2
-	short ret = codscript_call_callback_entity(/*gentity*/0x08679380 + 560 * clientNum, codecallback_userinfochanged, 1);
-#elif COD_VERSION == COD2_1_3
-	short ret = codscript_call_callback_entity(/*gentity*/0x08716400 + 560 * clientNum, codecallback_userinfochanged, 1);
-#endif
+	short ret = codscript_call_callback_entity(G_ENTITY(clientNum), codecallback_userinfochanged, 1);
 
-	//printf("codecallback_playercommand=%.8x ret=%i\n", codecallback_userinfochanged, ret);
 	codscript_callback_finish(ret);
-	//printf("after codscript_callback_finish\n");
 
 	return 0;
 }
@@ -270,9 +236,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 	int (*MSG_WriteString)(int a1, char *s);
 	*(int *)&MSG_WriteString = 0x8067CE4;
-
-	int (*Com_sprintf)(char *s, size_t maxlen, char *format, ...);
-	*(int *)&Com_sprintf = 0x80B5932;
 
 	int (*MSG_WriteData)(int a1, void *src, size_t n);
 	*(int *)&MSG_WriteData = 0x8067B84;
@@ -510,11 +473,11 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 int gamestate_size[64] = {0};
 void hook_gamestate_info(char *format, ...)
 {
-	char *s;
+	char s[COD2_MAX_STRINGLENGTH];
 	va_list va;
 
 	va_start(va, format);
-	vasprintf(&s, format, va);
+	vsnprintf(s, sizeof(s), format, va);
 	va_end(va);
 
 	Com_DPrintf("%s", s);
@@ -536,15 +499,13 @@ void hook_gamestate_info(char *format, ...)
 	gamestate_size[clientnum] = gamestate;
 }
 
-int clientaddress_to_num(int client);
 int custom_animation[64] = {0};
 cHook *hook_set_anim;
 int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 {
-	int clientnum = clientaddress_to_num(a1);
-	extern int playerinfo_base, playerinfo_size;
+	int clientnum = PLAYERSTATE_ID(a1);
 
-	if (*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4 && custom_animation[clientnum])
+	if (CLIENTSTATE(clientnum) == CS_ACTIVE && custom_animation[clientnum])
 	{
 		a2 = custom_animation[clientnum];
 		a4 = 0;
@@ -563,37 +524,38 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 }
 
 #if COMPILE_BOTS == 1
-int getAddressType(int id);
-cHook *hook_set_bot_pings;
-int set_bot_pings()
+cHook *hook_set_bot_variables;
+int set_bot_variables()
 {
-	hook_set_bot_pings->unhook();
+	hook_set_bot_variables->unhook();
 	int (*sig)();
-	*(int *)&sig = hook_set_bot_pings->from;
+	*(int *)&sig = hook_set_bot_variables->from;
 	int ret = sig();
-	hook_set_bot_pings->hook();
-
-	extern int playerinfo_base;
-	extern int playerinfo_size;
-	int i;
+	hook_set_bot_variables->hook();
 
 #if COD_VERSION == COD2_1_0
-	int offset = 0x0848B1CC;
-	int p = 113001;
+	int sv_maxclients = 0x0848B1CC;
+	int ping_offset = 113001;
+	int lastmsg_offset = 134416;
+	int *svs_time = (int *)0x0841FB04;
 #elif COD_VERSION == COD2_1_2
-	int offset = 0x0849E6CC;
-	int p = 113069;
+	int sv_maxclients = 0x0849E6CC;
+	int ping_offset = 113069;
+	int lastmsg_offset = 134688;
+	int *svs_time = (int *)0x08422004;
 #elif COD_VERSION == COD2_1_3
-	int offset = 0x0849F74C;
-	int p = 113069;
+	int sv_maxclients = 0x0849F74C;
+	int ping_offset = 113069;
+	int lastmsg_offset = 134688;
+	int *svs_time = (int *)0x08423084;
 #endif
 
-	for (i = 0; i < *(int*)(*(int*)(offset) + 8); i++)
+	for (int i = 0; i < *(int*)(*(int*)(sv_maxclients) + 8); i++)
 	{
-		if (*(int*)(*(int*)playerinfo_base + i * playerinfo_size) == 4)
+		if (CLIENTSTATE(i) == CS_ACTIVE && ADDRESSTYPE(i) == NA_BOT)
 		{
-			if (getAddressType(i) == 0)
-				*(int*)(*(int*)playerinfo_base + i * playerinfo_size + (p*4)) = 0;
+			*(int*)(PLAYERBASE(i) + (ping_offset * 4)) = 0;
+			*(int*)(PLAYERBASE(i) + lastmsg_offset) = *svs_time + 50;
 		}
 	}
 
@@ -613,9 +575,9 @@ int fire_antilag(int a1, int a2)
 	int offset = 0x0864C56C;
 #endif
 
-	int clientnum = gentityaddress_to_num(a1);
+	int clientnum = G_ENTITY_ID(a1);
 
-	if (getAddressType(clientnum) == 0)
+	if (ADDRESSTYPE(clientnum) == NA_BOT)
 		a2 = *(int *)offset;
 
 	int (*sig)(int a1, int a2);
@@ -623,6 +585,26 @@ int fire_antilag(int a1, int a2)
 	int ret = sig(a1, a2);
 
 	hook_fire_antilag->hook();
+
+	return ret;
+}
+
+cHook *hook_free_slot;
+int free_slot(int a1, char* message)
+{
+	hook_free_slot->unhook();
+	int (*sig)(int a1, char* message);
+	*(int *)&sig = hook_free_slot->from;
+	int ret = sig(a1, message);
+	hook_free_slot->hook();
+
+	int clientnum = PLAYERBASE_ID(a1);
+
+	if (ADDRESSTYPE(clientnum) == NA_BOT)
+	{
+		Com_DPrintf("Going from CS_ZOMBIE to CS_FREE for %s\n", (char *)a1 + 134216);
+		*(int *)a1 = CS_FREE;
+	}
 
 	return ret;
 }
@@ -646,44 +628,21 @@ int clfpsindex = 0;
 cHook *hook_play_movement;
 int play_movement(int a1, int a2)
 {
-#if COD_VERSION == COD2_1_0
-	int offset = 0x841FB0C;
-#elif COD_VERSION == COD2_1_2
-	int offset = 0x842200C;
-#elif COD_VERSION == COD2_1_3
-	int offset = 0x842308C;
-#endif
+	int clientnum = PLAYERBASE_ID(a1);
 
-	extern int playerinfo_base, playerinfo_size;
-	int clientnum;
-
-	clientnum = (a1 - *(int*)offset) / playerinfo_size;
 	clfpstemp[clientnum]++; // FPS
 
 #if COMPILE_BOTS == 1
-
-#if DEBUG_BOT_STATES == 1
-	printf("a2 + 4 == %d\n", *(int *)(a2 + 4));
-	printf("a2 + 8 == %d\n", *(int *)(a2 + 8));
-	printf("a2 + 12 == %d\n", *(int *)(a2 + 12));
-	printf("a2 + 16 == %d\n", *(int *)(a2 + 16));
-	printf("a2 + 20 == %d\n", *(int *)(a2 + 20));
-	printf("a2 + 24 == %d\n", *(int *)(a2 + 24));
-#endif
-
-	if (*(int*)(*(int*)playerinfo_base + clientnum * playerinfo_size) == 4)
+	if (CLIENTSTATE(clientnum) == CS_ACTIVE && ADDRESSTYPE(clientnum) == NA_BOT)
 	{
-		if (getAddressType(clientnum) == 0)
-		{
-			bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum] + bot_reload[clientnum]);
+		bot_state[clientnum] = (bot_stance[clientnum] + bot_melee[clientnum] + bot_grenade[clientnum] + bot_shoot[clientnum] + bot_ads[clientnum] + bot_lean[clientnum] + bot_reload[clientnum]);
 
-			*(int *)(a2 + 4) = bot_state[clientnum];
+		*(int *)(a2 + 4) = bot_state[clientnum];
 
-			if (bot_weapon[clientnum])
-				*(int *)(a2 + 8) = bot_weapon[clientnum];
+		if (bot_weapon[clientnum])
+			*(int *)(a2 + 8) = bot_weapon[clientnum];
 
-			*(int *)(a2 + 24) = bot_movement[clientnum];
-		}
+		*(int *)(a2 + 24) = bot_movement[clientnum];
 	}
 #endif
 
@@ -875,8 +834,7 @@ int hook_SVC_RemoteCommand(netadr_t from)
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
-		Com_DPrintf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n",
-		             NET_AdrToString( from ) );
+		Com_DPrintf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return 0;
 	}
 
@@ -909,8 +867,7 @@ int hook_SV_GetChallenge(netadr_t from)
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
-		Com_DPrintf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n",
-		             NET_AdrToString( from ) );
+		Com_DPrintf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return 0;
 	}
 
@@ -930,8 +887,7 @@ int hook_SVC_Info(netadr_t from)
 	// Prevent using getinfo as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
-		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n",
-		             NET_AdrToString( from ) );
+		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return 0;
 	}
 
@@ -951,8 +907,7 @@ int hook_SVC_Status(netadr_t from)
 	// Prevent using getstatus as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
-		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n",
-		             NET_AdrToString( from ) );
+		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
 		return 0;
 	}
 
@@ -1128,10 +1083,12 @@ public:
 		hook_set_anim->hook();
 
 #if COMPILE_BOTS == 1
-		hook_set_bot_pings = new cHook(0x0809443E, (int)set_bot_pings);
-		hook_set_bot_pings->hook();
+		hook_set_bot_variables = new cHook(0x0809443E, (int)set_bot_variables);
+		hook_set_bot_variables->hook();
 		hook_fire_antilag = new cHook(0x0811E3E0, (int)fire_antilag);
 		hook_fire_antilag->hook();
+		hook_free_slot = new cHook(0x0808DC8C, (int)free_slot);
+		hook_free_slot->hook();
 #endif
 
 		hook_play_movement = new cHook(0x0808F488, (int)play_movement);
@@ -1170,10 +1127,12 @@ public:
 		hook_set_anim->hook();
 
 #if COMPILE_BOTS == 1
-		hook_set_bot_pings = new cHook(0x0809630E, (int)set_bot_pings);
-		hook_set_bot_pings->hook();
+		hook_set_bot_variables = new cHook(0x0809630E, (int)set_bot_variables);
+		hook_set_bot_variables->hook();
 		hook_fire_antilag = new cHook(0x08120714, (int)fire_antilag);
 		hook_fire_antilag->hook();
+		hook_free_slot = new cHook(0x0808EF9A, (int)free_slot);
+		hook_free_slot->hook();
 #endif
 
 		hook_play_movement = new cHook(0x08090D18, (int)play_movement);
@@ -1212,10 +1171,12 @@ public:
 		hook_set_anim->hook();
 
 #if COMPILE_BOTS == 1
-		hook_set_bot_pings = new cHook(0x080963C8, (int)set_bot_pings);
-		hook_set_bot_pings->hook();
+		hook_set_bot_variables = new cHook(0x080963C8, (int)set_bot_variables);
+		hook_set_bot_variables->hook();
 		hook_fire_antilag = new cHook(0x08120870, (int)fire_antilag);
 		hook_fire_antilag->hook();
+		hook_free_slot = new cHook(0x0808F02E, (int)free_slot);
+		hook_free_slot->hook();
 #endif
 
 		hook_play_movement = new cHook(0x08090DAC, (int)play_movement);

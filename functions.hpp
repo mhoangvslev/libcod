@@ -75,8 +75,16 @@ static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E42;
 static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060E3A;
 #endif
 
-typedef int (*Cmd_ExecuteString_t)(const char *text);
+typedef int (*Com_sprintf_t)(char *dest, int size, const char *format, ...);
+#if COD_VERSION == COD2_1_0
+static const Com_sprintf_t Com_sprintf = (Com_sprintf_t)0x080B5932;
+#elif COD_VERSION == COD2_1_2
+static const Com_sprintf_t Com_sprintf = (Com_sprintf_t)0x080B7DC6;
+#elif COD_VERSION == COD2_1_3
+static const Com_sprintf_t Com_sprintf = (Com_sprintf_t)0x080B7F0A;
+#endif
 
+typedef int (*Cmd_ExecuteString_t)(const char *text);
 #if COD_VERSION == COD2_1_0
 static const Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x08060754;
 #elif COD_VERSION == COD2_1_2
@@ -129,6 +137,15 @@ static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A22D8;
 #elif COD_VERSION == COD2_1_3
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
 #endif
+
+typedef enum
+{
+	CS_FREE,		// can be reused for a new connection
+	CS_ZOMBIE,		// client has been disconnected, but don't reuse connection for a couple seconds
+	CS_CONNECTED,	// has been assigned to a client_t, but no gamestate yet
+	CS_PRIMED,		// gamestate has been sent, but client hasn't sent a usercmd
+	CS_ACTIVE		// client is fully in game
+} clientState_t;
 
 typedef enum
 {
@@ -310,6 +327,15 @@ static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806AD14;
 static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
 #elif COD_VERSION == COD2_1_3
 static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
+#endif
+
+typedef const char* (*Scr_Error_t)(const char *a1);
+#if COD_VERSION == COD2_1_0
+static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08084DB4;
+#elif COD_VERSION == COD2_1_2
+static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08085330;
+#elif COD_VERSION == COD2_1_3
+static const Scr_Error_t Scr_Error = (Scr_Error_t)0x080853FC;
 #endif
 
 #endif

@@ -89,7 +89,6 @@ int hexToBuffer(char *hex, char *buffer, int bufferLen)
 		len++;
 	}
 	neededBytes = len >> 1; // its like dividing by 2
-	//printf("len=%d neededBytes=%d\n", len, neededBytes);
 	first = 1;
 	pos = 0;
 	for (i=0; i<neededBytes; i++)
@@ -116,7 +115,6 @@ int hexToBuffer(char *hex, char *buffer, int bufferLen)
 			twochars[1] = hex[pos+1];
 			pos += 2;
 		}
-		//printf("twochars=%.2s\n", twochars);
 		leftPart = singleHexToNumber(twochars[0]);
 		rightPart = singleHexToNumber(twochars[1]);
 		if (leftPart == -1 || rightPart == -1)
@@ -176,7 +174,6 @@ int cracking_call_function(int func_address, char *args, unsigned char *data)
 			mode_varargs = 1;
 			continue;
 		}
-		//printf("args[i=%d]=%c stack_pos=%.2d data=%.8p\n", i, args[i], stack_pos, *(int *)(data + data_pos));
 		*(int *)(stack + stack_pos) = *(int*)(data + data_pos);
 
 		if (args[i] == 'f' && mode_varargs)
@@ -215,7 +212,6 @@ int cracking_call_function(int func_address, char *args, unsigned char *data)
 	// http://wiki.osdev.org/Inline_Assembly
 	unsigned char *sp;
 	asm("movl %%esp, %0" : "=g" (sp));
-	//printf("sp=%.8p\n", sp);
 
 	memcpy(sp, stack, stack_pos);
 
