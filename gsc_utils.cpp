@@ -351,7 +351,6 @@ void gsc_utils_file_link()
 	char cmd[COD2_MAX_STRINGLENGTH];
 	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 	snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", source, dest);
-	cmd[1023] = '\0';
 	int link_failed = system(cmd);
 	stackPushInt( link_failed ); // 0 == success
 }
