@@ -39,49 +39,15 @@ MYSQL *cod_mysql_connection = NULL;
 void *mysql_async_execute_query(void *input_c) //cannot be called from gsc, is threaded.
 {
 	mysql_async_connection *c = (mysql_async_connection *) input_c;
-	int i = 0;
-	int lastquery = 0;
-	bool goodquery = false;
-	bool opened = false;
-	mysql_async_task *q = c->task;
-	while(q->query[i] != '\0')
+	int res = mysql_query(c->connection, c->task->query);
+	if(!res && c->task->save)
+		c->task->result = mysql_store_result(c->connection);
+	else if(res)
 	{
-		if(q->query[i] == '\'' && i > 0 && q->query[i - 1] != '\\')
-		{
-			if(opened)
-				opened = false;
-			else
-				opened = true;
-		}
-		if(q->query[i] == ';' && i > 0 && q->query[i - 1] != '\\' && !opened)
-		{
-			//subquery
-			q->query[i] = '\0';
-			int res = mysql_query(c->connection, &(q->query[lastquery]));
-			q->query[i] = ';';
-			if(res)
-				goodquery = false;
-			else
-				goodquery = true;
-			lastquery = i + 1;
-			while(q->query[lastquery] != '\0' && (q->query[lastquery] == ' ' || q->query[lastquery] == '\t'))
-				lastquery++;
-		}
-		i++;
+		//mysql show error here?
 	}
-	if(i - lastquery > 5)
-	{
-		//this is a query
-		int res = mysql_query(c->connection, &(q->query[lastquery]));
-		if(res)
-			goodquery = false;
-		else
-			goodquery = true;
-	}
-	if(goodquery && q->save)
-		q->result = mysql_store_result(c->connection);
+	c->task->done = true;
 	c->task = NULL;
-	q->done = true;
 	return NULL;
 }
 
