@@ -50,7 +50,7 @@ static const int playerinfo_size = 0xB1064;
 #define PLAYERSTATE(playerid) (playerStates + playerid * sizeOfPlayer)
 #define G_ENTITY(playerid) (gentities + gentities_size * playerid)
 
-#define PLAYERBASE_ID(address) ((address - *(int*)playerinfo_base) / playerinfo_size)
+#define PLAYERBASE_ID(address) ((address - *(int *)playerinfo_base) / playerinfo_size)
 #define PLAYERSTATE_ID(address) ((address - playerStates) / sizeOfPlayer)
 #define G_ENTITY_ID(address) ((address - gentities) / gentities_size)
 

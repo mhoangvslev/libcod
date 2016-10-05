@@ -172,35 +172,6 @@ void gsc_utils_sprintf()
 	stackPushString(result);
 }
 
-int dummy(int a1)
-{
-	return 0;
-}
-
-void gsc_utils_disableGlobalPlayerCollision()
-{
-#if COD_VERSION == COD2_1_0
-	cracking_hook_function(0x080F2F2E, (int)dummy); //g_setclientcontents
-#elif COD_VERSION == COD2_1_2
-	cracking_hook_function(0x080F553E, (int)dummy); //g_setclientcontents
-#elif COD_VERSION == COD2_1_3
-	cracking_hook_function(0x080F5682, (int)dummy); //g_setclientcontents
-#endif
-	stackPushUndefined();
-}
-
-void gsc_utils_disableGlobalPlayerEject()
-{
-#if COD_VERSION == COD2_1_0
-	cracking_hook_function(0x080F474A, (int)dummy);
-#elif COD_VERSION == COD2_1_2
-	cracking_hook_function(0x080F6D5A, (int)dummy);
-#elif COD_VERSION == COD2_1_3
-	cracking_hook_function(0x080F6E9E, (int)dummy);
-#endif
-	stackPushUndefined();
-}
-
 void gsc_utils_getAscii()
 {
 	char *str;

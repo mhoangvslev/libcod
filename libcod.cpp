@@ -33,6 +33,48 @@ int hook_codscript_gametype_scripts()
 	return ret;
 }
 
+cHook *hook_player_collision;
+int player_collision(int a1)
+{
+	hook_player_collision->unhook();
+
+	int (*sig)(int a1);
+	*(int *)&sig = hook_player_collision->from;
+
+	int ret;
+	cvar_t *g_playerCollision = Cvar_FindVar("g_playerCollision");
+
+	if (g_playerCollision->boolean)
+		ret = sig(a1);
+	else
+		ret = 0;
+
+	hook_player_collision->hook();
+
+	return ret;
+}
+
+cHook *hook_player_eject;
+int player_eject(int a1)
+{
+	hook_player_eject->unhook();
+
+	int (*sig)(int a1);
+	*(int *)&sig = hook_player_eject->from;
+
+	int ret;
+	cvar_t *g_playerEject = Cvar_FindVar("g_playerEject");
+
+	if (g_playerEject->boolean)
+		ret = sig(a1);
+	else
+		ret = 0;
+
+	hook_player_eject->hook();
+
+	return ret;
+}
+
 cHook *hook_fire_grenade;
 int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 {
@@ -92,23 +134,19 @@ void hook_vid_restart(char *format, ...)
 	if (strncmp(command, "vdr", 3) == 0)
 	{
 		char *name = substr(s, 24, strlen(s) - 6);
+		cvar_t *sv_maxclients = Cvar_FindVar("sv_maxclients");
 
-#if COD_VERSION == COD2_1_0
-		int sv_maxclients = 0x0848B1CC;
-#elif COD_VERSION == COD2_1_2
-		int sv_maxclients = 0x0849E6CC;
-#elif COD_VERSION == COD2_1_3
-		int sv_maxclients = 0x0849F74C;
-#endif
-
-		for (int i = 0; i < *(int*)(*(int*)(sv_maxclients) + 8); i++)
+		for (int i = 0; i < sv_maxclients->integer; i++)
 		{
-			char *playername = (char*)(PLAYERBASE(i) + 134216);
-			if (strncmp(name, playername, 32) == 0)
+			if (CLIENTSTATE(i) == CS_ACTIVE)
 			{
-				stackPushInt(i);
-				short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
-				codscript_callback_finish(ret);
+				char *playername = (char*)(PLAYERBASE(i) + 134216);
+				if (strncmp(name, playername, 32) == 0)
+				{
+					stackPushInt(i);
+					short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
+					codscript_callback_finish(ret);
+				}
 			}
 		}
 	}
@@ -121,18 +159,9 @@ int hook_ClientCommand(int clientNum)
 		return ClientCommand(clientNum);
 	}
 
-	int (*trap_Argc)();
-#if COD_VERSION == COD2_1_0
-	*(int *)&trap_Argc = 0x0805FFDC;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&trap_Argc = 0x080601E8;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&trap_Argc = 0x080601E0;
-#endif
-
 	stackPushArray();
 	int args = trap_Argc();
-	for (int i=0; i<args; i++)
+	for (int i = 0; i < args; i++)
 	{
 		char tmp[COD2_MAX_STRINGLENGTH];
 		trap_Argv(i, tmp, sizeof(tmp));
@@ -162,9 +191,10 @@ int hook_ClientCommand(int clientNum)
 
 char * hook_AuthorizeState( int arg )
 {
-	char * s = Cmd_Argv(arg);
+	char *s = Cmd_Argv(arg);
+	cvar_t *sv_cracked = Cvar_FindVar("sv_cracked");
 
-	if ((CvarVariableValue == NULL || CvarVariableValue("sv_cracked") == 1) && strcmp (s, "deny") == 0)
+	if (sv_cracked->boolean && (strcmp (s, "deny") == 0))
 		return "accept";
 
 	return s;
@@ -172,7 +202,7 @@ char * hook_AuthorizeState( int arg )
 
 void hook_SV_BeginDownload_f( int a1 )
 {
-	char * file = Cmd_Argv(1);
+	char *file = Cmd_Argv(1);
 	int len;
 
 	if((len = strlen(file)) > 3 && !strcmp(file + len - 4, ".iwd"))
@@ -214,7 +244,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
 	int MAX_DOWNLOAD_WINDOW = 8;
 
-	int *svs_clients = (int *)0x841FB0C;
 	int *sv_allowDownload = (int *)0x848B1C8;
 	int *sv_pure = (int *)0x848B200;
 	int *svs_time = (int *)0x841FB04;
@@ -255,11 +284,11 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
 		return 0; // Not a valid iwd file
 
-	char *downloadMsg = Cvar_VariableString("sv_downloadMessage");
+	cvar_t *sv_downloadMessage = Cvar_FindVar("sv_downloadMessage");
 
-	if ( *downloadMsg )
+	if ( *sv_downloadMessage->string )
 	{
-		Com_sprintf(errorMessage, sizeof(errorMessage), downloadMsg);
+		Com_sprintf(errorMessage, sizeof(errorMessage), sv_downloadMessage->string);
 		MSG_WriteByte(msg, 5);
 		MSG_WriteShort(msg, 0);
 		MSG_WriteLong(msg, -1);
@@ -276,7 +305,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	{
 		// We open the file here
 
-		Com_Printf("clientDownload: %d : begining \"%s\"\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+		Com_Printf("clientDownload: %d : begining \"%s\"\n", PLAYERBASE_ID(cl), cl + 134248);
 
 		iwdFile = FS_iwdFile((char *)(cl + 134248), (int)"main");
 
@@ -285,12 +314,12 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			// cannot auto-download file
 			if (iwdFile)
 			{
-				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", PLAYERBASE_ID(cl), cl + 134248);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
 			}
 			else if ( !*(int *)(*sv_allowDownload + 8) )
 			{
-				Com_Printf("clientDownload: %d : \"%s\" download disabled", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled", PLAYERBASE_ID(cl), cl + 134248);
 				if (*(int *)(*sv_pure + 8))
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
 				else
@@ -298,7 +327,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			}
 			else
 			{
-				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", PLAYERBASE_ID(cl), cl + 134248);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
 			}
 			MSG_WriteByte(msg, 5);
@@ -380,7 +409,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if ( *(int *)(cl + 4 * curindex + 134368) )
 		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
 
-	Com_DPrintf( "clientDownload: %d : writing block %d\n", -1653759219 * ((cl - (signed int)*svs_clients) >> 2), *(int *)(cl + 134332) );
+	Com_DPrintf("clientDownload: %d : writing block %d\n", PLAYERBASE_ID(cl), *(int *)(cl + 134332));
 
 	// Move on to the next block
 	// It will get sent with next snap shot.  The rate will keep us in line.
@@ -442,15 +471,12 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 #if COD_VERSION == COD2_1_0
 	int scriptError_offset = 0x8078282;
 	int runtimeError_offset = 0x807818C;
-	int developer_offset = 0x819EEFC;
 #elif COD_VERSION == COD2_1_2
 	int scriptError_offset = 0x8078806;
 	int runtimeError_offset = 0x8078710;
-	int developer_offset = 0x81A10F4;
 #elif COD_VERSION == COD2_1_3
 	int scriptError_offset = 0x80788D2;
 	int runtimeError_offset = 0x80787DC;
-	int developer_offset = 0x81A2174;
 #endif
 
 	int (*scriptError)(int a1, int a2, int a3, void *a4);
@@ -459,15 +485,13 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 	int (*runtimeError)(int a1, int a2, int a3, int a4);
 	*(int *)&runtimeError = runtimeError_offset;
 
-	int *developer = (int *)developer_offset;
+	cvar_t *developer = Cvar_FindVar("developer");
+	cvar_t *nodeveloper_errors = Cvar_FindVar("nodeveloper_errors");
 
 	scriptError(a1, a2, a3, a4);
 
-	if (!*(int *)(*developer + 8))
-	{
-		if (CvarVariableValue == NULL || CvarVariableValue("nodeveloper_errors") == 1)
-			runtimeError(0, a1, a2, a3);
-	}
+	if (!developer->integer && nodeveloper_errors->boolean)
+		runtimeError(0, a1, a2, a3);
 }
 
 int gamestate_size[64] = {0};
@@ -534,28 +558,27 @@ int set_bot_variables()
 	hook_set_bot_variables->hook();
 
 #if COD_VERSION == COD2_1_0
-	int sv_maxclients = 0x0848B1CC;
 	int ping_offset = 113001;
 	int lastmsg_offset = 134416;
 	int *svs_time = (int *)0x0841FB04;
 #elif COD_VERSION == COD2_1_2
-	int sv_maxclients = 0x0849E6CC;
 	int ping_offset = 113069;
 	int lastmsg_offset = 134688;
 	int *svs_time = (int *)0x08422004;
 #elif COD_VERSION == COD2_1_3
-	int sv_maxclients = 0x0849F74C;
 	int ping_offset = 113069;
 	int lastmsg_offset = 134688;
 	int *svs_time = (int *)0x08423084;
 #endif
 
-	for (int i = 0; i < *(int*)(*(int*)(sv_maxclients) + 8); i++)
+	cvar_t *sv_maxclients = Cvar_FindVar("sv_maxclients");
+
+	for (int i = 0; i < sv_maxclients->integer; i++)
 	{
 		if (CLIENTSTATE(i) == CS_ACTIVE && ADDRESSTYPE(i) == NA_BOT)
 		{
-			*(int*)(PLAYERBASE(i) + (ping_offset * 4)) = 0;
-			*(int*)(PLAYERBASE(i) + lastmsg_offset) = *svs_time + 50;
+			*(int *)(PLAYERBASE(i) + (ping_offset * 4)) = 0;
+			*(int *)(PLAYERBASE(i) + lastmsg_offset) = *svs_time + 50;
 		}
 	}
 
@@ -838,16 +861,8 @@ int hook_SVC_RemoteCommand(netadr_t from)
 		return 0;
 	}
 
-#if COD_VERSION == COD2_1_0
-	int rconPasswordAddress = 0x0848B1C0;
-#elif COD_VERSION == COD2_1_2
-	int rconPasswordAddress = 0x0849E6C0;
-#elif COD_VERSION == COD2_1_3
-	int rconPasswordAddress = 0x0849F740;
-#endif
-
-	char * rconPassword = *(char **)(*(int *)rconPasswordAddress + 8);
-	if(!strlen(rconPassword) || strcmp(Cmd_Argv(1), rconPassword) != 0)
+	cvar_t *rcon_password = Cvar_FindVar("rcon_password");
+	if (!*rcon_password->string || strcmp(Cmd_Argv(1), rcon_password->string) != 0)
 	{
 		static leakyBucket_t bucket;
 
@@ -926,17 +941,21 @@ int hook_SVC_Status(netadr_t from)
 void manymaps_prepare(char *mapname, int read)
 {
 	char library_path[512];
-	if (Cvar_VariableString("fs_library")[0] == '\0')
-		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
-	else
-		strncpy(library_path, Cvar_VariableString("fs_library"), sizeof(library_path));
+	cvar_t *fs_library = Cvar_FindVar("fs_library");
 
-	char *map = Cvar_VariableString("mapname");
-	if (strcmp(map, mapname) == 0) // Same map is about to load, no need to trigger manymap (equals map_restart)
+	if (*fs_library->string)
+		strncpy(library_path, fs_library->string, sizeof(library_path));
+	else
+		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string);
+
+	cvar_t *map = Cvar_FindVar("mapname");
+
+	if (strcmp(map->string, mapname) == 0) // Same map is about to load, no need to trigger manymap (equals map_restart)
 		return;
 
 	char map_check[512];
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
+	int map_exists = access(map_check, F_OK) != -1;
 
 #if COD_VERSION == COD2_1_0
 	char *stock_maps[13] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
@@ -944,15 +963,14 @@ void manymaps_prepare(char *mapname, int read)
 	char *stock_maps[15] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
-	int map_found = 0;
-	int from_stock_map = 0;
-	int map_exists = access(map_check, F_OK) != -1;
+	bool map_found = false;
+	bool from_stock_map = false;
 
 	for (int i = 0; i < int( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
 	{
-		if (strcmp(map, stock_maps[i]) == 0)
+		if (strcmp(map->string, stock_maps[i]) == 0)
 		{
-			from_stock_map = 1;
+			from_stock_map = true;
 			break;
 		}
 	}
@@ -961,7 +979,7 @@ void manymaps_prepare(char *mapname, int read)
 	{
 		if (strcmp(mapname, stock_maps[i]) == 0)
 		{
-			map_found = 1;
+			map_found = true;
 			if (from_stock_map) // When changing from stock map to stock map do not trigger manymap
 				return;
 			else
@@ -985,7 +1003,7 @@ void manymaps_prepare(char *mapname, int read)
 			continue;
 
 		char fileDelete[512];
-		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), dir_ent->d_name);
+		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string, dir_ent->d_name);
 		int exists = access(fileDelete, F_OK) != -1;
 		if (exists)
 			printf("manymaps> REMOVED MANYMAP: %s result of unlink: %d\n", fileDelete, unlink(fileDelete));
@@ -997,7 +1015,7 @@ void manymaps_prepare(char *mapname, int read)
 	{
 		char src[512], dst[512];
 		snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
-		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"), mapname);
+		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string, mapname);
 		printf("manymaps> LINK src=%s dst=%s\n", src, dst);
 		if (access(src, F_OK) != -1)
 		{
@@ -1007,7 +1025,7 @@ void manymaps_prepare(char *mapname, int read)
 			int link_success = system(cmd) == 0;
 			printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
 			if (read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
-				FS_LoadDir(Cvar_VariableString("fs_homepath"), Cvar_VariableString("fs_game"));
+				FS_LoadDir(Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string);
 		}
 	}
 }
@@ -1080,6 +1098,10 @@ public:
 		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
 		hook_set_anim->hook();
+		hook_player_collision = new cHook(0x080F2F2E, (int)player_collision);
+		hook_player_collision->hook();
+		hook_player_eject = new cHook(0x080F474A, (int)player_eject);
+		hook_player_eject->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x0809443E, (int)set_bot_variables);
@@ -1124,6 +1146,10 @@ public:
 		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
 		hook_set_anim->hook();
+		hook_player_collision = new cHook(0x080F553E, (int)player_collision);
+		hook_player_collision->hook();
+		hook_player_eject = new cHook(0x080F6D5A, (int)player_eject);
+		hook_player_eject->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x0809630E, (int)set_bot_variables);
@@ -1168,6 +1194,10 @@ public:
 		hook_gametype_scripts->hook();
 		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
 		hook_set_anim->hook();
+		hook_player_collision = new cHook(0x080F5682, (int)player_collision);
+		hook_player_collision->hook();
+		hook_player_eject = new cHook(0x080F6E9E, (int)player_eject);
+		hook_player_eject->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x080963C8, (int)set_bot_variables);
@@ -1195,6 +1225,15 @@ public:
 #endif
 
 #endif
+
+		// Register custom cvars
+		Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
+		Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
+		Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
+		Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
+		Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
+		Cvar_RegisterString("fs_library", "", 0x1000u);
+		Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
 
 		gsc_utils_init();
 		printf("> [PLUGIN LOADED]\n");

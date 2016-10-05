@@ -91,16 +91,13 @@ void gsc_set_userinfo(int id)
 
 void gsc_player_velocity_get(int id)
 {
-	//int currentPlayer = playerStates + id * sizeOfPlayer;
-	float *vectorVelocity = (float *)PLAYERSTATE_VELOCITY(id); // (currentPlayer + 0x20);
+	float *vectorVelocity = (float *)PLAYERSTATE_VELOCITY(id);
 	stackPushVector(vectorVelocity);
 }
 
-// aimButtonPressed (toggleads or +speed/-speed)
 void gsc_player_button_ads(int id)
 {
-	int currentPlayer = playerStates + id * sizeOfPlayer;
-	unsigned char *aim_address = (unsigned char *)(currentPlayer + 0x26CD);
+	unsigned char *aim_address = (unsigned char *)(PLAYERSTATE(id) + 0x26CD);
 	int aimButtonPressed = *aim_address & 0xF0; // just the first 4 bits tell the state
 	stackPushInt(aimButtonPressed);
 }
@@ -171,8 +168,7 @@ void gsc_player_button_jump(int id)
 
 void gsc_player_stance_get(int id)
 {
-	int entity = gentities + id * gentities_size;
-	unsigned char *stance_address = (unsigned char *)(entity + 8);
+	unsigned char *stance_address = (unsigned char *)(G_ENTITY(id) + 8);
 	int code = *stance_address & 0x0F; // just the last 4 bits tell the state
 
 	char *stance;
@@ -214,7 +210,7 @@ void gsc_player_spectatorclient_get(int id)
 {
 	int spectatorClient = *(unsigned char *)(PLAYERSTATE(id) + 0xCC);
 
-	stackPushEntity(gentities + spectatorClient * gentities_size);
+	stackPushEntity(G_ENTITY(spectatorClient));
 }
 
 void gsc_player_getip(int id)
@@ -834,7 +830,7 @@ void gsc_entity_setalive(int id)   // as in isAlive?
 		return;
 	}
 
-	*(char *)(gentities + gentities_size*id + 353) = isAlive;
+	*(char *)(G_ENTITY(id) + 353) = isAlive;
 	stackPushInt(1);
 }
 
@@ -849,11 +845,11 @@ void gsc_entity_setbounds(int id)
 		return;
 	}
 
-	*(float*)(gentities + gentities_size*id + 280) = height;
-	*(float*)(gentities + gentities_size*id + 276) = width;
-	*(float*)(gentities + gentities_size*id + 272) = width;
-	*(float*)(gentities + gentities_size*id + 264) = -width;
-	*(float*)(gentities + gentities_size*id + 260) = -width;
+	*(float*)(G_ENTITY(id) + 280) = height;
+	*(float*)(G_ENTITY(id) + 276) = width;
+	*(float*)(G_ENTITY(id) + 272) = width;
+	*(float*)(G_ENTITY(id) + 264) = -width;
+	*(float*)(G_ENTITY(id) + 260) = -width;
 
 	stackPushInt(1);
 }

@@ -175,8 +175,6 @@ Scr_Function scriptFunctions[] =
 #if COMPILE_UTILS == 1
 	{"printf"                         , gsc_utils_printf                      , 0},
 	{"getArrayKeys"                   , gsc_utils_getarraykeys                , 0},
-	{"disableGlobalPlayerCollision"   , gsc_utils_disableGlobalPlayerCollision, 0},
-	{"disableGlobalPlayerEject"       , gsc_utils_disableGlobalPlayerEject    , 0},
 	{"getAscii"                       , gsc_utils_getAscii                    , 0},
 	{"toUpper"                        , gsc_utils_toupper                     , 0},
 	{"system"                         , gsc_utils_system                      , 0},

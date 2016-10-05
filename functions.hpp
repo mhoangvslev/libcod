@@ -48,6 +48,15 @@ static const Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x08060228;
 static const Cmd_Argv_t Cmd_Argv = (Cmd_Argv_t)0x08060220;
 #endif
 
+typedef int (*trap_Argc_t)();
+#if COD_VERSION == COD2_1_0
+static const trap_Argc_t trap_Argc = (trap_Argc_t)0x0805FFDC;
+#elif COD_VERSION == COD2_1_2
+static const trap_Argc_t trap_Argc = (trap_Argc_t)0x080601E8;
+#elif COD_VERSION == COD2_1_3
+static const trap_Argc_t trap_Argc = (trap_Argc_t)0x080601E0;
+#endif
+
 typedef int (*trap_Argv_t)(unsigned int param, char *buf, int bufLen);
 #if COD_VERSION == COD2_1_0
 static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060074;
@@ -100,24 +109,6 @@ static const ClientCommand_t ClientCommand = (ClientCommand_t)0x080FE998; // sea
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x08100D1E;
 #elif COD_VERSION == COD2_1_3
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x08100E62;
-#endif
-
-typedef int (*Cvar_VariableValue_t)(const char *var_name); // search for 'sv_allowAnonymous'
-#if COD_VERSION == COD2_1_0
-static const Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B0BB6;
-#elif COD_VERSION == COD2_1_2
-static const Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B2E66;
-#elif COD_VERSION == COD2_1_3
-static const Cvar_VariableValue_t CvarVariableValue = (Cvar_VariableValue_t)0x080B2FAA;
-#endif
-
-typedef char * (*Cvar_VariableString_t)(const char *var_name);
-#if COD_VERSION == COD2_1_0
-static const Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B0D96;
-#elif COD_VERSION == COD2_1_2
-static const Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B3046;
-#elif COD_VERSION == COD2_1_3
-static const Cvar_VariableString_t Cvar_VariableString = (Cvar_VariableString_t)0x080B318A;
 #endif
 
 typedef int (*FS_ReadFile_t)(const char *qpath, void **buffer);
@@ -175,6 +166,105 @@ typedef struct
 	int readcount; // 16
 	int bit;
 } msg_t; // 0x18
+
+typedef unsigned char byte;
+
+typedef float vec_t;
+typedef vec_t vec2_t[2];
+typedef vec_t vec3_t[3];
+typedef vec_t vec4_t[4];
+typedef vec_t vec5_t[5];
+
+typedef struct
+{
+	byte red;
+	byte green;
+	byte blue;
+	byte alpha;
+} ucolor_t;
+
+typedef struct cvar_s
+{
+	char *name;
+	char *description;
+	short int flags;
+	byte type;
+	byte modified;
+	union
+	{
+		float floatval;
+		float value;
+		int integer;
+		char* string;
+		byte boolean;
+		vec2_t vec2;
+		vec3_t vec3;
+		vec4_t vec4;
+		ucolor_t color;
+	};
+	union
+	{
+		float latchedFloatval;
+		int latchedInteger;
+		char* latchedString;
+		byte latchedBoolean;
+		vec2_t latchedVec2;
+		vec3_t latchedVec3;
+		vec4_t latchedVec4;
+		ucolor_t latchedColor;
+	};
+	union
+	{
+		float resetFloatval;
+		int resetInteger;
+		char* resetString;
+		byte resetBoolean;
+		vec2_t resetVec2;
+		vec3_t resetVec3;
+		vec4_t resetVec4;
+		ucolor_t resetColor;
+	};
+	union
+	{
+		int imin;
+		float fmin;
+	};
+	union
+	{
+		int imax;
+		float fmax;
+		const char** enumStr;
+	};
+	struct cvar_s *next;
+	struct cvar_s *hashNext;
+} cvar_t;
+
+typedef cvar_t* (*Cvar_FindVar_t)(const char *var_name);
+#if COD_VERSION == COD2_1_0
+static const Cvar_FindVar_t Cvar_FindVar = (Cvar_FindVar_t)0x080B0AE4;
+#elif COD_VERSION == COD2_1_2
+static const Cvar_FindVar_t Cvar_FindVar = (Cvar_FindVar_t)0x080B2D94;
+#elif COD_VERSION == COD2_1_3
+static const Cvar_FindVar_t Cvar_FindVar = (Cvar_FindVar_t)0x080B2ED8;
+#endif
+
+typedef cvar_t* (*Cvar_RegisterBool_t)(const char *var_name, bool var_value, unsigned short flags);
+#if COD_VERSION == COD2_1_0
+static const Cvar_RegisterBool_t Cvar_RegisterBool = (Cvar_RegisterBool_t)0x080B1B72;
+#elif COD_VERSION == COD2_1_2
+static const Cvar_RegisterBool_t Cvar_RegisterBool = (Cvar_RegisterBool_t)0x080B3E8E;
+#elif COD_VERSION == COD2_1_3
+static const Cvar_RegisterBool_t Cvar_RegisterBool = (Cvar_RegisterBool_t)0x080B3FD2;
+#endif
+
+typedef cvar_t* (*Cvar_RegisterString_t)(const char *var_name, const char *var_value, unsigned short flags);
+#if COD_VERSION == COD2_1_0
+static const Cvar_RegisterString_t Cvar_RegisterString = (Cvar_RegisterString_t)0x080B1DD2;
+#elif COD_VERSION == COD2_1_2
+static const Cvar_RegisterString_t Cvar_RegisterString = (Cvar_RegisterString_t)0x080B40EE;
+#elif COD_VERSION == COD2_1_3
+static const Cvar_RegisterString_t Cvar_RegisterString = (Cvar_RegisterString_t)0x080B4232;
+#endif
 
 typedef int (*SV_ConnectionlessPacket_t)(netadr_t from, msg_t * msg);
 #if COD_VERSION == COD2_1_0
