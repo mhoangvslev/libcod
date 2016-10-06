@@ -1194,7 +1194,6 @@ public:
 		Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
 		Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
 		Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
-		Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
 		Cvar_RegisterString("fs_library", "", 0x1000u);
 		Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
 

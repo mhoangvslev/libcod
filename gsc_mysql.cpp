@@ -131,28 +131,28 @@ int mysql_async_query_initializer(char *sql, bool save) //cannot be called from 
 
 void gsc_mysql_async_create_query_nosave()
 {
-	char *sql;
-	if ( ! stackGetParams("s", &sql))
+	char *query;
+	if ( ! stackGetParams("s", &query))
 	{
 		stackError("gsc_mysql_async_create_query_nosave() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	int id = mysql_async_query_initializer(sql, false);
+	int id = mysql_async_query_initializer(query, false);
 	stackPushInt(id);
 	return;
 }
 
 void gsc_mysql_async_create_query()
 {
-	char *sql;
-	if ( ! stackGetParams("s", &sql))
+	char *query;
+	if ( ! stackGetParams("s", &query))
 	{
 		stackError("gsc_mysql_async_create_query() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	int id = mysql_async_query_initializer(sql, true);
+	int id = mysql_async_query_initializer(query, true);
 	stackPushInt(id);
 	return;
 }
@@ -191,7 +191,7 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 	{
 		if(!c->done)
 		{
-			stackPushUndefined(); //not done yet
+			stackPushUndefined(); //should never happend, query not done yet
 			return;
 		}
 		if(c->next != NULL)
@@ -276,8 +276,6 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 		return;
 	}
 	pthread_detach(async_handler);
-	//std::thread async_query(mysql_async_query_handler);
-	//async_query.detach();
 }
 
 void gsc_mysql_init()
@@ -338,16 +336,16 @@ void gsc_mysql_close()
 void gsc_mysql_query()
 {
 	int mysql;
-	char *sql;
+	char *query;
 
-	if ( ! stackGetParams("is", &mysql, &sql))
+	if ( ! stackGetParams("is", &mysql, &query))
 	{
 		stackError("gsc_mysql_query() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
 
-	int ret = mysql_query((MYSQL *)mysql, sql);
+	int ret = mysql_query((MYSQL *)mysql, query);
 	stackPushInt(ret);
 }
 
