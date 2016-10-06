@@ -244,8 +244,8 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
 	int MAX_DOWNLOAD_WINDOW = 8;
 
-	int *sv_allowDownload = (int *)0x848B1C8;
-	int *sv_pure = (int *)0x848B200;
+	cvar_t *sv_allowDownload = Cvar_FindVar("sv_allowDownload");
+	cvar_t *sv_pure = Cvar_FindVar("sv_pure");
 	int *svs_time = (int *)0x841FB04;
 
 	int (*Z_Malloc)(size_t size);
@@ -286,7 +286,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 	cvar_t *sv_downloadMessage = Cvar_FindVar("sv_downloadMessage");
 
-	if ( *sv_downloadMessage->string )
+	if (strlen(sv_downloadMessage->string))
 	{
 		Com_sprintf(errorMessage, sizeof(errorMessage), sv_downloadMessage->string);
 		MSG_WriteByte(msg, 5);
@@ -297,9 +297,9 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		return 0;
 	}
 
-	*(int *)cl = 2; // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
+	*(int *)cl = CS_CONNECTED;     // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
 	*(int *)(cl + 452008) = 25000; // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
-	*(int *)(cl + 452012) = 50; // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
+	*(int *)(cl + 452012) = 50;    // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
 
 	if (!*(int *)(cl + 134312))
 	{
@@ -309,7 +309,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 		iwdFile = FS_iwdFile((char *)(cl + 134248), (int)"main");
 
-		if ( !*(int *)(*sv_allowDownload + 8) || iwdFile || ( *(int *)(cl + 134316) = FS_SV_FOpenFileRead((char *)(cl + 134248), cl + 134312) ) <= 0 )
+		if ( !sv_allowDownload->boolean || iwdFile || ( *(int *)(cl + 134316) = FS_SV_FOpenFileRead((char *)(cl + 134248), cl + 134312) ) <= 0 )
 		{
 			// cannot auto-download file
 			if (iwdFile)
@@ -317,10 +317,10 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", PLAYERBASE_ID(cl), cl + 134248);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
 			}
-			else if ( !*(int *)(*sv_allowDownload + 8) )
+			else if ( !sv_allowDownload->boolean )
 			{
 				Com_Printf("clientDownload: %d : \"%s\" download disabled", PLAYERBASE_ID(cl), cl + 134248);
-				if (*(int *)(*sv_pure + 8))
+				if (sv_pure->boolean)
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
 				else
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
@@ -680,44 +680,7 @@ int play_movement(int a1, int a2)
 
 #if COMPILE_RATELIMITER == 1
 // ioquake3 rate limit connectionless requests
-// https://github.com/ioquake/ioq3/commits/dd82b9d1a8d0cf492384617aff4712a683e70007/code/server/sv_main.c
-
-/* base time in seconds, that's our origin
-   timeval:tv_sec is an int:
-   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038 */
-unsigned long sys_timeBase = 0;
-/* current time in ms, using sys_timeBase as origin
-   NOTE: sys_timeBase*1000 + curtime -> ms since the Epoch
-     0x7fffffff ms - ~24 days
-   although timeval:tv_usec is an int, I'm not sure wether it is actually used as an unsigned int
-     (which would affect the wrap period) */
-int curtime;
-int Sys_Milliseconds (void)
-{
-	struct timeval tp;
-	gettimeofday(&tp, NULL);
-
-	if (!sys_timeBase)
-	{
-		sys_timeBase = tp.tv_sec;
-		return tp.tv_usec/1000;
-	}
-
-	curtime = (tp.tv_sec - sys_timeBase)*1000 + tp.tv_usec/1000;
-	return curtime;
-}
-
-typedef struct leakyBucket_s leakyBucket_t;
-struct leakyBucket_s
-{
-	netadrtype_t type;
-	unsigned char _4[4];
-	int	lastTime;
-	signed char	burst;
-	long hash;
-
-	leakyBucket_t *prev, *next;
-};
+// https://github.com/ioquake/ioq3/blob/master/code/server/sv_main.c
 
 // This is deliberately quite large to make it more of an effort to DoS
 #define MAX_BUCKETS	16384
@@ -749,11 +712,11 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 	leakyBucket_t *bucket = NULL;
 	int	i;
 	long hash = SVC_HashForAddress( address );
-	int	now = Sys_Milliseconds();
+	int	now = Sys_MilliSeconds();
 
 	for ( bucket = bucketHashes[ hash ]; bucket; bucket = bucket->next )
 	{
-		if ( memcmp( bucket->_4, address.ip, 4 ) == 0 )
+		if ( memcmp( bucket->adr, address.ip, 4 ) == 0 )
 		{
 			return bucket;
 		}
@@ -790,7 +753,7 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 		if ( bucket->type == 0 )
 		{
 			bucket->type = address.type;
-			memcpy( bucket->_4, address.ip, 4 );
+			memcpy( bucket->adr, address.ip, 4 );
 
 			bucket->lastTime = now;
 			bucket->burst = 0;
@@ -818,7 +781,7 @@ bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
 {
 	if ( bucket != NULL )
 	{
-		int now = Sys_Milliseconds();
+		int now = Sys_MilliSeconds();
 		int interval = now - bucket->lastTime;
 		int expired = interval / period;
 		int expiredRemainder = interval % period;
@@ -862,7 +825,7 @@ int hook_SVC_RemoteCommand(netadr_t from)
 	}
 
 	cvar_t *rcon_password = Cvar_FindVar("rcon_password");
-	if (!*rcon_password->string || strcmp(Cmd_Argv(1), rcon_password->string) != 0)
+	if ( !strlen( rcon_password->string ) || strcmp(Cmd_Argv(1), rcon_password->string) != 0 )
 	{
 		static leakyBucket_t bucket;
 
@@ -943,7 +906,7 @@ void manymaps_prepare(char *mapname, int read)
 	char library_path[512];
 	cvar_t *fs_library = Cvar_FindVar("fs_library");
 
-	if (*fs_library->string)
+	if (strlen(fs_library->string))
 		strncpy(library_path, fs_library->string, sizeof(library_path));
 	else
 		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string);

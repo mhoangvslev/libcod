@@ -167,8 +167,6 @@ typedef struct
 	int bit;
 } msg_t; // 0x18
 
-typedef unsigned char byte;
-
 typedef float vec_t;
 typedef vec_t vec2_t[2];
 typedef vec_t vec3_t[3];
@@ -177,10 +175,10 @@ typedef vec_t vec5_t[5];
 
 typedef struct
 {
-	byte red;
-	byte green;
-	byte blue;
-	byte alpha;
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+	unsigned char alpha;
 } ucolor_t;
 
 typedef struct cvar_s
@@ -188,15 +186,15 @@ typedef struct cvar_s
 	char *name;
 	char *description;
 	short int flags;
-	byte type;
-	byte modified;
+	unsigned char type;
+	unsigned char modified;
 	union
 	{
 		float floatval;
 		float value;
 		int integer;
 		char* string;
-		byte boolean;
+		unsigned char boolean;
 		vec2_t vec2;
 		vec3_t vec3;
 		vec4_t vec4;
@@ -207,7 +205,7 @@ typedef struct cvar_s
 		float latchedFloatval;
 		int latchedInteger;
 		char* latchedString;
-		byte latchedBoolean;
+		unsigned char latchedBoolean;
 		vec2_t latchedVec2;
 		vec3_t latchedVec3;
 		vec4_t latchedVec4;
@@ -218,7 +216,7 @@ typedef struct cvar_s
 		float resetFloatval;
 		int resetInteger;
 		char* resetString;
-		byte resetBoolean;
+		unsigned char resetBoolean;
 		vec2_t resetVec2;
 		vec3_t resetVec3;
 		vec4_t resetVec4;
@@ -238,6 +236,18 @@ typedef struct cvar_s
 	struct cvar_s *next;
 	struct cvar_s *hashNext;
 } cvar_t;
+
+typedef struct leakyBucket_s leakyBucket_t;
+struct leakyBucket_s
+{
+	netadrtype_t type;
+	unsigned char adr[4];
+	int	lastTime;
+	signed char	burst;
+	long hash;
+
+	leakyBucket_t *prev, *next;
+};
 
 typedef cvar_t* (*Cvar_FindVar_t)(const char *var_name);
 #if COD_VERSION == COD2_1_0
@@ -426,6 +436,15 @@ static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08084DB4;
 static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08085330;
 #elif COD_VERSION == COD2_1_3
 static const Scr_Error_t Scr_Error = (Scr_Error_t)0x080853FC;
+#endif
+
+typedef int (*Sys_MilliSeconds_t)(void);
+#if COD_VERSION == COD2_1_0
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D3728;
+#elif COD_VERSION == COD2_1_2
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5C54;
+#elif COD_VERSION == COD2_1_3
+static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5D98;
 #endif
 
 #endif
