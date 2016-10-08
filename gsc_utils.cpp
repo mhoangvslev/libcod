@@ -1023,17 +1023,13 @@ void gsc_utils_setweaponreloademptytime()
 	gsc_utils_setweaponoffsetint("setweaponreloademptytime", 540);
 }
 
-char* hitlocs[] = {"none", "helmet", "head", "neck", "torso_upper", "torso_lower", "right_arm_upper",
-                   "right_arm_lower", "right_hand", "left_arm_upper", "left_arm_lower", "left_hand", "right_leg_upper",
-                   "right_leg_lower", "right_foot", "left_leg_upper", "left_leg_lower", "left_foot", "gun"
-                  };
-
+char* hitlocs[] = { "none", "helmet", "head", "neck", "torso_upper", "torso_lower", "right_arm_upper", "right_arm_lower", "right_hand", "left_arm_upper", "left_arm_lower", "left_hand", "right_leg_upper", "right_leg_lower", "right_foot", "left_leg_upper", "left_leg_lower", "left_foot", "gun" };
 int getHitLocOffset(char* hitloc)
 {
 	int offset = 0; // none
-	for (int i=0; i<19; i++) // prevent out of bound
+	for (int i = 0; i < int( sizeof(hitlocs) / sizeof(hitlocs[0]) ); i++) // prevent out of bound
 	{
-		if(strcmp(hitlocs[i], hitloc) == 0)
+		if (strcmp(hitlocs[i], hitloc) == 0)
 		{
 			offset = i;
 			break;

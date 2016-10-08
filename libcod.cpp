@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h> // gettimeofday
 #include <dirent.h> // dir stuff
 
 #include <sys/mman.h> // mprotect
@@ -9,6 +8,31 @@
 
 #include "cracking.hpp"
 #include "gsc.hpp"
+
+cvar_t *sv_maxclients;
+cvar_t *sv_allowDownload;
+cvar_t *sv_pure;
+cvar_t *developer;
+cvar_t *rcon_password;
+void hook_sv_init(char *format, ...)
+{
+	char s[COD2_MAX_STRINGLENGTH];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(s, sizeof(s), format, va);
+	va_end(va);
+
+	Com_Printf("%s", s);
+
+	/* Do stuff after sv has been initialized here */
+
+	sv_maxclients = Cvar_FindVar("sv_maxclients");
+	sv_allowDownload = Cvar_FindVar("sv_allowDownload");
+	sv_pure = Cvar_FindVar("sv_pure");
+	developer = Cvar_FindVar("developer");
+	rcon_password = Cvar_FindVar("rcon_password");
+}
 
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
@@ -34,6 +58,7 @@ int hook_codscript_gametype_scripts()
 }
 
 cHook *hook_player_collision;
+cvar_t *g_playerCollision;
 int player_collision(int a1)
 {
 	hook_player_collision->unhook();
@@ -42,7 +67,6 @@ int player_collision(int a1)
 	*(int *)&sig = hook_player_collision->from;
 
 	int ret;
-	cvar_t *g_playerCollision = Cvar_FindVar("g_playerCollision");
 
 	if (g_playerCollision->boolean)
 		ret = sig(a1);
@@ -55,6 +79,7 @@ int player_collision(int a1)
 }
 
 cHook *hook_player_eject;
+cvar_t *g_playerEject;
 int player_eject(int a1)
 {
 	hook_player_eject->unhook();
@@ -63,7 +88,6 @@ int player_eject(int a1)
 	*(int *)&sig = hook_player_eject->from;
 
 	int ret;
-	cvar_t *g_playerEject = Cvar_FindVar("g_playerEject");
 
 	if (g_playerEject->boolean)
 		ret = sig(a1);
@@ -131,17 +155,16 @@ void hook_vid_restart(char *format, ...)
 
 	char *command = substr(s, strlen(s) - 4, strlen(s));
 
-	if (strncmp(command, "vdr", 3) == 0)
+	if (strcmp(command, "vdr") == 0)
 	{
 		char *name = substr(s, 24, strlen(s) - 6);
-		cvar_t *sv_maxclients = Cvar_FindVar("sv_maxclients");
 
 		for (int i = 0; i < sv_maxclients->integer; i++)
 		{
 			if (CLIENTSTATE(i) == CS_ACTIVE)
 			{
 				char *playername = (char*)(PLAYERBASE(i) + 134216);
-				if (strncmp(name, playername, 32) == 0)
+				if (strcmp(name, playername) == 0)
 				{
 					stackPushInt(i);
 					short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
@@ -189,12 +212,12 @@ int hook_ClientCommand(int clientNum)
 	return 0;
 }
 
-char * hook_AuthorizeState( int arg )
+cvar_t *sv_cracked;
+char* hook_AuthorizeState( int arg )
 {
 	char *s = Cmd_Argv(arg);
-	cvar_t *sv_cracked = Cvar_FindVar("sv_cracked");
 
-	if (sv_cracked->boolean && (strcmp (s, "deny") == 0))
+	if (sv_cracked->boolean && strcmp(s, "deny") == 0)
 		return "accept";
 
 	return s;
@@ -203,9 +226,9 @@ char * hook_AuthorizeState( int arg )
 void hook_SV_BeginDownload_f( int a1 )
 {
 	char *file = Cmd_Argv(1);
-	int len;
+	int len = strlen(file);
 
-	if((len = strlen(file)) > 3 && !strcmp(file + len - 4, ".iwd"))
+	if (len > 3 && !strcmp(file + len - 4, ".iwd"))
 		SV_BeginDownload_f(a1);
 	else
 		Com_DPrintf("Invalid download attempt: %s\n", file);
@@ -235,6 +258,7 @@ void hook_SV_WriteDownloadToClient(int cl, int msg)
 		SV_WriteDownloadToClient(cl, msg);
 }
 
+cvar_t *sv_downloadMessage;
 int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
 {
 	char errorMessage[COD2_MAX_STRINGLENGTH];
@@ -244,8 +268,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
 	int MAX_DOWNLOAD_WINDOW = 8;
 
-	cvar_t *sv_allowDownload = Cvar_FindVar("sv_allowDownload");
-	cvar_t *sv_pure = Cvar_FindVar("sv_pure");
 	int *svs_time = (int *)0x841FB04;
 
 	int (*Z_Malloc)(size_t size);
@@ -275,16 +297,14 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int (*FS_iwdFile)(char *haystack, int a2);
 	*(int *)&FS_iwdFile = 0x8064ECC;
 
-	int len;
-	char * file = (char *)(cl + 134248);
+	char *file = (char *)(cl + 134248);
+	int len = strlen(file);
 
 	if (!*(int *)(cl + 134248))
 		return 0;	// Nothing being downloaded
 
-	if((len = strlen(file)) < 3 && strcmp(file + len - 4, ".iwd"))
-		return 0; // Not a valid iwd file
-
-	cvar_t *sv_downloadMessage = Cvar_FindVar("sv_downloadMessage");
+	if (len < 4 || strcmp(file + len - 4, ".iwd"))
+		return 0;	// Not a valid iwd file
 
 	if (strlen(sv_downloadMessage->string))
 	{
@@ -319,7 +339,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			}
 			else if ( !sv_allowDownload->boolean )
 			{
-				Com_Printf("clientDownload: %d : \"%s\" download disabled", PLAYERBASE_ID(cl), cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled\n", PLAYERBASE_ID(cl), cl + 134248);
 				if (sv_pure->boolean)
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
 				else
@@ -465,6 +485,7 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	return 1;
 }
 
+cvar_t *nodeveloper_errors;
 void hook_scriptError(int a1, int a2, int a3, void *a4)
 {
 
@@ -484,9 +505,6 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 
 	int (*runtimeError)(int a1, int a2, int a3, int a4);
 	*(int *)&runtimeError = runtimeError_offset;
-
-	cvar_t *developer = Cvar_FindVar("developer");
-	cvar_t *nodeveloper_errors = Cvar_FindVar("nodeveloper_errors");
 
 	scriptError(a1, a2, a3, a4);
 
@@ -570,8 +588,6 @@ int set_bot_variables()
 	int lastmsg_offset = 134688;
 	int *svs_time = (int *)0x08423084;
 #endif
-
-	cvar_t *sv_maxclients = Cvar_FindVar("sv_maxclients");
 
 	for (int i = 0; i < sv_maxclients->integer; i++)
 	{
@@ -824,7 +840,6 @@ int hook_SVC_RemoteCommand(netadr_t from)
 		return 0;
 	}
 
-	cvar_t *rcon_password = Cvar_FindVar("rcon_password");
 	if ( !strlen( rcon_password->string ) || strcmp(Cmd_Argv(1), rcon_password->string) != 0 )
 	{
 		static leakyBucket_t bucket;
@@ -901,17 +916,19 @@ int hook_SVC_Status(netadr_t from)
 }
 #endif
 
+cvar_t *fs_library;
 void manymaps_prepare(char *mapname, int read)
 {
 	char library_path[512];
-	cvar_t *fs_library = Cvar_FindVar("fs_library");
+
+	cvar_t *fs_homepath = Cvar_FindVar("fs_homepath");
+	cvar_t *fs_game = Cvar_FindVar("fs_game");
+	cvar_t *map = Cvar_FindVar("mapname");
 
 	if (strlen(fs_library->string))
 		strncpy(library_path, fs_library->string, sizeof(library_path));
 	else
-		snprintf(library_path, sizeof(library_path), "%s/%s/Library", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string);
-
-	cvar_t *map = Cvar_FindVar("mapname");
+		snprintf(library_path, sizeof(library_path), "%s/%s/Library", fs_homepath->string, fs_game->string);
 
 	if (strcmp(map->string, mapname) == 0) // Same map is about to load, no need to trigger manymap (equals map_restart)
 		return;
@@ -921,9 +938,9 @@ void manymaps_prepare(char *mapname, int read)
 	int map_exists = access(map_check, F_OK) != -1;
 
 #if COD_VERSION == COD2_1_0
-	char *stock_maps[13] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
+	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
 #else
-	char *stock_maps[15] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
+	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
 	bool map_found = false;
@@ -962,11 +979,11 @@ void manymaps_prepare(char *mapname, int read)
 
 	while ( (dir_ent = readdir(dir)) != NULL)
 	{
-		if (strncmp(dir_ent->d_name, ".", 1) == 0 || strncmp(dir_ent->d_name, "..", 2) == 0)
+		if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
 			continue;
 
 		char fileDelete[512];
-		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string, dir_ent->d_name);
+		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", fs_homepath->string, fs_game->string, dir_ent->d_name);
 		int exists = access(fileDelete, F_OK) != -1;
 		if (exists)
 			printf("manymaps> REMOVED MANYMAP: %s result of unlink: %d\n", fileDelete, unlink(fileDelete));
@@ -978,7 +995,7 @@ void manymaps_prepare(char *mapname, int read)
 	{
 		char src[512], dst[512];
 		snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
-		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string, mapname);
+		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", fs_homepath->string, fs_game->string, mapname);
 		printf("manymaps> LINK src=%s dst=%s\n", src, dst);
 		if (access(src, F_OK) != -1)
 		{
@@ -988,7 +1005,7 @@ void manymaps_prepare(char *mapname, int read)
 			int link_success = system(cmd) == 0;
 			printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
 			if (read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
-				FS_LoadDir(Cvar_FindVar("fs_homepath")->string, Cvar_FindVar("fs_game")->string);
+				FS_LoadDir(fs_homepath->string, fs_game->string);
 		}
 	}
 }
@@ -1044,6 +1061,7 @@ public:
 		*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
 
 #if COD_VERSION == COD2_1_0
+		cracking_hook_call(0x08061FE7, (int)hook_sv_init);
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808AD00, (int)hook_findMap);
@@ -1092,6 +1110,7 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_2
+		cracking_hook_call(0x08062301, (int)hook_sv_init);
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
@@ -1140,6 +1159,7 @@ public:
 #endif
 
 #elif COD_VERSION == COD2_1_3
+		cracking_hook_call(0x080622F9, (int)hook_sv_init);
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
@@ -1190,12 +1210,12 @@ public:
 #endif
 
 		// Register custom cvars
-		Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
-		Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
-		Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
-		Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
-		Cvar_RegisterString("fs_library", "", 0x1000u);
-		Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
+		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
+		nodeveloper_errors = Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
+		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
+		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
+		fs_library = Cvar_RegisterString("fs_library", "", 0x1000u);
+		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
 
 		gsc_utils_init();
 		printf("> [PLUGIN LOADED]\n");
