@@ -228,7 +228,7 @@ void hook_SV_BeginDownload_f( int a1 )
 	char *file = Cmd_Argv(1);
 	int len = strlen(file);
 
-	if (len > 3 && !strcmp(file + len - 4, ".iwd"))
+	if (len > 3 && strcmp(&file[len - 4], ".iwd") == 0)
 		SV_BeginDownload_f(a1);
 	else
 		Com_DPrintf("Invalid download attempt: %s\n", file);
@@ -303,7 +303,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if (!*(int *)(cl + 134248))
 		return 0;	// Nothing being downloaded
 
-	if (len < 4 || strcmp(file + len - 4, ".iwd"))
+	if (len < 4 || strcmp(&file[len - 4], ".iwd") != 0)
 		return 0;	// Not a valid iwd file
 
 	if (strlen(sv_downloadMessage->string))
