@@ -124,24 +124,6 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 	return grenade;
 }
 
-//http://www.cyberforum.ru/cpp-beginners/thread513057.html
-char * substr(const char * text, int beg, int end)
-{
-	int i;
-	char *sub = 0;
-	int len = end - beg;
-	if(text)
-		if(text + beg)
-			if(0 < len)
-				if((sub = new char[1 + len]))
-				{
-					for(i = beg; text[i] != '\0' && i < end; i++)
-						sub[i - beg] = text[i];
-					sub[i - beg] = '\0';
-				}
-	return sub;
-}
-
 void hook_vid_restart(char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
@@ -153,18 +135,16 @@ void hook_vid_restart(char *format, ...)
 
 	Com_DPrintf("%s", s);
 
-	char *command = substr(s, strlen(s) - 4, strlen(s));
-
-	if (strcmp(command, "vdr") == 0)
+	if (strncmp(&s[strlen(s) - 4], "vdr", 3) == 0)
 	{
-		char *name = substr(s, 24, strlen(s) - 6);
+		char *name = &s[24];
+		name[strlen(name) - 6] = '\0';
 
 		for (int i = 0; i < sv_maxclients->integer; i++)
 		{
 			if (CLIENTSTATE(i) == CS_ACTIVE)
 			{
-				char *playername = (char*)(PLAYERBASE(i) + 134216);
-				if (strcmp(name, playername) == 0)
+				if (strcmp(name, (char*)(PLAYERBASE(i) + 134216)) == 0)
 				{
 					stackPushInt(i);
 					short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
