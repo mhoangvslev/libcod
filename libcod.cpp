@@ -248,8 +248,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
 	int MAX_DOWNLOAD_WINDOW = 8;
 
-	int *svs_time = (int *)0x841FB04;
-
 	int (*Z_Malloc)(size_t size);
 	*(int *)&Z_Malloc = 0x80A92FA;
 
@@ -387,7 +385,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	if ( *(int *)(cl + 134332) == *(int *)(cl + 134328) )
 	{
 		// We have transmitted the complete window, should we start resending?
-		if (*svs_time - *(int *)(cl + 134404) > 1000)
+		if (getSVSTime() - *(int *)(cl + 134404) > 1000)
 			*(int *)(cl + 134332) = *(int *)(cl + 134324);
 		else
 			return 0;
@@ -414,7 +412,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	// Move on to the next block
 	// It will get sent with next snap shot.  The rate will keep us in line.
 	( *(int *)(cl + 134332) )++;
-	*(int *)(cl + 134404) = *svs_time;
+	*(int *)(cl + 134404) = getSVSTime();
 
 	return 1;
 }
@@ -558,15 +556,12 @@ int set_bot_variables()
 #if COD_VERSION == COD2_1_0
 	int ping_offset = 113001;
 	int lastmsg_offset = 134416;
-	int *svs_time = (int *)0x0841FB04;
 #elif COD_VERSION == COD2_1_2
 	int ping_offset = 113069;
 	int lastmsg_offset = 134688;
-	int *svs_time = (int *)0x08422004;
 #elif COD_VERSION == COD2_1_3
 	int ping_offset = 113069;
 	int lastmsg_offset = 134688;
-	int *svs_time = (int *)0x08423084;
 #endif
 
 	for (int i = 0; i < sv_maxclients->integer; i++)
@@ -574,7 +569,7 @@ int set_bot_variables()
 		if (CLIENTSTATE(i) == CS_ACTIVE && ADDRESSTYPE(i) == NA_BOT)
 		{
 			*(int *)(PLAYERBASE(i) + (ping_offset * 4)) = 0;
-			*(int *)(PLAYERBASE(i) + lastmsg_offset) = *svs_time + 50;
+			*(int *)(PLAYERBASE(i) + lastmsg_offset) = getSVSTime() + 50;
 		}
 	}
 

@@ -447,4 +447,22 @@ static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5C5
 static const Sys_MilliSeconds_t Sys_MilliSeconds = (Sys_MilliSeconds_t)0x080D5D98;
 #endif
 
+typedef long double (*calc_player_speed_t)(int a1, int a2);
+#if COD_VERSION == COD2_1_0
+static const calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080DF534;
+#elif COD_VERSION == COD2_1_2
+static const calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1B14;
+#elif COD_VERSION == COD2_1_3
+static const calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1C58;
+#endif
+
+typedef void (*calc_client_speed_t)(int client);
+#if COD_VERSION == COD2_1_0
+static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0811FB7A;
+#elif COD_VERSION == COD2_1_2
+static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x08121EAE;
+#elif COD_VERSION == COD2_1_3
+static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0812200A;
+#endif
+
 #endif

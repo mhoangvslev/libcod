@@ -1,5 +1,21 @@
 #include "gsc_player.hpp"
 
+/* Functions that must present even if COMPILE_PLAYER == 0 */
+
+int getSVSTime()
+{
+
+#if COD_VERSION == COD2_1_0
+	int info_start = *(int *)0x0841FB04;
+#elif COD_VERSION == COD2_1_2
+	int info_start = *(int *)0x08422004;
+#elif COD_VERSION == COD2_1_3
+	int info_start = *(int *)0x08423084;
+#endif
+
+	return info_start;
+}
+
 #if COMPILE_PLAYER == 1
 
 #define PLAYERSTATE_VELOCITY(playerid) (PLAYERSTATE(playerid) + 0x20)
@@ -258,20 +274,6 @@ void gsc_player_ClientCommand(int id)
 	stackPushInt(ClientCommand(id));
 }
 
-int getSVSTime()
-{
-
-#if COD_VERSION == COD2_1_0
-	int info_start = *(int *)0x0841FB04;
-#elif COD_VERSION == COD2_1_2
-	int info_start = *(int *)0x08422004;
-#elif COD_VERSION == COD2_1_3
-	int info_start = *(int *)0x08423084;
-#endif
-
-	return info_start;
-}
-
 void gsc_player_getLastConnectTime(int id)
 {
 #if COD_VERSION == COD2_1_0
@@ -435,24 +437,6 @@ void gsc_player_getjumpslowdowntimer(int id)
 	int value = PLAYERSTATE(id) + 16;
 	stackPushInt(*(int*)value);
 }
-
-typedef long double (*calc_player_speed_t)(int a1, int a2);
-#if COD_VERSION == COD2_1_0
-calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080DF534;
-#elif COD_VERSION == COD2_1_2
-calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1B14;
-#elif COD_VERSION == COD2_1_3
-calc_player_speed_t calc_player_speed = (calc_player_speed_t)0x080E1C58;
-#endif
-
-typedef void (*calc_client_speed_t)(int client);
-#if COD_VERSION == COD2_1_0
-calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0811FB7A;
-#elif COD_VERSION == COD2_1_2
-calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x08121EAE;
-#elif COD_VERSION == COD2_1_3
-calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0812200A;
-#endif
 
 float player_movespeedscale[64] = {0};
 int player_g_speed[64] = {0};

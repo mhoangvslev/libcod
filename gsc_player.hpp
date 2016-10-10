@@ -65,6 +65,8 @@ static const int addresstype_offset = 0x6E6D4;
 #define ADDRESSTYPE(playerid) (*(int *)(PLAYERBASE(playerid) + addresstype_offset))
 #define CLIENTSTATE(playerid) (*(int *)(PLAYERBASE(playerid)))
 
+int getSVSTime();
+
 void gsc_player_velocity_set(int id);
 void gsc_player_velocity_add(int id);
 void gsc_player_velocity_get(int id);
