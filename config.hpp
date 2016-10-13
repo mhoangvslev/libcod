@@ -13,7 +13,7 @@
 
 // EXTRA STUFF
 #ifdef EXTRA_CONFIG_INC
-#include "extra_config.hpp"
+#include "extra/config.hpp"
 #endif
 
 #endif

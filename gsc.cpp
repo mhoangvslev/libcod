@@ -228,7 +228,7 @@ Scr_Function scriptFunctions[] =
 #endif
 
 #ifdef EXTRA_FUNCTIONS_INC
-#include "extra_functions.hpp"
+#include "extra/functions.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */
@@ -318,7 +318,7 @@ Scr_Method scriptMethods[] =
 #endif
 
 #ifdef EXTRA_METHODS_INC
-#include "extra_methods.hpp"
+#include "extra/methods.hpp"
 #endif
 
 	{NULL, NULL, 0} /* terminator */

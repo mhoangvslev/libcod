@@ -28,7 +28,7 @@ extern "C" {
 #include "cracking.hpp"
 
 #ifdef EXTRA_INCLUDES_INC
-#include "extra_includes.hpp"
+#include "extra/includes.hpp"
 #endif
 
 #define STACK_UNDEFINED 0

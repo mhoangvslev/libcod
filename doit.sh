@@ -64,19 +64,19 @@ else
 	exit 0
 fi
 
-if [ -f extra_functions.hpp ]; then
+if [ -f extra/functions.hpp ]; then
 	constants+=" -D EXTRA_FUNCTIONS_INC"
 fi
 
-if [ -f extra_config.hpp ]; then
+if [ -f extra/config.hpp ]; then
 	constants+=" -D EXTRA_CONFIG_INC"
 fi
 
-if [ -f extra_includes.hpp ]; then
+if [ -f extra/includes.hpp ]; then
 	constants+=" -D EXTRA_INCLUDES_INC"
 fi
 
-if [ -f extra_methods.hpp ]; then
+if [ -f extra/methods.hpp ]; then
 	constants+=" -D EXTRA_METHODS_INC"
 fi
 
@@ -108,9 +108,15 @@ $cc $options $constants -c gsc_player.cpp -o objects_$1/gsc_player.opp
 echo "##### COMPILE $1 GSC_UTILS.CPP #####"
 $cc $options $constants -c gsc_utils.cpp -o objects_$1/gsc_utils.opp
 
-if [ -f extra_code.cpp ]; then
-	echo "##### COMPILE $1 EXTRA_CODE.CPP #####"
-	$cc $options $constants -c extra_code.cpp -o objects_$1/extra_code.opp
+if [ -d extra ]; then
+	echo "##### COMPILE $1 EXTRAS #####"
+	cd extra
+	for F in *.cpp;
+	do
+		echo "###### COMPILE $1 EXTRA: $F #####"
+		$cc $options $constants -c $F -o ../objects_$1/${F%.cpp}.opp;
+	done
+	cd ..
 fi
 
 echo "##### LINKING lib$1.so #####"
