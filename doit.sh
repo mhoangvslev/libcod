@@ -35,11 +35,6 @@ if [ "$1" != "clean" ]; then
 	fi
 fi
 
-# Use clang if exist and mysql is disabled
-if [ -e "/usr/bin/clang" ] && [ "$mysql_enable" == "false" ]; then
-	cc="clang"
-fi
-
 if [ "$1" == "clean" ]; then
 	echo "##### CLEAN OBJECTS #####"
 	rm objects_* -rf
