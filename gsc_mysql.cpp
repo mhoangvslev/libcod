@@ -222,7 +222,7 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 {
 	if(first_async_connection != NULL)
 	{
-		Com_DPrintf("gsc_mysql_async_initializer() async mysql already initialized. Returning before adding additional connections");
+		Com_DPrintf("gsc_mysql_async_initializer() async mysql already initialized. Returning before adding additional connections\n");
 		stackPushUndefined();
 		return;
 	}
