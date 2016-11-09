@@ -195,6 +195,7 @@ Scr_Function scriptFunctions[] =
 	{"fwrite"                         , gsc_utils_fwrite                      , 0},
 	{"fclose"                         , gsc_utils_fclose                      , 0},
 	{"sprintf"                        , gsc_utils_sprintf                     , 0},
+	{"getsystemtime"                  , gsc_utils_getsystemtime               , 0},
 	{"G_FindConfigstringIndex"        , gsc_G_FindConfigstringIndex           , 0},
 	{"G_FindConfigstringIndexOriginal", gsc_G_FindConfigstringIndexOriginal   , 0},
 	{"getconfigstring"                , gsc_get_configstring                  , 0},

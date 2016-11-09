@@ -43,6 +43,7 @@ void gsc_utils_fread();
 void gsc_utils_fwrite();
 void gsc_utils_fclose();
 void gsc_utils_sprintf();
+void gsc_utils_getsystemtime();
 
 void gsc_call_function_raw();
 

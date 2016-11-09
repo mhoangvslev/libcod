@@ -4,6 +4,7 @@
 
 #include <dirent.h> // dir stuff
 #include <ctype.h> // toupper
+#include <time.h>  // getsystemtime
 
 //thanks to riicchhaarrd/php
 unsigned short Scr_GetArray(int index)
@@ -295,6 +296,12 @@ void gsc_utils_execute()   // Returns complete command output as a string
 		stackPushString(result);
 		free(result);
 	}
+}
+
+void gsc_utils_getsystemtime()
+{
+	time_t timer;
+	stackPushInt( time(&timer) );
 }
 
 void gsc_utils_exponent()
