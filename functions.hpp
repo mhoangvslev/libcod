@@ -312,15 +312,6 @@ static const SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808EF9A;
 static const SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808F02E;
 #endif
 
-typedef int (*SV_WriteDownloadToClient_t)(int a1, int a2);
-#if COD_VERSION == COD2_1_0
-static const SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)0x0808E544;
-#elif COD_VERSION == COD2_1_2
-static const SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)0x0808FD2E;
-#elif COD_VERSION == COD2_1_3
-static const SV_WriteDownloadToClient_t SV_WriteDownloadToClient = (SV_WriteDownloadToClient_t)0x0808FDC2;
-#endif
-
 typedef int (*SV_BeginDownload_f_t)(int a1);
 #if COD_VERSION == COD2_1_0
 static const SV_BeginDownload_f_t SV_BeginDownload_f = (SV_BeginDownload_f_t)0x0808E508;

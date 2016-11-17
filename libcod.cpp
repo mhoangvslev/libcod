@@ -14,6 +14,11 @@ cvar_t *sv_allowDownload;
 cvar_t *sv_pure;
 cvar_t *developer;
 cvar_t *rcon_password;
+
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+cvar_t *sv_wwwDownload;
+#endif
+
 void hook_sv_init(char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
@@ -32,6 +37,11 @@ void hook_sv_init(char *format, ...)
 	sv_pure = Cvar_FindVar("sv_pure");
 	developer = Cvar_FindVar("developer");
 	rcon_password = Cvar_FindVar("rcon_password");
+
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	sv_wwwDownload = Cvar_FindVar("sv_wwwDownload");
+#endif
+
 }
 
 int codecallback_playercommand = 0;
@@ -230,14 +240,6 @@ int hook_ClientUserinfoChanged(int clientNum)
 	return 0;
 }
 
-void hook_SV_WriteDownloadToClient(int cl, int msg)
-{
-	if((*(int*)(cl + 134248)) && (*(int*)(cl+452280)**(int*)(cl+452280+4)/2048000 > 6))
-		SV_DropClient(cl, "broken download");
-	else
-		SV_WriteDownloadToClient(cl, msg);
-}
-
 cvar_t *sv_downloadMessage;
 int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
 {
@@ -249,36 +251,135 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int MAX_DOWNLOAD_WINDOW = 8;
 
 	int (*Z_Malloc)(size_t size);
+#if COD_VERSION == COD2_1_0
 	*(int *)&Z_Malloc = 0x80A92FA;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&Z_Malloc = 0x80AB51A;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&Z_Malloc = 0x80AB65E;
+#endif
 
 	int (*FS_Read)(void *a1, size_t a2, signed int a3);
+#if COD_VERSION == COD2_1_0
 	*(int *)&FS_Read = 0x809E328;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&FS_Read = 0x80A03E6;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&FS_Read = 0x80A052A;
+#endif
 
 	int (*MSG_WriteByte)(int a1, char a2);
+#if COD_VERSION == COD2_1_0
 	*(int *)&MSG_WriteByte = 0x8067B4C;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&MSG_WriteByte = 0x8068014;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&MSG_WriteByte = 0x806800C;
+#endif
 
 	int (*MSG_WriteShort)(int a1, int16_t a2);
+#if COD_VERSION == COD2_1_0
 	*(int *)&MSG_WriteShort = 0x8067BDA;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&MSG_WriteShort = 0x80680A2;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&MSG_WriteShort = 0x806809A;
+#endif
 
 	int (*MSG_WriteLong)(int a1, int a2);
 	*(int *)&MSG_WriteLong = 0x8067C2A;
+#if COD_VERSION == COD2_1_0
+	*(int *)&MSG_WriteLong = 0x8067C2A;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&MSG_WriteLong = 0x80680F2;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&MSG_WriteLong = 0x80680EA;
+#endif
 
 	int (*MSG_WriteString)(int a1, char *s);
+#if COD_VERSION == COD2_1_0
 	*(int *)&MSG_WriteString = 0x8067CE4;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&MSG_WriteString = 0x80681AC;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&MSG_WriteString = 0x80681A4;
+#endif
 
 	int (*MSG_WriteData)(int a1, void *src, size_t n);
+#if COD_VERSION == COD2_1_0
 	*(int *)&MSG_WriteData = 0x8067B84;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&MSG_WriteData = 0x806804C;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&MSG_WriteData = 0x8068044;
+#endif
 
 	int (*FS_SV_FOpenFileRead)(char *src, int a2);
+#if COD_VERSION == COD2_1_0
 	*(int *)&FS_SV_FOpenFileRead = 0x8064100;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&FS_SV_FOpenFileRead = 0x8064560;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&FS_SV_FOpenFileRead = 0x8064558;
+#endif
 
 	int (*FS_iwdFile)(char *haystack, int a2);
+#if COD_VERSION == COD2_1_0
 	*(int *)&FS_iwdFile = 0x8064ECC;
+#elif COD_VERSION == COD2_1_2
+	*(int *)&FS_iwdFile = 0x806532C;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&FS_iwdFile = 0x8065324;
+#endif
 
-	char *file = (char *)(cl + 134248);
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+
+	signed int (*SV_WWWRedirectClient)(int a1, int a2);
+#if COD_VERSION == COD2_1_2
+	*(int *)&SV_WWWRedirectClient = 0x808FB78;
+#elif COD_VERSION == COD2_1_3
+	*(int *)&SV_WWWRedirectClient = 0x808FC0C;
+#endif
+
+#endif
+
+#if COD_VERSION == COD2_1_0
+	int rate_offset = 452008;
+#elif COD_VERSION == COD2_1_2
+	int rate_offset = 452280;
+#elif COD_VERSION == COD2_1_3
+	int rate_offset = 452280;
+#endif
+
+#if COD_VERSION == COD2_1_0
+	int snaps_offset = 452012;
+#elif COD_VERSION == COD2_1_2
+	int snaps_offset = 452284;
+#elif COD_VERSION == COD2_1_3
+	int snaps_offset = 452284;
+#endif
+
+	int filename_offset = 134248;
+	int file_offset = 134312;
+	int cl_iwd_offset = 134316;
+	int block_offset = 134332;
+	int section_offset = 134324;
+	int nextblock_offset = 134328;
+	int eof_offset = 134320;
+	int addeof_offset = 134400;
+	int unknown_offset1 = 134336;
+	int unknown_offset2 = 134368;
+	int time_offset = 134404;
+
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	int wwwdld_offset1 = 134664;
+	int wwwdld_offset2 = 134676;
+#endif
+
+	char *file = (char *)(cl + filename_offset);
 	int len = strlen(file);
 
-	if (!*(int *)(cl + 134248))
+	if (!*(int *)(cl + filename_offset))
 		return 0;	// Nothing being downloaded
 
 	if (len < 4 || strcmp(&file[len - 4], ".iwd") != 0)
@@ -291,128 +392,138 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		MSG_WriteShort(msg, 0);
 		MSG_WriteLong(msg, -1);
 		MSG_WriteString(msg, errorMessage);
-		*(int *)(cl + 134248) = 0;
+		*(int *)(cl + filename_offset) = 0;
 		return 0;
 	}
 
-	*(int *)cl = CS_CONNECTED;     // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
-	*(int *)(cl + 452008) = 25000; // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
-	*(int *)(cl + 452012) = 50;    // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
+	*(int *)cl = CS_CONNECTED;  	       // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
+	*(int *)(cl + rate_offset)  = 25000;   // Hardcode client rate so even users with lower rate values will have fullspeed download. Setting it to above 25000 doesn't do anything
+	*(int *)(cl + snaps_offset) = 50;      // Hadrcode client snaps. They will be equal to sv_fps anyway. Edit: Actually its snapshotMsec, 50 ~ /snaps "20", is the best value.
 
-	if (!*(int *)(cl + 134312))
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	if ( sv_wwwDownload->boolean && *(int *)(cl + wwwdld_offset1) )
+	{
+		if ( *(int *)(cl + wwwdld_offset2) )
+			*(int *)(cl + wwwdld_offset2) = 0;
+		else if ( SV_WWWRedirectClient(cl, msg) )
+			return 0;
+	}
+#endif
+
+	if (!*(int *)(cl + file_offset))
 	{
 		// We open the file here
 
-		Com_Printf("clientDownload: %d : begining \"%s\"\n", PLAYERBASE_ID(cl), cl + 134248);
+		Com_Printf("clientDownload: %d : begining \"%s\"\n", PLAYERBASE_ID(cl), cl + filename_offset);
 
-		iwdFile = FS_iwdFile((char *)(cl + 134248), (int)"main");
+		iwdFile = FS_iwdFile((char *)(cl + filename_offset), (int)"main");
 
-		if ( !sv_allowDownload->boolean || iwdFile || ( *(int *)(cl + 134316) = FS_SV_FOpenFileRead((char *)(cl + 134248), cl + 134312) ) <= 0 )
+		if ( !sv_allowDownload->boolean || iwdFile || ( *(int *)(cl + cl_iwd_offset) = FS_SV_FOpenFileRead((char *)(cl + filename_offset), cl + file_offset) ) <= 0 )
 		{
 			// cannot auto-download file
 			if (iwdFile)
 			{
-				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", PLAYERBASE_ID(cl), cl + 134248);
-				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", PLAYERBASE_ID(cl), cl + filename_offset);
+				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + filename_offset);
 			}
 			else if ( !sv_allowDownload->boolean )
 			{
-				Com_Printf("clientDownload: %d : \"%s\" download disabled\n", PLAYERBASE_ID(cl), cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled\n", PLAYERBASE_ID(cl), cl + filename_offset);
 				if (sv_pure->boolean)
-					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + 134248);
+					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + filename_offset);
 				else
-					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED\x15%s", cl + 134248);
+					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED\x15%s", cl + filename_offset);
 			}
 			else
 			{
-				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", PLAYERBASE_ID(cl), cl + 134248);
-				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + 134248);
+				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", PLAYERBASE_ID(cl), cl + filename_offset);
+				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + filename_offset);
 			}
 			MSG_WriteByte(msg, 5);
 			MSG_WriteShort(msg, 0);
 			MSG_WriteLong(msg, -1);
 			MSG_WriteString(msg, errorMessage);
 
-			*(int *)(cl + 134248) = 0;
+			*(int *)(cl + filename_offset) = 0;
 			return 0;
 		}
 
 		// Init
-		*(int *)(cl + 134332) = 0;
-		*(int *)(cl + 134324) = 0;
-		*(int *)(cl + 134328) = 0;
-		*(int *)(cl + 134320) = 0;
-		*(int *)(cl + 134400) = 0;
+		*(int *)(cl + block_offset) = 0;
+		*(int *)(cl + section_offset) = 0;
+		*(int *)(cl + nextblock_offset) = 0;
+		*(int *)(cl + eof_offset) = 0;
+		*(int *)(cl + addeof_offset) = 0;
 	}
 
 	// Perform any reads that we need to
-	while ( *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW && *(int *)(cl + 134316) != *(int *)(cl + 134320) )
+	while ( *(int *)(cl + nextblock_offset) - *(int *)(cl + section_offset) < MAX_DOWNLOAD_WINDOW && *(int *)(cl + cl_iwd_offset) != *(int *)(cl + eof_offset) )
 	{
-		curindex = (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW);
+		curindex = (*(int *)(cl + nextblock_offset) % MAX_DOWNLOAD_WINDOW);
 
-		if (!*(int *)(cl + 4 * curindex + 134336))
-			*(int *)(cl + 4 * curindex + 134336) = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
+		if (!*(int *)(cl + 4 * curindex + unknown_offset1))
+			*(int *)(cl + 4 * curindex + unknown_offset1) = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
 
-		*(int *)(cl + 4 * curindex + 134368) = FS_Read(*(void **)(cl + 4 * curindex + 134336), MAX_DOWNLOAD_BLKSIZE, *(int *)(cl + 134312));
+		*(int *)(cl + 4 * curindex + unknown_offset2) = FS_Read(*(void **)(cl + 4 * curindex + unknown_offset1), MAX_DOWNLOAD_BLKSIZE, *(int *)(cl + file_offset));
 
-		if ( *(int *)(cl + 4 * curindex + 134368) < 0 )
+		if ( *(int *)(cl + 4 * curindex + unknown_offset2) < 0 )
 		{
 			// EOF right now
-			*(int *)(cl + 134320) = *(int *)(cl + 134316);
+			*(int *)(cl + eof_offset) = *(int *)(cl + cl_iwd_offset);
 			break;
 		}
 
-		*(int *)(cl + 134320) += *(int *)(cl + 4 * curindex + 134368);
+		*(int *)(cl + eof_offset) += *(int *)(cl + 4 * curindex + unknown_offset2);
 
 		// Load in next block
-		( *(int *)(cl + 134328) )++;
+		( *(int *)(cl + nextblock_offset) )++;
 	}
 
 	// Check to see if we have eof condition and add the EOF block
-	if ( *(int *)(cl + 134320) == *(int *)(cl + 134316) && !*(int *)(cl + 134400) && *(int *)(cl + 134328) - *(int *)(cl + 134324) < MAX_DOWNLOAD_WINDOW)
+	if ( *(int *)(cl + eof_offset) == *(int *)(cl + cl_iwd_offset) && !*(int *)(cl + addeof_offset) && *(int *)(cl + nextblock_offset) - *(int *)(cl + section_offset) < MAX_DOWNLOAD_WINDOW)
 	{
-		*(int *)(cl + 4 * (*(int *)(cl + 134328) % MAX_DOWNLOAD_WINDOW) + 134368) = 0;
-		( *(int *)(cl + 134328) )++;
+		*(int *)(cl + 4 * (*(int *)(cl + nextblock_offset) % MAX_DOWNLOAD_WINDOW) + unknown_offset2) = 0;
+		( *(int *)(cl + nextblock_offset) )++;
 
-		*(int *)(cl + 134400) = 1;  // We have added the EOF block
+		*(int *)(cl + addeof_offset) = 1;  // We have added the EOF block
 	}
 
 	// Write out the next section of the file, if we have already reached our window,
 	// automatically start retransmitting
-	if ( *(int *)(cl + 134324) == *(int *)(cl + 134328) )
+	if ( *(int *)(cl + section_offset) == *(int *)(cl + nextblock_offset) )
 		return 0; // Nothing to transmit
 
-	if ( *(int *)(cl + 134332) == *(int *)(cl + 134328) )
+	if ( *(int *)(cl + block_offset) == *(int *)(cl + nextblock_offset) )
 	{
 		// We have transmitted the complete window, should we start resending?
-		if (getSVSTime() - *(int *)(cl + 134404) > 1000)
-			*(int *)(cl + 134332) = *(int *)(cl + 134324);
+		if (getSVSTime() - *(int *)(cl + time_offset) > 1000)
+			*(int *)(cl + block_offset) = *(int *)(cl + section_offset);
 		else
 			return 0;
 	}
 
 	// Send current block
-	curindex = *(int *)(cl + 134332) % MAX_DOWNLOAD_WINDOW;
+	curindex = *(int *)(cl + block_offset) % MAX_DOWNLOAD_WINDOW;
 
 	MSG_WriteByte(msg, 5);
-	MSG_WriteShort(msg, *(int *)(cl + 134332));
+	MSG_WriteShort(msg, *(int *)(cl + block_offset));
 
 	// block zero is special, contains file size
-	if ( *(int *)(cl + 134332) == 0 )
-		MSG_WriteLong(msg, *(int *)(cl + 134316));
+	if ( *(int *)(cl + block_offset) == 0 )
+		MSG_WriteLong(msg, *(int *)(cl + cl_iwd_offset));
 
-	MSG_WriteShort(msg, *(int *)(cl + 4 * curindex + 134368));
+	MSG_WriteShort(msg, *(int *)(cl + 4 * curindex + unknown_offset2));
 
 	// Write the block
-	if ( *(int *)(cl + 4 * curindex + 134368) )
-		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + 134336), *(int *)(cl + 4 * curindex + 134368));
+	if ( *(int *)(cl + 4 * curindex + unknown_offset2) )
+		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + unknown_offset1), *(int *)(cl + 4 * curindex + unknown_offset2));
 
-	Com_DPrintf("clientDownload: %d : writing block %d\n", PLAYERBASE_ID(cl), *(int *)(cl + 134332));
+	Com_DPrintf("clientDownload: %d : writing block %d\n", PLAYERBASE_ID(cl), *(int *)(cl + block_offset));
 
 	// Move on to the next block
 	// It will get sent with next snap shot.  The rate will keep us in line.
-	( *(int *)(cl + 134332) )++;
-	*(int *)(cl + 134404) = getSVSTime();
+	( *(int *)(cl + block_offset) )++;
+	*(int *)(cl + time_offset) = getSVSTime();
 
 	return 1;
 }
@@ -1040,7 +1151,6 @@ public:
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808AD00, (int)hook_findMap);
-		cracking_hook_call(0x08098CD0, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
@@ -1073,6 +1183,7 @@ public:
 		hook_fire_grenade = new cHook(0x0810C1F6, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
+		cracking_hook_function(0x0808E544, (int)custom_SV_WriteDownloadToClient);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -1089,7 +1200,6 @@ public:
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
-		cracking_hook_call(0x0809AD68, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
@@ -1122,6 +1232,7 @@ public:
 		hook_fire_grenade = new cHook(0x0810E532, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
+		cracking_hook_function(0x0808FD2E, (int)custom_SV_WriteDownloadToClient);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -1138,7 +1249,6 @@ public:
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
-		cracking_hook_call(0x0809AEAC, (int)hook_SV_WriteDownloadToClient);
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
@@ -1171,6 +1281,7 @@ public:
 		hook_fire_grenade = new cHook(0x0810E68E, (int)fire_grenade);
 		hook_fire_grenade->hook();
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
+		cracking_hook_function(0x0808FDC2, (int)custom_SV_WriteDownloadToClient);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
