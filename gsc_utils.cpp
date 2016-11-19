@@ -380,16 +380,40 @@ void gsc_utils_getType()
 	stackPushString( stackGetParamTypeAsString(0) );
 }
 
-void gsc_utils_stringToFloat()
+void gsc_utils_float()
 {
-	char *str;
-	if ( ! stackGetParams("s", &str))
+	if (stackGetNumberOfParams() == 0)
 	{
-		stackError("gsc_utils_stringToFloat() argument is undefined or has a wrong type");
+		stackError("gsc_utils_float() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-	stackPushFloat( atof(str) );
+
+	switch (stackGetParamType(0))
+	{
+	case STACK_STRING:
+		char *asstring;
+		stackGetParamString(0, &asstring);
+		stackPushFloat( atof(asstring) );
+		return;
+
+	case STACK_FLOAT:
+		float asfloat;
+		stackGetParamFloat(0, &asfloat);
+		stackPushFloat( asfloat );
+		return;
+
+	case STACK_INT:
+		int asinteger;
+		stackGetParamInt(0, &asinteger);
+		stackPushFloat( float(asinteger) );
+		return;
+
+	default:
+		stackError("gsc_utils_float() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
 }
 
 // rundll("print.so", "test_print")

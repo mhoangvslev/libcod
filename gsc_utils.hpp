@@ -28,7 +28,7 @@ void gsc_utils_file_unlink();
 void gsc_utils_file_exists();
 void gsc_utils_FS_LoadDir();
 void gsc_utils_getType();
-void gsc_utils_stringToFloat();
+void gsc_utils_float();
 void gsc_utils_rundll();
 void gsc_utils_ExecuteString();
 void gsc_utils_sendgameservercommand();

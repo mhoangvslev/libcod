@@ -185,7 +185,7 @@ Scr_Function scriptFunctions[] =
 	{"file_exists"                    , gsc_utils_file_exists                 , 0},
 	{"FS_LoadDir"                     , gsc_utils_FS_LoadDir                  , 0},
 	{"getType"                        , gsc_utils_getType                     , 0},
-	{"stringToFloat"                  , gsc_utils_stringToFloat               , 0},
+	{"float"                          , gsc_utils_float                       , 0},
 	{"rundll"                         , gsc_utils_rundll                      , 0},
 	{"Cmd_ExecuteString"              , gsc_utils_ExecuteString               , 0},
 	{"sendGameServerCommand"          , gsc_utils_sendgameservercommand       , 0},
