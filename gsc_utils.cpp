@@ -5,6 +5,7 @@
 #include <dirent.h> // dir stuff
 #include <ctype.h> // toupper
 #include <time.h>  // getsystemtime
+#include <sys/stat.h> // fsize
 
 //thanks to riicchhaarrd/php
 unsigned short Scr_GetArray(int index)
@@ -512,7 +513,7 @@ void gsc_utils_fopen()
 	char *filename, *mode;
 	if ( ! stackGetParams("ss", &filename, &mode))
 	{
-		stackError("gsc_utils_sendgameservercommand() one or more arguments is undefined or has a wrong type");
+		stackError("gsc_utils_fopen() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
@@ -596,6 +597,29 @@ void gsc_utils_fclose()
 	}
 
 	stackPushInt( fclose(file) );
+}
+
+void gsc_utils_fsize()
+{
+	FILE *file;
+	if ( ! stackGetParams("i", &file))
+	{
+		stackError("gsc_utils_fsize() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	if (!file)
+	{
+		stackError("gsc_utils_fsize() returned a error");
+		stackPushUndefined();
+		return;
+	}
+
+	struct stat buf;
+	fstat(fileno(file), &buf);
+
+	stackPushInt( buf.st_size );
 }
 
 // http://code.metager.de/source/xref/RavenSoftware/jediacademy/code/game/g_utils.cpp#36
