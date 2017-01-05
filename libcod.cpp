@@ -1112,6 +1112,8 @@ class cCallOfDuty2Pro
 public:
 	cCallOfDuty2Pro()
 	{
+		// otherwise the printf()'s are printed at crash/end on older os/compiler versions
+		setbuf(stdout, NULL);
 
 #if COD_VERSION == COD2_1_0
 		printf("> [LIBCOD] Compiled for: CoD2 1.0\n");
