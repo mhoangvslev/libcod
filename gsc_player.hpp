@@ -127,7 +127,6 @@ void gsc_player_getcooktime(int id);
 void gsc_player_setguid(int id);
 void gsc_player_clienthasclientmuted(int id);
 void gsc_player_getlastgamestatesize(int id);
-void gsc_player_resetfps(int id);
 void gsc_player_getfps(int id);
 
 // entity functions
@@ -136,7 +135,6 @@ void gsc_entity_setbounds(int id);
 
 // player functions without entity
 void gsc_kick_slot();
-void gsc_fpsnextframe();
 
 #ifdef __cplusplus
 }

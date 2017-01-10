@@ -746,16 +746,25 @@ int bot_reload[64] = {0};
 int bot_weapon[64] = {0};
 #endif
 
-int clfps[64][20] = {{0}};
-int clfpstemp[64] = {0};
-int clfpsindex = 0;
+int clientfps[64] = {0};
+int tempfps[64] = {0};
+int fpstime[64] = {0};
 
 cHook *hook_play_movement;
 int play_movement(int a1, int a2)
 {
 	int clientnum = PLAYERBASE_ID(a1);
 
-	clfpstemp[clientnum]++; // FPS
+#if COMPILE_PLAYER == 1
+	tempfps[clientnum]++;
+
+	if (Sys_MilliSeconds() >= (fpstime[clientnum] + 1000))
+	{
+		clientfps[clientnum] = tempfps[clientnum];
+		fpstime[clientnum] = Sys_MilliSeconds();
+		tempfps[clientnum] = 0;
+	}
+#endif
 
 #if COMPILE_BOTS == 1
 	if (CLIENTSTATE(clientnum) == CS_ACTIVE && ADDRESSTYPE(clientnum) == NA_BOT)
