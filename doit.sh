@@ -25,6 +25,7 @@ fi
 if [ "$1" != "clean" ]; then
 	if [ -e $mysql_libpath ] || [ -e $mysql_libpath2 ]; then
 		mysql_enable="true"
+		mysql_link="-lmysqlclient -L/usr/lib/mysql"
 		mysql_config="`mysql_config --cflags --libs`"
 	elif [ -d "./vendors/lib" ]; then
 		mysql_enable="true"
@@ -80,7 +81,7 @@ mkdir -p objects_$1
 
 if [ "$mysql_enable" == "true" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
-	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lmysqlclient -L/usr/lib/mysql
+	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lpthread $mysql_link
 else
 	echo "##### WARNING: MYSQL libs not found, MYSQL compilation skipped #####"
 fi
