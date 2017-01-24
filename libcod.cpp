@@ -54,10 +54,10 @@ int hook_codscript_gametype_scripts()
 {
 	hook_gametype_scripts->unhook();
 
-	codecallback_playercommand = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
-	codecallback_userinfochanged = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
-	codecallback_fire_grenade = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
-	codecallback_vid_restart = codscript_load_function((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
+	codecallback_playercommand = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
+	codecallback_userinfochanged = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
+	codecallback_fire_grenade = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
+	codecallback_vid_restart = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
@@ -129,8 +129,8 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 	char *wname2 = *(char**)weaponname;
 	stackPushString(wname2);
 	stackPushEntity(grenade);
-	short ret = codscript_call_callback_entity(player, codecallback_fire_grenade, 2);
-	codscript_callback_finish(ret);
+	short ret = Scr_ExecEntThread(player, codecallback_fire_grenade, 2);
+	Scr_FreeThread(ret);
 	return grenade;
 }
 
@@ -157,8 +157,8 @@ void hook_vid_restart(char *format, ...)
 				if (strcmp(name, (char*)(PLAYERBASE(i) + 134216)) == 0)
 				{
 					stackPushInt(i);
-					short ret = codscript_call_callback_entity(G_ENTITY(i), codecallback_vid_restart, 1);
-					codscript_callback_finish(ret);
+					short ret = Scr_ExecEntThread(G_ENTITY(i), codecallback_vid_restart, 1);
+					Scr_FreeThread(ret);
 				}
 			}
 		}
@@ -195,9 +195,9 @@ int hook_ClientCommand(int clientNum)
 		}
 	}
 
-	short ret = codscript_call_callback_entity(G_ENTITY(clientNum), codecallback_playercommand, 1);
+	short ret = Scr_ExecEntThread(G_ENTITY(clientNum), codecallback_playercommand, 1);
 
-	codscript_callback_finish(ret);
+	Scr_FreeThread(ret);
 
 	return 0;
 }
@@ -233,9 +233,9 @@ int hook_ClientUserinfoChanged(int clientNum)
 
 	stackPushInt(clientNum); // one parameter is required
 
-	short ret = codscript_call_callback_entity(G_ENTITY(clientNum), codecallback_userinfochanged, 1);
+	short ret = Scr_ExecEntThread(G_ENTITY(clientNum), codecallback_userinfochanged, 1);
 
-	codscript_callback_finish(ret);
+	Scr_FreeThread(ret);
 
 	return 0;
 }

@@ -30,13 +30,13 @@ static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078EE6;
 #endif
 
-typedef int (*codscript_load_function_t)(char *file, char *function, int isNeeded);
+typedef int (*Scr_GetFunctionHandle_t)(char *file, char *function, int isNeeded);
 #if COD_VERSION == COD2_1_0
-static const codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x0810DD70;
+static const Scr_GetFunctionHandle_t Scr_GetFunctionHandle = (Scr_GetFunctionHandle_t)0x0810DD70;
 #elif COD_VERSION == COD2_1_2
-static const codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x081100AC;
+static const Scr_GetFunctionHandle_t Scr_GetFunctionHandle = (Scr_GetFunctionHandle_t)0x081100AC;
 #elif COD_VERSION == COD2_1_3
-static const codscript_load_function_t codscript_load_function = (codscript_load_function_t)0x08110208;
+static const Scr_GetFunctionHandle_t Scr_GetFunctionHandle = (Scr_GetFunctionHandle_t)0x08110208;
 #endif
 
 typedef char * (*Cmd_Argv_t)(int arg);
@@ -357,22 +357,22 @@ static const Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B7FC
 static const Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B8108;
 #endif
 
-typedef short (*codscript_call_callback_entity_t)(int self, int callback, int params);
+typedef short (*Scr_ExecEntThread_t)(int entity, int callback, int params);
 #if COD_VERSION == COD2_1_0
-static const codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x08118DF4; // search 'badMOD'
+static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x08118DF4; // search 'badMOD'
 #elif COD_VERSION == COD2_1_2
-static const codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x0811B128;
+static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811B128;
 #elif COD_VERSION == COD2_1_3
-static const codscript_call_callback_entity_t codscript_call_callback_entity = (codscript_call_callback_entity_t)0x0811B284;
+static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811B284;
 #endif
 
-typedef int (*codscript_callback_finish_t)(short callback_handle);
+typedef int (*Scr_FreeThread_t)(short threadId);
 #if COD_VERSION == COD2_1_0
-static const codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x08083B8E;
+static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x08083B8E;
 #elif COD_VERSION == COD2_1_2
-static const codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x0808410A;
+static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x0808410A;
 #elif COD_VERSION == COD2_1_3
-static const codscript_callback_finish_t codscript_callback_finish = (codscript_callback_finish_t)0x080841D6;
+static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x080841D6;
 #endif
 
 typedef int (*SVC_RemoteCommand_t)(netadr_t from);
