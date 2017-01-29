@@ -78,14 +78,14 @@ static const int vmpub_offset = 0x083D8A80;
 
 void stackError(char *format, ...);
 
+char *stackGetParamTypeAsString(int param);
+
 int stackGetParamInt(int param, int *value);
-int stackGetParamVariableValue(int param, VariableValue **value);
 int stackGetParamFunction(int param, int *value);
 int stackGetParamString(int param, char **value);
 int stackGetParamVector(int param, float value[3]);
 int stackGetParamFloat(int param, float *value);
 int stackGetParamType(int param);
-char *stackGetParamTypeAsString(int param);
 int stackGetParams(char *params, ...);
 
 int stackPushUndefined();

@@ -364,7 +364,7 @@ typedef struct scr_method_s
 {
 	char			*name;
 	xmethod_t		call;
-	int 			developer;
+	int				developer;
 } scr_method_t;
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
