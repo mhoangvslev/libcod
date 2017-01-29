@@ -1,28 +1,13 @@
 #include "gsc.hpp"
 
-/*
-	CoD2 search for "parameter count exceeds 256" and go upwards
-*/
-
-#if COD_VERSION == COD2_1_0
-Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08115824;
-Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x0811595C;
-#elif COD_VERSION == COD2_1_2
-Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117B56;
-Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117C8E;
-#elif COD_VERSION == COD2_1_3
-Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117CB2;
-Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117DEA;
-#endif
-
 char *stackGetParamTypeAsString(int param)
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
 
 	char *type;
 
-	switch (arg->type)
+	switch (var->type)
 	{
 	case  0:
 		type = "UNDEFINED";
@@ -128,7 +113,7 @@ char *stackGetParamTypeAsString(int param)
 	return type;
 }
 
-Scr_Function scriptFunctions[] =
+scr_function_t scriptFunctions[] =
 {
 #if COMPILE_MYSQL == 1
 	{"mysql_init", gsc_mysql_init, 0},
@@ -154,6 +139,13 @@ Scr_Function scriptFunctions[] =
 	{"mysql_reuse_connection", gsc_mysql_reuse_connection, 0},
 #endif
 
+#if COMPILE_EXEC == 1
+	{"exec", gsc_exec, 0},
+	{"exec_async_create", gsc_exec_async_create, 0},
+	{"exec_async_create_nosave", gsc_exec_async_create_nosave, 0},
+	{"exec_async_checkdone", gsc_exec_async_checkdone, 0},
+#endif
+
 #if COMPILE_PLAYER == 1
 	{"kick2", gsc_kick_slot, 0},
 #endif
@@ -177,7 +169,6 @@ Scr_Function scriptFunctions[] =
 	{"getAscii", gsc_utils_getAscii, 0},
 	{"toUpper", gsc_utils_toupper, 0},
 	{"system", gsc_utils_system, 0},
-	{"execute", gsc_utils_execute, 0},
 	{"exponent", gsc_utils_exponent, 0},
 	{"file_link", gsc_utils_file_link, 0},
 	{"file_unlink", gsc_utils_file_unlink, 0},
@@ -235,9 +226,9 @@ Scr_Function scriptFunctions[] =
 	{NULL, NULL, 0} /* terminator */
 };
 
-Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
+xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev)
 {
-	Scr_FunctionCall m = Scr_GetFunction(fname, fdev);
+	xfunction_t m = Scr_GetFunction(fname, fdev);
 	if (m)
 		return m;
 
@@ -246,7 +237,7 @@ Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
 		if (strcasecmp(*fname, scriptFunctions[i].name))
 			continue;
 
-		Scr_Function func = scriptFunctions[i];
+		scr_function_t func = scriptFunctions[i];
 		*fname = func.name;
 		*fdev = func.developer;
 		return func.call;
@@ -255,7 +246,7 @@ Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev)
 	return NULL;
 }
 
-Scr_Method scriptMethods[] =
+scr_method_t scriptMethods[] =
 {
 
 #if COMPILE_PLAYER == 1
@@ -324,9 +315,9 @@ Scr_Method scriptMethods[] =
 	{NULL, NULL, 0} /* terminator */
 };
 
-Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
+xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev)
 {
-	Scr_MethodCall m = Scr_GetMethod(fname, fdev);
+	xmethod_t m = Scr_GetMethod(fname, fdev);
 	if (m)
 		return m;
 
@@ -335,7 +326,7 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 		if (strcasecmp(*fname, scriptMethods[i].name))
 			continue;
 
-		Scr_Method func = scriptMethods[i];
+		scr_method_t func = scriptMethods[i];
 		*fname = func.name;
 		*fdev = func.developer;
 		return func.call;
@@ -344,26 +335,12 @@ Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev)
 	return NULL;
 }
 
-/*
-	In CoD2 this address can be found in every get-param-function
-		the stack-address is in a context like: dword_830AE88 - 8 * a1
-*/
-int getStack()
-{
-#if COD_VERSION == COD2_1_0
-	return 0x083D7610;
-#elif COD_VERSION == COD2_1_2
-	return 0x083D7A10; // diff to 1.3: 1080
-#elif COD_VERSION == COD2_1_3
-	return 0x083D8A90;
-#endif
-}
-
 int stackGetParamType(int param)
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
-	return arg->type;
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	return var->type;
 }
 
 void stackError(char *format, ...)
@@ -439,7 +416,7 @@ int stackGetParams(char *params, ...)
 
 		default:
 			errors++;
-			Com_DPrintf("\nUnknown identifier passed to stackGetParams()\n");
+			Com_DPrintf("\nUnknown identifier [%s] passed to stackGetParams()\n", params[i]);
 			break;
 		}
 	}
@@ -448,99 +425,87 @@ int stackGetParams(char *params, ...)
 	return errors == 0; // success if no errors
 }
 
-// function can be found in same context as getStack()
-int getNumberOfParams() // as in stackNew()
-{
-#if COD_VERSION == COD2_1_0
-	return 0x083D761C;
-#elif COD_VERSION == COD2_1_2
-	return 0x083D7A1C; // diff to 1.3: 1080
-#elif COD_VERSION == COD2_1_3
-	return 0x083D8A9C;
-#endif
-}
-
 // todo: check if the parameter really exists (number_of_params)
 int stackGetParamInt(int param, int *value)
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
-
-	if (arg->type != STACK_INT)
+	if (param >= Scr_GetNumParam())
 		return 0;
 
-	*value = (int)arg->offsetData;
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_INT)
+		return 0;
+
+	*value = var->u.intValue;
 
 	return 1;
 }
 
-int stackGetParamString(int param, char **value) // as in the sub-functions in getentarray (hard one, use the graph to find it)
+int stackGetParamFunction(int param, int *value)
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
-
-	if (arg->type != STACK_STRING)
+	if (param >= Scr_GetNumParam())
 		return 0;
 
-#if COD_VERSION == COD2_1_0
-	*value = (char *)(*(int *)0x08283E80 + 8*(int)arg->offsetData + 4);
-#elif COD_VERSION == COD2_1_2
-	*value = (char *)(*(int *)0x08205E80 + 8*(int)arg->offsetData + 4);
-#elif COD_VERSION == COD2_1_3
-	*value = (char *)(*(int *)0x08206F00 + 8*(int)arg->offsetData + 4);
-#endif
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_FUNCTION)
+		return 0;
+
+	*value = var->u.codePosValue - scrVarPub.programBuffer;
+
+	return 1;
+}
+
+int stackGetParamString(int param, char **value)
+{
+	if (param >= Scr_GetNumParam())
+		return 0;
+
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_STRING)
+		return 0;
+
+	*value = SL_ConvertToString(var->u.stringValue);
 
 	return 1;
 }
 
 int stackGetParamVector(int param, float value[3])
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
-
-	if (arg->type != STACK_VECTOR)
+	if (param >= Scr_GetNumParam())
 		return 0;
 
-	value[0] = *(float *)((int)(arg->offsetData) + 0);
-	value[1] = *(float *)((int)(arg->offsetData) + 4);
-	value[2] = *(float *)((int)(arg->offsetData) + 8);
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_VECTOR)
+		return 0;
+
+	value[0] = *(float *)(var->u.vectorValue + 0);
+	value[1] = *(float *)(var->u.vectorValue + 1);
+	value[2] = *(float *)(var->u.vectorValue + 2);
 
 	return 1;
 }
 
 int stackGetParamFloat(int param, float *value)
 {
-	aStackElement *scriptStack = *(aStackElement**)getStack();
-	aStackElement *arg = scriptStack - param;
-
-	if (arg->type == STACK_INT)
-	{
-		int asInteger;
-		int ret = stackGetParamInt(param, &asInteger);
-
-		if (!ret)
-			return 0;
-
-		*value = (float) asInteger;
-
-		return 1;
-	}
-
-	float tmp;
-
-	if (arg->type != STACK_FLOAT)
+	if (param >= Scr_GetNumParam())
 		return 0;
 
-	memcpy(&tmp, &arg->offsetData, 4); // cast to float xD
-	*value = tmp;
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_FLOAT)
+		return 0;
+
+	*value = var->u.floatValue;
 
 	return 1;
-}
-
-int stackGetNumberOfParams()
-{
-	int numberOfParams = *(int *)getNumberOfParams();
-	return numberOfParams;
 }
 
 int stackPushUndefined()

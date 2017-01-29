@@ -2,6 +2,7 @@
 #define _CONFIG_HPP_
 
 // GSC MODULES
+#define COMPILE_EXEC 1
 #define COMPILE_MYSQL 1
 #define COMPILE_PLAYER 1
 #define COMPILE_BOTS 1

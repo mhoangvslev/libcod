@@ -57,6 +57,15 @@ static const trap_Argc_t trap_Argc = (trap_Argc_t)0x080601E8;
 static const trap_Argc_t trap_Argc = (trap_Argc_t)0x080601E0;
 #endif
 
+typedef int (*Scr_GetNumParam_t)();
+#if COD_VERSION == COD2_1_0
+static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x08084AEE;
+#elif COD_VERSION == COD2_1_2
+static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x0808506A;
+#elif COD_VERSION == COD2_1_3
+static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x08085136;
+#endif
+
 typedef int (*trap_Argv_t)(unsigned int param, char *buf, int bufLen);
 #if COD_VERSION == COD2_1_0
 static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060074;
@@ -237,6 +246,34 @@ typedef struct cvar_s
 	struct cvar_s *hashNext;
 } cvar_t;
 
+struct VariableStackBuffer
+{
+	const char *pos;
+	unsigned short size;
+	unsigned short bufLen;
+	unsigned short localId;
+	char time;
+	char buf[1];
+};
+
+union VariableUnion
+{
+	int intValue;
+	float floatValue;
+	unsigned int stringValue;
+	const float *vectorValue;
+	const char *codePosValue;
+	unsigned int pointerValue;
+	struct VariableStackBuffer *stackValue;
+	unsigned int entityOffset;
+};
+
+typedef struct
+{
+	union VariableUnion u;
+	int type;
+} VariableValue;
+
 typedef struct leakyBucket_s leakyBucket_t;
 struct leakyBucket_s
 {
@@ -248,6 +285,105 @@ struct leakyBucket_s
 
 	leakyBucket_t *prev, *next;
 };
+
+struct function_stack_t
+{
+	const char *pos;
+	unsigned int localId;
+	unsigned int localVarCount;
+	VariableValue *top;
+	VariableValue *startTop;
+};
+
+struct function_frame_t
+{
+	struct function_stack_t fs;
+	int topType;
+};
+
+typedef struct
+{
+	unsigned int *localVars;
+	VariableValue *maxstack;
+	int function_count;
+	struct function_frame_t *function_frame;
+	VariableValue *top;
+	unsigned char debugCode;
+	unsigned char abort_on_error;
+	unsigned char terminal_error;
+	unsigned char pad;
+	unsigned int inparamcount;
+	unsigned int outparamcount;
+	struct function_frame_t function_frame_start[32];
+	VariableValue stack[2048];
+} scrVmPub_t;
+
+typedef struct
+{
+	const char *fieldBuffer;
+	unsigned short canonicalStrCount;
+	unsigned char developer;
+	unsigned char developer_script;
+	unsigned char evaluate;
+	unsigned char pad[3];
+	const char *error_message;
+	int error_index;
+	unsigned int time;
+	unsigned int timeArrayId;
+	unsigned int pauseArrayId;
+	unsigned int levelId;
+	unsigned int gameId;
+	unsigned int animId;
+	unsigned int freeEntList;
+	unsigned int tempVariable;
+	unsigned char bInited;
+	unsigned char pad2;
+	unsigned short savecount;
+	unsigned int checksum;
+	unsigned int entId;
+	unsigned int entFieldName;
+	struct HunkUser *programHunkUser;
+	const char *programBuffer;
+	const char *endScriptBuffer;
+	unsigned short saveIdMap[24574];
+	unsigned short saveIdMapRev[24574];
+} scrVarPub_t;
+
+typedef void (*xfunction_t)();
+
+typedef struct scr_function_s
+{
+	char			*name;
+	xfunction_t		call;
+	int				developer;
+} scr_function_t;
+
+typedef void (*xmethod_t)(int);
+
+typedef struct scr_method_s
+{
+	char			*name;
+	xmethod_t		call;
+	int 			developer;
+} scr_method_t;
+
+typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
+#if COD_VERSION == COD2_1_0
+static const Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08115824;
+#elif COD_VERSION == COD2_1_2
+static const Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117B56;
+#elif COD_VERSION == COD2_1_3
+static const Scr_GetFunction_t Scr_GetFunction = (Scr_GetFunction_t)0x08117CB2;
+#endif
+
+typedef xmethod_t (*Scr_GetMethod_t)(const char** v_method, int* v_developer);
+#if COD_VERSION == COD2_1_0
+static const Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x0811595C;
+#elif COD_VERSION == COD2_1_2
+static const Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117C8E;
+#elif COD_VERSION == COD2_1_3
+static const Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117DEA;
+#endif
 
 typedef cvar_t* (*Cvar_FindVar_t)(const char *var_name);
 #if COD_VERSION == COD2_1_0
@@ -357,16 +493,25 @@ static const Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B7FC
 static const Info_ValueForKey_t Info_ValueForKey = (Info_ValueForKey_t)0x080B8108;
 #endif
 
+typedef short (*Scr_ExecThread_t)(int callback, int params);
+#if COD_VERSION == COD2_1_0
+static const Scr_ExecThread_t Scr_ExecThread = (Scr_ExecThread_t)0x0808398E;
+#elif COD_VERSION == COD2_1_2
+static const Scr_ExecThread_t Scr_ExecThread = (Scr_ExecThread_t)0x08083F0A;
+#elif COD_VERSION == COD2_1_3
+static const Scr_ExecThread_t Scr_ExecThread = (Scr_ExecThread_t)0x08083FD6;
+#endif
+
 typedef short (*Scr_ExecEntThread_t)(int entity, int callback, int params);
 #if COD_VERSION == COD2_1_0
-static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x08118DF4; // search 'badMOD'
+static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x08118DF4;
 #elif COD_VERSION == COD2_1_2
 static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811B128;
 #elif COD_VERSION == COD2_1_3
 static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811B284;
 #endif
 
-typedef int (*Scr_FreeThread_t)(short threadId);
+typedef int (*Scr_FreeThread_t)(short thread_id);
 #if COD_VERSION == COD2_1_0
 static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x08083B8E;
 #elif COD_VERSION == COD2_1_2

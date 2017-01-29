@@ -13,7 +13,6 @@ extern "C" {
 /* gsc functions */
 #include "gsc.hpp"
 
-#if COMPILE_MEMORY == 1
 void gsc_memory_malloc();
 void gsc_memory_free();
 void gsc_memory_int_get();
@@ -25,7 +24,6 @@ void gsc_binarybuffer_free();
 void gsc_binarybuffer_seek();
 void gsc_binarybuffer_write();
 void gsc_binarybuffer_read();
-#endif
 
 #ifdef __cplusplus
 }

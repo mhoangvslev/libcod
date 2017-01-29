@@ -8,20 +8,19 @@
 #include <sys/stat.h> // fsize
 
 //thanks to riicchhaarrd/php
-unsigned short Scr_GetArray(int index)
+unsigned short Scr_GetArray(int param)
 {
-	if (index >= stackGetNumberOfParams())
+	if (param >= Scr_GetNumParam())
 	{
 		stackError("Scr_GetArray() one parameter is required");
 		return 0;
 	}
 
-	int stack = getStack();
-	int base = *(int*)(stack - 8 * index);
-	int vartype = *(int*)(base + 4);
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
 
-	if (vartype == STACK_OBJECT)
-		return *(unsigned short*)base;
+	if (var->type == STACK_OBJECT)
+		return *(unsigned short*)var;
 
 	stackError("Scr_GetArray() the parameter must be an array");
 	return 0;
@@ -46,7 +45,7 @@ void gsc_utils_getarraykeys()
 
 int stackPrintParam(int param)
 {
-	if (param >= stackGetNumberOfParams())
+	if (param >= Scr_GetNumParam())
 		return 0;
 
 	switch (stackGetParamType(param))
@@ -135,7 +134,7 @@ void gsc_utils_sprintf()
 			}
 			else
 			{
-				if(param >= stackGetNumberOfParams())
+				if(param >= Scr_GetNumParam())
 					continue;
 
 				switch (stackGetParamType(param))
@@ -237,68 +236,6 @@ void gsc_utils_system()
 	stackPushInt( system(cmd) );
 }
 
-// http://stackoverflow.com/questions/1583234/c-system-function-how-to-collect-the-output-of-the-issued-command
-// Calling function must free the returned result.
-char* exec(const char* command)
-{
-	FILE* fp;
-	char* line = NULL;
-	// Following initialization is equivalent to char* result = ""; and just
-	// initializes result to an empty string, only it works with
-	// -Werror=write-strings and is so much less clear.
-	char* result = (char*) calloc(1, 1);
-	size_t len = 0;
-
-	fflush(NULL);
-	fp = popen(command, "r");
-	if (fp == NULL)
-	{
-		Com_DPrintf("exec() cannot execute command:\n%s\n", command);
-		free(result);
-		return NULL;
-	}
-
-	while(getline(&line, &len, fp) != -1)
-	{
-		// +1 below to allow room for null terminator.
-		result = (char*) realloc(result, strlen(result) + strlen(line) + 1);
-		// +1 below so we copy the final null terminator.
-		strncpy(result + strlen(result), line, strlen(line) + 1);
-		free(line);
-		line = NULL;
-	}
-
-	fflush(fp);
-	if (pclose(fp) != 0)
-	{
-		Com_DPrintf("exec() cannot close stream %i\n", fp);
-		free(result);
-		return NULL;
-	}
-
-	return result;
-}
-
-void gsc_utils_execute()   // Returns complete command output as a string
-{
-	char *cmd;
-	if ( ! stackGetParams("s",  &cmd))
-	{
-		stackError("gsc_utils_execute() argument is undefined or has a wrong type");
-		stackPushUndefined();
-		return;
-	}
-	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
-	char *result = exec(cmd);
-	if (result == NULL)
-		stackPushUndefined();
-	else
-	{
-		stackPushString(result);
-		free(result);
-	}
-}
-
 void gsc_utils_getsystemtime()
 {
 	time_t timer;
@@ -372,7 +309,7 @@ void gsc_utils_FS_LoadDir()
 
 void gsc_utils_getType()
 {
-	if (stackGetNumberOfParams() == 0)
+	if (Scr_GetNumParam() == 0)
 	{
 		stackError("gsc_utils_getType() argument is undefined or has a wrong type");
 		stackPushUndefined();
@@ -383,7 +320,7 @@ void gsc_utils_getType()
 
 void gsc_utils_float()
 {
-	if (stackGetNumberOfParams() == 0)
+	if (Scr_GetNumParam() == 0)
 	{
 		stackError("gsc_utils_float() argument is undefined or has a wrong type");
 		stackPushUndefined();

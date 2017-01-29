@@ -5,7 +5,7 @@
 # ./doit.sh cod2_1_2
 # ./doit.sh cod2_1_3
 
-cc="gcc"
+cc="g++"
 options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
 mysql_link=""
@@ -81,10 +81,13 @@ mkdir -p objects_$1
 
 if [ "$mysql_enable" == "true" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
-	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp -lpthread $mysql_link
+	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp $mysql_link
 else
 	echo "##### WARNING: MYSQL libs not found, MYSQL compilation skipped #####"
 fi
+
+echo "##### COMPILE $1 GSC_EXEC.CPP #####"
+$cc $options $constants -c gsc_exec.cpp -o objects_$1/gsc_exec.opp
 
 echo "##### COMPILE $1 GSC_MEMORY.CPP #####"
 $cc $options $constants -c gsc_memory.cpp -o objects_$1/gsc_memory.opp
@@ -117,7 +120,7 @@ fi
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
-$cc -m32 -shared -L/lib32 $mysql_link -o bin/lib$1.so -ldl $objects $mysql_config
+$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects $mysql_config
 
 if [ "$mysql_enable" == "false" ]; then
 	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp

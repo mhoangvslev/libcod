@@ -19,9 +19,10 @@ extern "C" {
 #include <dlfcn.h> // dlcall
 #include <stdarg.h> // va_args
 
-#include "config.hpp" // DEBUG_MYSQL etc.
+#include "config.hpp"
 #include "functions.hpp"
 #include "gsc_player.hpp"
+#include "gsc_exec.hpp"
 #include "gsc_mysql.hpp"
 #include "gsc_memory.hpp"
 #include "gsc_utils.hpp"
@@ -56,21 +57,33 @@ extern "C" {
 #define STACK_ARRAY 22
 #define STACK_REMOVED_THREAD 23
 
-typedef struct
-{
-	void *offsetData;
-	int type;
-} aStackElement;
+#if COD_VERSION == COD2_1_0
+static const int varpub_offset = 0x08394000;
+#elif COD_VERSION == COD2_1_2
+static const int varpub_offset = 0x08396480;
+#elif COD_VERSION == COD2_1_3
+static const int varpub_offset = 0x08397500;
+#endif
 
-int getStack();
+#if COD_VERSION == COD2_1_0
+static const int vmpub_offset = 0x083D7600;
+#elif COD_VERSION == COD2_1_2
+static const int vmpub_offset = 0x083D7A00;
+#elif COD_VERSION == COD2_1_3
+static const int vmpub_offset = 0x083D8A80;
+#endif
+
+#define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
+#define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 
 void stackError(char *format, ...);
 
 int stackGetParamInt(int param, int *value);
+int stackGetParamVariableValue(int param, VariableValue **value);
+int stackGetParamFunction(int param, int *value);
 int stackGetParamString(int param, char **value);
 int stackGetParamVector(int param, float value[3]);
 int stackGetParamFloat(int param, float *value);
-int stackGetNumberOfParams();
 int stackGetParamType(int param);
 char *stackGetParamTypeAsString(int param);
 int stackGetParams(char *params, ...);
@@ -84,33 +97,8 @@ int stackPushEntity(int arg);
 int stackPushArray();
 int stackPushArrayLast();
 
-// functions
-typedef void (*Scr_FunctionCall)();
-
-typedef struct
-{
-	const char *name;
-	Scr_FunctionCall call;
-	int developer;
-} Scr_Function;
-
-typedef Scr_FunctionCall (*Scr_GetFunction_t)(const char **fname, int *fdev);
-
-Scr_FunctionCall Scr_GetCustomFunction(const char **fname, int *fdev); // could be made obsolete to remove the cracking_hook_call()-stuff
-
-// methods
-typedef void (*Scr_MethodCall)(int);
-
-typedef struct
-{
-	const char* name;
-	Scr_MethodCall call;
-	int developer;
-} Scr_Method;
-
-typedef Scr_MethodCall (*Scr_GetMethod_t)(const char**, int*);
-
-Scr_MethodCall Scr_GetCustomMethod(const char **fname, int *fdev); // could be made obsolete to remove the cracking_hook_call()-stuff
+xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev);
+xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev);
 
 #ifdef __cplusplus
 }

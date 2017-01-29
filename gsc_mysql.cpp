@@ -35,6 +35,7 @@ struct mysql_async_connection
 mysql_async_connection *first_async_connection = NULL;
 mysql_async_task *first_async_task = NULL;
 MYSQL *cod_mysql_connection = NULL;
+pthread_mutex_t lock_async_mysql;
 
 void *mysql_async_execute_query(void *input_c) //cannot be called from gsc, is threaded.
 {
@@ -70,6 +71,7 @@ void *mysql_async_query_handler(void* input_nothing) //is threaded after initial
 	mysql_async_task *q;
 	while(true)
 	{
+		pthread_mutex_lock(&lock_async_mysql);
 		q = first_async_task;
 		c = first_async_connection;
 		while(q != NULL)
@@ -94,12 +96,11 @@ void *mysql_async_query_handler(void* input_nothing) //is threaded after initial
 					return NULL;
 				}
 				pthread_detach(query_doer);
-				//std::thread async_query(mysql_async_execute_query, q, c);
-				//async_query.detach();
 				c = c->next;
 			}
 			q = q->next;
 		}
+		pthread_mutex_unlock(&lock_async_mysql);
 		usleep(10000);
 	}
 	return NULL;
@@ -109,6 +110,7 @@ int mysql_async_query_initializer(char *sql, bool save) //cannot be called from 
 {
 	static int id = 0;
 	id++;
+	pthread_mutex_lock(&lock_async_mysql);
 	mysql_async_task *current = first_async_task;
 	while(current != NULL && current->next != NULL)
 		current = current->next;
@@ -125,7 +127,7 @@ int mysql_async_query_initializer(char *sql, bool save) //cannot be called from 
 		current->next = newtask;
 	else
 		first_async_task = newtask;
-	stackPushInt(id);
+	pthread_mutex_unlock(&lock_async_mysql);
 	return id;
 }
 
@@ -159,6 +161,7 @@ void gsc_mysql_async_create_query()
 
 void gsc_mysql_async_getdone_list()
 {
+	pthread_mutex_lock(&lock_async_mysql);
 	mysql_async_task *current = first_async_task;
 	stackPushArray();
 	while(current != NULL)
@@ -170,6 +173,7 @@ void gsc_mysql_async_getdone_list()
 		}
 		current = current->next;
 	}
+	pthread_mutex_unlock(&lock_async_mysql);
 }
 
 void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a function instead and returns 0 (not done), undefined (not found) or the mem address of result
@@ -181,6 +185,7 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 		stackPushUndefined();
 		return;
 	}
+	pthread_mutex_lock(&lock_async_mysql);
 	mysql_async_task *c = first_async_task;
 	if(c != NULL)
 	{
@@ -192,6 +197,7 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 		if(!c->done)
 		{
 			stackPushUndefined(); //should never happend, query not done yet
+			pthread_mutex_unlock(&lock_async_mysql);
 			return;
 		}
 		if(c->next != NULL)
@@ -208,12 +214,14 @@ void gsc_mysql_async_getresult_and_free() //same as above, but takes the id of a
 		else
 			stackPushInt(0);
 		delete c;
+		pthread_mutex_unlock(&lock_async_mysql);
 		return;
 	}
 	else
 	{
 		stackError("gsc_mysql_async_getresult_and_free() mysql async query id not found");
 		stackPushUndefined();
+		pthread_mutex_unlock(&lock_async_mysql);
 		return;
 	}
 }
@@ -223,6 +231,12 @@ void gsc_mysql_async_initializer()//returns array with mysql connection handlers
 	if(first_async_connection != NULL)
 	{
 		Com_DPrintf("gsc_mysql_async_initializer() async mysql already initialized. Returning before adding additional connections\n");
+		stackPushUndefined();
+		return;
+	}
+	if(pthread_mutex_init(&lock_async_mysql, NULL) != 0)
+	{
+		Com_DPrintf("Async mutex initialization failed\n");
 		stackPushUndefined();
 		return;
 	}
