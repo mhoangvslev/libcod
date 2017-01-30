@@ -232,7 +232,6 @@ void gsc_utils_system()
 		stackPushUndefined();
 		return;
 	}
-	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 	stackPushInt( system(cmd) );
 }
 
@@ -265,7 +264,6 @@ void gsc_utils_file_link()
 		return;
 	}
 	char cmd[COD2_MAX_STRINGLENGTH];
-	setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 	snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", source, dest);
 	int link_failed = system(cmd);
 	stackPushInt( link_failed ); // 0 == success

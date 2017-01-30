@@ -1095,7 +1095,6 @@ void manymaps_prepare(char *mapname, int read)
 		if (access(src, F_OK) != -1)
 		{
 			char cmd[COD2_MAX_STRINGLENGTH];
-			setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 			snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", src, dst);
 			int link_success = system(cmd) == 0;
 			printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
@@ -1315,6 +1314,7 @@ public:
 		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
 
 		gsc_utils_init();
+		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 		printf("> [PLUGIN LOADED]\n");
 	}
 
