@@ -241,6 +241,17 @@ void gsc_utils_getsystemtime()
 	stackPushInt( time(&timer) );
 }
 
+void gsc_utils_getlocaltime()
+{
+	time_t timer;
+	struct tm *timeinfo;
+
+	time(&timer);
+	timeinfo = localtime(&timer);
+
+	stackPushString( asctime(timeinfo) );
+}
+
 void gsc_utils_exponent()
 {
 	float basis;

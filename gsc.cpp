@@ -187,6 +187,7 @@ scr_function_t scriptFunctions[] =
 	{"fsize", gsc_utils_fsize, 0},
 	{"sprintf", gsc_utils_sprintf, 0},
 	{"getsystemtime", gsc_utils_getsystemtime, 0},
+	{"getlocaltime", gsc_utils_getlocaltime, 0},
 	{"G_FindConfigstringIndex", gsc_G_FindConfigstringIndex, 0},
 	{"G_FindConfigstringIndexOriginal", gsc_G_FindConfigstringIndexOriginal, 0},
 	{"getconfigstring", gsc_get_configstring, 0},

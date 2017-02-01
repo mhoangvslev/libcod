@@ -44,6 +44,7 @@ void gsc_utils_fclose();
 void gsc_utils_fsize();
 void gsc_utils_sprintf();
 void gsc_utils_getsystemtime();
+void gsc_utils_getlocaltime();
 
 void gsc_call_function_raw();
 
