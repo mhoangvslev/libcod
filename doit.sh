@@ -8,30 +8,23 @@
 cc="g++"
 options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
-mysql_link=""
-mysql_config=""
-mysql_libpath=""
-mysql_libpath2=""
-
-MACHINE_TYPE=`uname -m`
-if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-	mysql_libpath="/usr/lib/i386-linux-gnu/libmysqlclient.so"
-	mysql_libpath2="/usr/lib/i386-linux-gnu/libmysqlclient.so.18"
-else
-	mysql_libpath="/usr/lib/libmysqlclient.so"
-	mysql_libpath2="/usr/lib/libmysqlclient.so.18"
-fi
-
 if [ "$1" != "clean" ]; then
-	if [ -e $mysql_libpath ] || [ -e $mysql_libpath2 ]; then
-		mysql_enable="true"
-		mysql_link="-lmysqlclient -L/usr/lib/mysql"
-		mysql_config="`mysql_config --cflags --libs`"
+	if [ "$2" == "--no-mysql" ]; then
+		mysql_enable="false"
+		mysql_link=""
+		mysql_message="##### WARNING: MYSQL disabled by user, MYSQL compilation skipped #####"
+		sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
 	elif [ -d "./vendors/lib" ]; then
 		mysql_enable="true"
 		mysql_link="-lmysqlclient -L./vendors/lib"
+		export LD_LIBRARY_PATH_32="./vendors/lib"
+	elif [ -e "/usr/bin/mysql" ]; then
+		mysql_enable="true"
+		mysql_link="-lmysqlclient -L/usr/lib/mysql"
 	else
 		mysql_enable="false"
+		mysql_link=""
+		mysql_message="##### WARNING: MYSQL not found, MYSQL compilation skipped #####"
 		sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
 	fi
 fi
@@ -81,9 +74,9 @@ mkdir -p objects_$1
 
 if [ "$mysql_enable" == "true" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
-	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp $mysql_link
+	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp
 else
-	echo "##### WARNING: MYSQL libs not found, MYSQL compilation skipped #####"
+	echo $mysql_message
 fi
 
 echo "##### COMPILE $1 GSC_EXEC.CPP #####"
@@ -120,7 +113,7 @@ fi
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
-$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects $mysql_config
+$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link
 
 if [ "$mysql_enable" == "false" ]; then
 	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
