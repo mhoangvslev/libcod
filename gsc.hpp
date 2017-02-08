@@ -26,6 +26,7 @@ extern "C" {
 #include "gsc_mysql.hpp"
 #include "gsc_memory.hpp"
 #include "gsc_utils.hpp"
+#include "gsc_weapons.hpp"
 #include "cracking.hpp"
 
 #ifdef EXTRA_INCLUDES_INC

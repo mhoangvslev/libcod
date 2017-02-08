@@ -1168,7 +1168,6 @@ public:
 		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
 		cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
-		cracking_hook_call(0x080E9524, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x08081CFE, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x0810DDEE, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
@@ -1217,7 +1216,6 @@ public:
 		cracking_hook_call(0x08090CA2, (int)hook_vid_restart);
 		cracking_hook_call(0x080E2546, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F76BF, (int)hook_player_g_speed);
-		cracking_hook_call(0x080EBB14, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x0808227A, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x0811012A, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
@@ -1266,7 +1264,6 @@ public:
 		cracking_hook_call(0x08090D36, (int)hook_vid_restart);
 		cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
-		cracking_hook_call(0x080EBC58, (int)hook_findWeaponIndex);
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x08110286, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
@@ -1313,14 +1310,12 @@ public:
 		fs_library = Cvar_RegisterString("fs_library", "", 0x1000u);
 		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
 
-		gsc_utils_init();
 		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 		printf("> [PLUGIN LOADED]\n");
 	}
 
 	~cCallOfDuty2Pro()
 	{
-		gsc_utils_free();
 		printf("> [PLUGIN UNLOADED]\n");
 	}
 };

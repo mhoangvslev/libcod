@@ -100,6 +100,9 @@ $cc $options $constants -c gsc_player.cpp -o objects_$1/gsc_player.opp
 echo "##### COMPILE $1 GSC_UTILS.CPP #####"
 $cc $options $constants -c gsc_utils.cpp -o objects_$1/gsc_utils.opp
 
+echo "##### COMPILE $1 GSC_WEAPONS.CPP #####"
+$cc $options $constants -c gsc_weapons.cpp -o objects_$1/gsc_weapons.opp
+
 if [ -d extra ]; then
 	echo "##### COMPILE $1 EXTRAS #####"
 	cd extra
