@@ -21,7 +21,7 @@ static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807CF52;
 static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807D01E;
 #endif
 
-typedef char * (*SL_ConvertToString_t)(int a1);
+typedef char * (*SL_ConvertToString_t)(unsigned int index);
 #if COD_VERSION == COD2_1_0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078896;
 #elif COD_VERSION == COD2_1_2
@@ -30,7 +30,7 @@ static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078EE6;
 #endif
 
-typedef int (*Scr_GetFunctionHandle_t)(char *file, char *function, int isNeeded);
+typedef int (*Scr_GetFunctionHandle_t)(const char* scriptName, const char* labelName, int isNeeded);
 #if COD_VERSION == COD2_1_0
 static const Scr_GetFunctionHandle_t Scr_GetFunctionHandle = (Scr_GetFunctionHandle_t)0x0810DD70;
 #elif COD_VERSION == COD2_1_2

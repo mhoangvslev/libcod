@@ -75,10 +75,10 @@ int hook_codscript_gametype_scripts()
 {
 	hook_gametype_scripts->unhook();
 
-	codecallback_playercommand = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_PlayerCommand", 0);
-	codecallback_userinfochanged = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_UserInfoChanged", 0);
-	codecallback_fire_grenade = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_FireGrenade", 0);
-	codecallback_vid_restart = Scr_GetFunctionHandle((char *)"maps/mp/gametypes/_callbacksetup", (char *)"CodeCallback_VidRestart", 0);
+	codecallback_playercommand = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_PlayerCommand", 0);
+	codecallback_userinfochanged = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_UserInfoChanged", 0);
+	codecallback_fire_grenade = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_FireGrenade", 0);
+	codecallback_vid_restart = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_VidRestart", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
