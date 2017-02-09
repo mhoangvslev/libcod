@@ -2,35 +2,9 @@
 
 #if COMPILE_WEAPONS == 1
 
-int weaponCount()
-{
-#if COD_VERSION == COD2_1_0
-	return *(int*)0x08576140;
-#elif COD_VERSION == COD2_1_2
-	return *(int*)0x0858A000;
-#elif COD_VERSION == COD2_1_3
-	return *(int*)0x08627080; // see 80EBFFE (cod2 1.3)
-#endif
-}
-
-int getWeapon(int index)
-{
-	typedef int (*get_weapon_t)(int index);
-
-#if COD_VERSION == COD2_1_0
-	get_weapon_t get_weapon = (get_weapon_t)0x080E9270;
-#elif COD_VERSION == COD2_1_2
-	get_weapon_t get_weapon = (get_weapon_t)0x080EB860;
-#elif COD_VERSION == COD2_1_3
-	get_weapon_t get_weapon = (get_weapon_t)0x080EB9A4;
-#endif
-
-	return get_weapon(index);
-}
-
 bool isValidWeaponId(int id)
 {
-	int weps = weaponCount();
+	int weps = BG_GetNumWeapons();
 	if(id >= weps || id < 0 || weps == 0)
 		return false;
 
@@ -54,7 +28,7 @@ void gsc_weapons_getweaponoffsetint(char* funcname, int offset)
 		return;
 	}
 
-	int value = *(int*)(getWeapon(id) + offset);
+	int value = *(int*)(BG_WeaponDefs(id) + offset);
 	stackPushInt(value);
 }
 
@@ -76,7 +50,7 @@ void gsc_weapons_setweaponoffsetint(char* funcname, int offset)
 		return;
 	}
 
-	int* index = (int*)(getWeapon(id) + offset);
+	int* index = (int*)(BG_WeaponDefs(id) + offset);
 	*index = value;
 	stackPushInt(1);
 }
@@ -185,7 +159,7 @@ void gsc_weapons_getweaponhitlocmultiplier()
 	}
 
 	int offset = getHitLocOffset(hitloc);
-	float multiplier = *(float*)(getWeapon(id) + 4 * offset + 1456);
+	float multiplier = *(float*)(BG_WeaponDefs(id) + 4 * offset + 1456);
 	stackPushFloat(multiplier);
 }
 
@@ -209,7 +183,7 @@ void gsc_weapons_setweaponhitlocmultiplier()
 	}
 
 	int offset = getHitLocOffset(hitloc);
-	float* multiPointer = (float*)(getWeapon(id) + 4 * offset + 1456);
+	float* multiPointer = (float*)(BG_WeaponDefs(id) + 4 * offset + 1456);
 	*multiPointer = multiplier;
 	stackPushFloat(1);
 }
@@ -217,13 +191,13 @@ void gsc_weapons_setweaponhitlocmultiplier()
 void gsc_weapons_getloadedweapons()
 {
 	stackPushArray();
-	int weps = weaponCount();
+	int weps = BG_GetNumWeapons();
 	if(weps == 0)
 		return;
 
 	for(int i=0; i<weps; i++)
 	{
-		int w = getWeapon(i);
+		int w = BG_WeaponDefs(i);
 		stackPushString(*(char**)w);
 		stackPushArrayLast();
 	}

@@ -66,7 +66,7 @@ static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x0808506A;
 static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x08085136;
 #endif
 
-typedef int (*trap_Argv_t)(unsigned int param, char *buf, int bufLen);
+typedef void (*trap_Argv_t)(unsigned int param, char *buf, int bufLen);
 #if COD_VERSION == COD2_1_0
 static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060074;
 #elif COD_VERSION == COD2_1_2
@@ -75,7 +75,7 @@ static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060280;
 static const trap_Argv_t trap_Argv = (trap_Argv_t)0x08060278;
 #endif
 
-typedef int (*Com_Printf_t)(const char *format, ...);
+typedef void (*Com_Printf_t)(const char *format, ...);
 #if COD_VERSION == COD2_1_0
 static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060B2C;
 #elif COD_VERSION == COD2_1_2
@@ -84,7 +84,7 @@ static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060DF2;
 static const Com_Printf_t Com_Printf = (Com_Printf_t)0x08060DEA;
 #endif
 
-typedef int (*Com_DPrintf_t)(const char *format, ...);
+typedef void (*Com_DPrintf_t)(const char *format, ...);
 #if COD_VERSION == COD2_1_0
 static const Com_DPrintf_t Com_DPrintf = (Com_DPrintf_t)0x08060B7C;
 #elif COD_VERSION == COD2_1_2
@@ -102,7 +102,7 @@ static const Com_sprintf_t Com_sprintf = (Com_sprintf_t)0x080B7DC6;
 static const Com_sprintf_t Com_sprintf = (Com_sprintf_t)0x080B7F0A;
 #endif
 
-typedef int (*Cmd_ExecuteString_t)(const char *text);
+typedef void (*Cmd_ExecuteString_t)(const char *cmd);
 #if COD_VERSION == COD2_1_0
 static const Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x08060754;
 #elif COD_VERSION == COD2_1_2
@@ -111,9 +111,9 @@ static const Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x0806
 static const Cmd_ExecuteString_t Cmd_ExecuteString = (Cmd_ExecuteString_t)0x080609CC;
 #endif
 
-typedef int (*ClientCommand_t)(int clientNum);
+typedef void (*ClientCommand_t)(int clientNum);
 #if COD_VERSION == COD2_1_0
-static const ClientCommand_t ClientCommand = (ClientCommand_t)0x080FE998; // search 'say_team' and see code xref function
+static const ClientCommand_t ClientCommand = (ClientCommand_t)0x080FE998;
 #elif COD_VERSION == COD2_1_2
 static const ClientCommand_t ClientCommand = (ClientCommand_t)0x08100D1E;
 #elif COD_VERSION == COD2_1_3
@@ -129,7 +129,7 @@ static const FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x080A0958;
 static const FS_ReadFile_t FS_ReadFile = (FS_ReadFile_t)0x080A0A9C;
 #endif
 
-typedef int (*FS_LoadDir_t)(char *path, char *dir);
+typedef void (*FS_LoadDir_t)(char *path, char *dir);
 #if COD_VERSION == COD2_1_0
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A01A4;
 #elif COD_VERSION == COD2_1_2
@@ -149,13 +149,13 @@ typedef enum
 
 typedef enum
 {
-	NA_BOT,
-	NA_BAD, // an address lookup failed
-	NA_LOOPBACK,
-	NA_BROADCAST,
-	NA_IP,
-	NA_IPX,
-	NA_BROADCAST_IPX
+	NA_BOT = 0,
+	NA_BAD = 0,
+	NA_LOOPBACK = 2,
+	NA_BROADCAST = 3,
+	NA_IP = 4,
+	NA_IPX = 5,
+	NA_BROADCAST_IPX = 6
 } netadrtype_t;
 
 typedef struct
@@ -165,6 +165,12 @@ typedef struct
 	char ipx[10];
 	unsigned short port;
 } netadr_t;
+
+typedef enum
+{
+	NS_CLIENT,
+	NS_SERVER
+} netsrc_t;
 
 typedef struct
 {
@@ -349,6 +355,8 @@ typedef struct
 	unsigned short saveIdMapRev[24574];
 } scrVarPub_t;
 
+typedef int	fileHandle_t;
+
 typedef void (*xfunction_t)();
 
 typedef struct scr_function_s
@@ -412,7 +420,7 @@ static const Cvar_RegisterString_t Cvar_RegisterString = (Cvar_RegisterString_t)
 static const Cvar_RegisterString_t Cvar_RegisterString = (Cvar_RegisterString_t)0x080B4232;
 #endif
 
-typedef int (*SV_ConnectionlessPacket_t)(netadr_t from, msg_t * msg);
+typedef void (*SV_ConnectionlessPacket_t)(netadr_t from, msg_t *msg);
 #if COD_VERSION == COD2_1_0
 static const SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPacket_t)0x08093F1E;
 #elif COD_VERSION == COD2_1_2
@@ -421,7 +429,7 @@ static const SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_Connectionl
 static const SV_ConnectionlessPacket_t SV_ConnectionlessPacket = (SV_ConnectionlessPacket_t)0x0809594E;
 #endif
 
-typedef int (*NET_OutOfBandPrint_t)( int sock, netadr_t adr, const char *msg );
+typedef void (*NET_OutOfBandPrint_t)(netsrc_t net_socket, netadr_t adr, const char *format, ...);
 #if COD_VERSION == COD2_1_0
 static const NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C40C;
 #elif COD_VERSION == COD2_1_2
@@ -430,7 +438,7 @@ static const NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0
 static const NET_OutOfBandPrint_t NET_OutOfBandPrint = (NET_OutOfBandPrint_t)0x0806C8CC;
 #endif
 
-typedef int (*SV_GameSendServerCommand_t)(int clientNum, signed int a2, const char *msg);
+typedef void (*SV_GameSendServerCommand_t)(int clientnum, int svscmd_type, const char *text);
 #if COD_VERSION == COD2_1_0
 static const SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)0x0808FE96;
 #elif COD_VERSION == COD2_1_2
@@ -439,7 +447,7 @@ static const SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendS
 static const SV_GameSendServerCommand_t SV_GameSendServerCommand = (SV_GameSendServerCommand_t)0x080917AA;
 #endif
 
-typedef int (*SV_DropClient_t)(int a1, char* message);
+typedef void (*SV_DropClient_t)(int a1, char* reason);
 #if COD_VERSION == COD2_1_0
 static const SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808DC8C;
 #elif COD_VERSION == COD2_1_2
@@ -448,7 +456,7 @@ static const SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808EF9A;
 static const SV_DropClient_t SV_DropClient = (SV_DropClient_t)0x0808F02E;
 #endif
 
-typedef int (*SV_BeginDownload_f_t)(int a1);
+typedef char * (*SV_BeginDownload_f_t)(int a1);
 #if COD_VERSION == COD2_1_0
 static const SV_BeginDownload_f_t SV_BeginDownload_f = (SV_BeginDownload_f_t)0x0808E508;
 #elif COD_VERSION == COD2_1_2
@@ -457,13 +465,13 @@ static const SV_BeginDownload_f_t SV_BeginDownload_f = (SV_BeginDownload_f_t)0x0
 static const SV_BeginDownload_f_t SV_BeginDownload_f = (SV_BeginDownload_f_t)0x0808F940;
 #endif
 
-typedef int (*ClientUserinfoChanged_t)(int a1);
+typedef void (*ClientUserinfoChanged_t)(int a1);
 #if COD_VERSION == COD2_1_0
-static const ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F6506;
+static const ClientUserinfoChanged_t ClientUserinfoChanged = (ClientUserinfoChanged_t)0x080F6506;
 #elif COD_VERSION == COD2_1_2
-static const ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F8B1A;
+static const ClientUserinfoChanged_t ClientUserinfoChanged = (ClientUserinfoChanged_t)0x080F8B1A;
 #elif COD_VERSION == COD2_1_3
-static const ClientUserinfoChanged_t changeClientUserinfo = (ClientUserinfoChanged_t)0x080F8C5E;
+static const ClientUserinfoChanged_t ClientUserinfoChanged = (ClientUserinfoChanged_t)0x080F8C5E;
 #endif
 
 typedef int (*SV_ClientHasClientMuted_t)(int a1, int a2);
@@ -475,7 +483,7 @@ static const SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasCl
 static const SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C1FA;
 #endif
 
-typedef int (*Info_SetValueForKey_t)(char *s, const char *key, const char *value);
+typedef void (*Info_SetValueForKey_t)(char *s, const char *key, const char *value);
 #if COD_VERSION == COD2_1_0
 static const Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B5FF6;
 #elif COD_VERSION == COD2_1_2
@@ -511,7 +519,7 @@ static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811
 static const Scr_ExecEntThread_t Scr_ExecEntThread = (Scr_ExecEntThread_t)0x0811B284;
 #endif
 
-typedef int (*Scr_FreeThread_t)(short thread_id);
+typedef short (*Scr_FreeThread_t)(short thread_id);
 #if COD_VERSION == COD2_1_0
 static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x08083B8E;
 #elif COD_VERSION == COD2_1_2
@@ -520,7 +528,7 @@ static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x0808410A;
 static const Scr_FreeThread_t Scr_FreeThread = (Scr_FreeThread_t)0x080841D6;
 #endif
 
-typedef int (*SVC_RemoteCommand_t)(netadr_t from);
+typedef void (*SVC_RemoteCommand_t)(netadr_t from, msg_t *msg);
 #if COD_VERSION == COD2_1_0
 static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x080951B4;
 #elif COD_VERSION == COD2_1_2
@@ -529,7 +537,7 @@ static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x0809
 static const SVC_RemoteCommand_t SVC_RemoteCommand = (SVC_RemoteCommand_t)0x08097188;
 #endif
 
-typedef int (*SV_GetChallenge_t)(netadr_t from);
+typedef void (*SV_GetChallenge_t)(netadr_t from);
 #if COD_VERSION == COD2_1_0
 static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808BE54;
 #elif COD_VERSION == COD2_1_2
@@ -538,7 +546,7 @@ static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D0C2;
 static const SV_GetChallenge_t SV_GetChallenge = (SV_GetChallenge_t)0x0808D18E;
 #endif
 
-typedef int (*SVC_Info_t)(netadr_t from);
+typedef void (*SVC_Info_t)(netadr_t from);
 #if COD_VERSION == COD2_1_0
 static const SVC_Info_t SVC_Info = (SVC_Info_t)0x08093980;
 #elif COD_VERSION == COD2_1_2
@@ -547,7 +555,7 @@ static const SVC_Info_t SVC_Info = (SVC_Info_t)0x080952C4;
 static const SVC_Info_t SVC_Info = (SVC_Info_t)0x0809537C;
 #endif
 
-typedef int (*SVC_Status_t)(netadr_t from);
+typedef void (*SVC_Status_t)(netadr_t from);
 #if COD_VERSION == COD2_1_0
 static const SVC_Status_t SVC_Status = (SVC_Status_t)0x08093288;
 #elif COD_VERSION == COD2_1_2
@@ -565,7 +573,7 @@ static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1DC;
 static const NET_AdrToString_t NET_AdrToString = (NET_AdrToString_t)0x0806B1D4;
 #endif
 
-typedef const char* (*Scr_Error_t)(const char *a1);
+typedef void (*Scr_Error_t)(const char *a1);
 #if COD_VERSION == COD2_1_0
 static const Scr_Error_t Scr_Error = (Scr_Error_t)0x08084DB4;
 #elif COD_VERSION == COD2_1_2
@@ -599,6 +607,141 @@ static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0811
 static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x08121EAE;
 #elif COD_VERSION == COD2_1_3
 static const calc_client_speed_t calc_client_speed = (calc_client_speed_t)0x0812200A;
+#endif
+
+typedef int (*G_FindConfigstringIndex_t)(const char *a1, int a2, int a3, int a4, const char *a5);
+#if COD_VERSION == COD2_1_0
+static const G_FindConfigstringIndex_t G_FindConfigstringIndex = (G_FindConfigstringIndex_t)0x0811AE70;
+#elif COD_VERSION == COD2_1_2
+static const G_FindConfigstringIndex_t G_FindConfigstringIndex = (G_FindConfigstringIndex_t)0x0811D1A4;
+#elif COD_VERSION == COD2_1_3
+static const G_FindConfigstringIndex_t G_FindConfigstringIndex = (G_FindConfigstringIndex_t)0x0811D300;
+#endif
+
+typedef char * (*SV_GetConfigstringConst_t)(int index);
+#if COD_VERSION == COD2_1_0
+static const SV_GetConfigstringConst_t SV_GetConfigstringConst = (SV_GetConfigstringConst_t)0x08091108;
+#elif COD_VERSION == COD2_1_2
+static const SV_GetConfigstringConst_t SV_GetConfigstringConst = (SV_GetConfigstringConst_t)0x08092918;
+#elif COD_VERSION == COD2_1_3
+static const SV_GetConfigstringConst_t SV_GetConfigstringConst = (SV_GetConfigstringConst_t)0x08092A1C;
+#endif
+
+typedef void (*SV_SetConfigstring_t)(int index, const char *val);
+#if COD_VERSION == COD2_1_0
+static const SV_SetConfigstring_t SV_SetConfigstring = (SV_SetConfigstring_t)0x08090E6C;
+#elif COD_VERSION == COD2_1_2
+static const SV_SetConfigstring_t SV_SetConfigstring = (SV_SetConfigstring_t)0x0809267C;
+#elif COD_VERSION == COD2_1_3
+static const SV_SetConfigstring_t SV_SetConfigstring = (SV_SetConfigstring_t)0x08092780;
+#endif
+
+typedef void * (*Z_MallocInternal_t)(int size);
+#if COD_VERSION == COD2_1_0
+static const Z_MallocInternal_t Z_MallocInternal = (Z_MallocInternal_t)0x080A92FA;
+#elif COD_VERSION == COD2_1_2
+static const Z_MallocInternal_t Z_MallocInternal = (Z_MallocInternal_t)0x080AB51A;
+#elif COD_VERSION == COD2_1_3
+static const Z_MallocInternal_t Z_MallocInternal = (Z_MallocInternal_t)0x080AB65E;
+#endif
+
+typedef int (*FS_Read_t)(void *buffer, int len, fileHandle_t f);
+#if COD_VERSION == COD2_1_0
+static const FS_Read_t FS_Read = (FS_Read_t)0x0809E328;
+#elif COD_VERSION == COD2_1_2
+static const FS_Read_t FS_Read = (FS_Read_t)0x080A03E6;
+#elif COD_VERSION == COD2_1_3
+static const FS_Read_t FS_Read = (FS_Read_t)0x080A052A;
+#endif
+
+typedef void (*MSG_WriteByte_t)(msg_t *msg, int c);
+#if COD_VERSION == COD2_1_0
+static const MSG_WriteByte_t MSG_WriteByte = (MSG_WriteByte_t)0x08067B4C;
+#elif COD_VERSION == COD2_1_2
+static const MSG_WriteByte_t MSG_WriteByte = (MSG_WriteByte_t)0x08068014;
+#elif COD_VERSION == COD2_1_3
+static const MSG_WriteByte_t MSG_WriteByte = (MSG_WriteByte_t)0x0806800C;
+#endif
+
+typedef void (*MSG_WriteShort_t)(msg_t *msg, int c);
+#if COD_VERSION == COD2_1_0
+static const MSG_WriteShort_t MSG_WriteShort = (MSG_WriteShort_t)0x08067BDA;
+#elif COD_VERSION == COD2_1_2
+static const MSG_WriteShort_t MSG_WriteShort = (MSG_WriteShort_t)0x080680A2;
+#elif COD_VERSION == COD2_1_3
+static const MSG_WriteShort_t MSG_WriteShort = (MSG_WriteShort_t)0x0806809A;
+#endif
+
+typedef void (*MSG_WriteLong_t)(msg_t *msg, int c);
+#if COD_VERSION == COD2_1_0
+static const MSG_WriteLong_t MSG_WriteLong = (MSG_WriteLong_t)0x08067C2A;
+#elif COD_VERSION == COD2_1_2
+static const MSG_WriteLong_t MSG_WriteLong = (MSG_WriteLong_t)0x080680F2;
+#elif COD_VERSION == COD2_1_3
+static const MSG_WriteLong_t MSG_WriteLong = (MSG_WriteLong_t)0x080680EA;
+#endif
+
+typedef void (*MSG_WriteString_t)(msg_t *msg, const char *s);
+#if COD_VERSION == COD2_1_0
+static const MSG_WriteString_t MSG_WriteString = (MSG_WriteString_t)0x08067CE4;
+#elif COD_VERSION == COD2_1_2
+static const MSG_WriteString_t MSG_WriteString = (MSG_WriteString_t)0x080681AC;
+#elif COD_VERSION == COD2_1_3
+static const MSG_WriteString_t MSG_WriteString = (MSG_WriteString_t)0x080681A4;
+#endif
+
+typedef void (*MSG_WriteData_t)(msg_t *buf, const void *data, int length);
+#if COD_VERSION == COD2_1_0
+static const MSG_WriteData_t MSG_WriteData = (MSG_WriteData_t)0x08067B84;
+#elif COD_VERSION == COD2_1_2
+static const MSG_WriteData_t MSG_WriteData = (MSG_WriteData_t)0x0806804C;
+#elif COD_VERSION == COD2_1_3
+static const MSG_WriteData_t MSG_WriteData = (MSG_WriteData_t)0x08068044;
+#endif
+
+typedef long (*FS_SV_FOpenFileRead_t)(const char *filename, fileHandle_t *fp);
+#if COD_VERSION == COD2_1_0
+static const FS_SV_FOpenFileRead_t FS_SV_FOpenFileRead = (FS_SV_FOpenFileRead_t)0x08064100;
+#elif COD_VERSION == COD2_1_2
+static const FS_SV_FOpenFileRead_t FS_SV_FOpenFileRead = (FS_SV_FOpenFileRead_t)0x08064560;
+#elif COD_VERSION == COD2_1_3
+static const FS_SV_FOpenFileRead_t FS_SV_FOpenFileRead = (FS_SV_FOpenFileRead_t)0x08064558;
+#endif
+
+typedef int (*FS_iwIwd_t)(char *a1, char *a2);
+#if COD_VERSION == COD2_1_0
+static const FS_iwIwd_t FS_iwIwd = (FS_iwIwd_t)0x08064ECC;
+#elif COD_VERSION == COD2_1_2
+static const FS_iwIwd_t FS_iwIwd = (FS_iwIwd_t)0x0806532C;
+#elif COD_VERSION == COD2_1_3
+static const FS_iwIwd_t FS_iwIwd = (FS_iwIwd_t)0x08065324;
+#endif
+
+typedef signed int (*SV_WWWRedirectClient_t)(int a1, msg_t *msg);
+#if COD_VERSION == COD2_1_0
+static const SV_WWWRedirectClient_t SV_WWWRedirectClient = (SV_WWWRedirectClient_t)0x0; // Does not exist in 1.0
+#elif COD_VERSION == COD2_1_2
+static const SV_WWWRedirectClient_t SV_WWWRedirectClient = (SV_WWWRedirectClient_t)0x0808FB78;
+#elif COD_VERSION == COD2_1_3
+static const SV_WWWRedirectClient_t SV_WWWRedirectClient = (SV_WWWRedirectClient_t)0x0808FC0C;
+#endif
+
+typedef int (*BG_WeaponDefs_t)(int a1);
+#if COD_VERSION == COD2_1_0
+static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080E9270;
+#elif COD_VERSION == COD2_1_2
+static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080EB860;
+#elif COD_VERSION == COD2_1_3
+static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080EB9A4;
+#endif
+
+typedef int (*BG_GetNumWeapons_t)();
+#if COD_VERSION == COD2_1_0
+static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080E9322;
+#elif COD_VERSION == COD2_1_2
+static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080EB912;
+#elif COD_VERSION == COD2_1_3
+static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080EBA56;
 #endif
 
 #endif

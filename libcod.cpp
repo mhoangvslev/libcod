@@ -117,17 +117,9 @@ int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 	*(int *)&sig = hook_fire_grenade->from;
 	int grenade = sig(player, a2, a3, weapon, a5);
 	hook_fire_grenade->hook();
-	int (*sig2)(int weapon);
-#if COD_VERSION == COD2_1_0
-	*(int *)&sig2 = 0x80E9270;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&sig2 = 0x80EB860;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&sig2 = 0x80EB9A4;
-#endif
-	int weaponname = sig2(weapon);
-	char *wname2 = *(char**)weaponname;
-	stackPushString(wname2);
+	int weapondef = BG_WeaponDefs(weapon);
+	char *weaponname = *(char**)weapondef;
+	stackPushString(weaponname);
 	stackPushEntity(grenade);
 	short ret = Scr_ExecEntThread(player, codecallback_fire_grenade, 2);
 	Scr_FreeThread(ret);
@@ -165,11 +157,12 @@ void hook_vid_restart(char *format, ...)
 	}
 }
 
-int hook_ClientCommand(int clientNum)
+void hook_ClientCommand(int clientNum)
 {
 	if ( ! codecallback_playercommand)
 	{
-		return ClientCommand(clientNum);
+		ClientCommand(clientNum);
+		return;
 	}
 
 	stackPushArray();
@@ -196,10 +189,7 @@ int hook_ClientCommand(int clientNum)
 	}
 
 	short ret = Scr_ExecEntThread(G_ENTITY(clientNum), codecallback_playercommand, 1);
-
 	Scr_FreeThread(ret);
-
-	return 0;
 }
 
 cvar_t *sv_cracked;
@@ -224,24 +214,21 @@ void hook_SV_BeginDownload_f( int a1 )
 		Com_DPrintf("Invalid download attempt: %s\n", file);
 }
 
-int hook_ClientUserinfoChanged(int clientNum)
+void hook_ClientUserinfoChanged(int clientNum)
 {
 	if ( ! codecallback_userinfochanged)
 	{
-		return changeClientUserinfo(clientNum);
+		ClientUserinfoChanged(clientNum);
+		return;
 	}
 
 	stackPushInt(clientNum); // one parameter is required
-
 	short ret = Scr_ExecEntThread(G_ENTITY(clientNum), codecallback_userinfochanged, 1);
-
 	Scr_FreeThread(ret);
-
-	return 0;
 }
 
 cvar_t *sv_downloadMessage;
-int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always use 1 block per snapshot
+void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 {
 	char errorMessage[COD2_MAX_STRINGLENGTH];
 	int iwdFile;
@@ -249,99 +236,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
 	int MAX_DOWNLOAD_WINDOW = 8;
-
-	int (*Z_Malloc)(size_t size);
-#if COD_VERSION == COD2_1_0
-	*(int *)&Z_Malloc = 0x80A92FA;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&Z_Malloc = 0x80AB51A;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&Z_Malloc = 0x80AB65E;
-#endif
-
-	int (*FS_Read)(void *a1, size_t a2, signed int a3);
-#if COD_VERSION == COD2_1_0
-	*(int *)&FS_Read = 0x809E328;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&FS_Read = 0x80A03E6;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&FS_Read = 0x80A052A;
-#endif
-
-	int (*MSG_WriteByte)(int a1, char a2);
-#if COD_VERSION == COD2_1_0
-	*(int *)&MSG_WriteByte = 0x8067B4C;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&MSG_WriteByte = 0x8068014;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&MSG_WriteByte = 0x806800C;
-#endif
-
-	int (*MSG_WriteShort)(int a1, int16_t a2);
-#if COD_VERSION == COD2_1_0
-	*(int *)&MSG_WriteShort = 0x8067BDA;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&MSG_WriteShort = 0x80680A2;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&MSG_WriteShort = 0x806809A;
-#endif
-
-	int (*MSG_WriteLong)(int a1, int a2);
-	*(int *)&MSG_WriteLong = 0x8067C2A;
-#if COD_VERSION == COD2_1_0
-	*(int *)&MSG_WriteLong = 0x8067C2A;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&MSG_WriteLong = 0x80680F2;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&MSG_WriteLong = 0x80680EA;
-#endif
-
-	int (*MSG_WriteString)(int a1, char *s);
-#if COD_VERSION == COD2_1_0
-	*(int *)&MSG_WriteString = 0x8067CE4;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&MSG_WriteString = 0x80681AC;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&MSG_WriteString = 0x80681A4;
-#endif
-
-	int (*MSG_WriteData)(int a1, void *src, size_t n);
-#if COD_VERSION == COD2_1_0
-	*(int *)&MSG_WriteData = 0x8067B84;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&MSG_WriteData = 0x806804C;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&MSG_WriteData = 0x8068044;
-#endif
-
-	int (*FS_SV_FOpenFileRead)(char *src, int a2);
-#if COD_VERSION == COD2_1_0
-	*(int *)&FS_SV_FOpenFileRead = 0x8064100;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&FS_SV_FOpenFileRead = 0x8064560;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&FS_SV_FOpenFileRead = 0x8064558;
-#endif
-
-	int (*FS_iwdFile)(char *haystack, int a2);
-#if COD_VERSION == COD2_1_0
-	*(int *)&FS_iwdFile = 0x8064ECC;
-#elif COD_VERSION == COD2_1_2
-	*(int *)&FS_iwdFile = 0x806532C;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&FS_iwdFile = 0x8065324;
-#endif
-
-#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-
-	signed int (*SV_WWWRedirectClient)(int a1, int a2);
-#if COD_VERSION == COD2_1_2
-	*(int *)&SV_WWWRedirectClient = 0x808FB78;
-#elif COD_VERSION == COD2_1_3
-	*(int *)&SV_WWWRedirectClient = 0x808FC0C;
-#endif
-
-#endif
 
 #if COD_VERSION == COD2_1_0
 	int rate_offset = 452008;
@@ -380,10 +274,10 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	int len = strlen(file);
 
 	if (!*(int *)(cl + filename_offset))
-		return 0;	// Nothing being downloaded
+		return;	// Nothing being downloaded
 
 	if (len < 4 || strcmp(&file[len - 4], ".iwd") != 0)
-		return 0;	// Not a valid iwd file
+		return;	// Not a valid iwd file
 
 	if (strlen(sv_downloadMessage->string))
 	{
@@ -393,7 +287,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		MSG_WriteLong(msg, -1);
 		MSG_WriteString(msg, errorMessage);
 		*(int *)(cl + filename_offset) = 0;
-		return 0;
+		return;
 	}
 
 	*(int *)cl = CS_CONNECTED;  	       // Set client state - connected. Now players that are downloading will show as 'CNCT' in rcon, etc.
@@ -406,7 +300,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		if ( *(int *)(cl + wwwdld_offset2) )
 			*(int *)(cl + wwwdld_offset2) = 0;
 		else if ( SV_WWWRedirectClient(cl, msg) )
-			return 0;
+			return;
 	}
 #endif
 
@@ -416,9 +310,9 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 
 		Com_Printf("clientDownload: %d : begining \"%s\"\n", PLAYERBASE_ID(cl), cl + filename_offset);
 
-		iwdFile = FS_iwdFile((char *)(cl + filename_offset), (int)"main");
+		iwdFile = FS_iwIwd((char *)(cl + filename_offset), "main");
 
-		if ( !sv_allowDownload->boolean || iwdFile || ( *(int *)(cl + cl_iwd_offset) = FS_SV_FOpenFileRead((char *)(cl + filename_offset), cl + file_offset) ) <= 0 )
+		if ( !sv_allowDownload->boolean || iwdFile || ( *(int *)(cl + cl_iwd_offset) = FS_SV_FOpenFileRead( (char *)(cl + filename_offset), (fileHandle_t*)(cl + file_offset) ) ) <= 0 )
 		{
 			// cannot auto-download file
 			if (iwdFile)
@@ -445,7 +339,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 			MSG_WriteString(msg, errorMessage);
 
 			*(int *)(cl + filename_offset) = 0;
-			return 0;
+			return;
 		}
 
 		// Init
@@ -462,7 +356,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		curindex = (*(int *)(cl + nextblock_offset) % MAX_DOWNLOAD_WINDOW);
 
 		if (!*(int *)(cl + 4 * curindex + unknown_offset1))
-			*(int *)(cl + 4 * curindex + unknown_offset1) = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
+			*(int *)(cl + 4 * curindex + unknown_offset1) = (int)Z_MallocInternal(MAX_DOWNLOAD_BLKSIZE);
 
 		*(int *)(cl + 4 * curindex + unknown_offset2) = FS_Read(*(void **)(cl + 4 * curindex + unknown_offset1), MAX_DOWNLOAD_BLKSIZE, *(int *)(cl + file_offset));
 
@@ -491,7 +385,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	// Write out the next section of the file, if we have already reached our window,
 	// automatically start retransmitting
 	if ( *(int *)(cl + section_offset) == *(int *)(cl + nextblock_offset) )
-		return 0; // Nothing to transmit
+		return; // Nothing to transmit
 
 	if ( *(int *)(cl + block_offset) == *(int *)(cl + nextblock_offset) )
 	{
@@ -499,7 +393,7 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 		if (getSVSTime() - *(int *)(cl + time_offset) > 1000)
 			*(int *)(cl + block_offset) = *(int *)(cl + section_offset);
 		else
-			return 0;
+			return;
 	}
 
 	// Send current block
@@ -524,8 +418,6 @@ int custom_SV_WriteDownloadToClient(int cl, int msg) // As in ioquake3, always u
 	// It will get sent with next snap shot.  The rate will keep us in line.
 	( *(int *)(cl + block_offset) )++;
 	*(int *)(cl + time_offset) = getSVSTime();
-
-	return 1;
 }
 
 // Segfault fix
@@ -535,18 +427,13 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 #if COD_VERSION == COD2_1_0
 	int sub_80E9758_offset = 0x80E9758;
 	int sub_80D9E84_offset = 0x80D9E84;
-	int getWeaponStruct_offset = 0x80E9270;
 #elif COD_VERSION == COD2_1_2
 	int sub_80E9758_offset = 0x80EBD48;
 	int sub_80D9E84_offset = 0x80DC464;
-	int getWeaponStruct_offset = 0x80EB860;
 #elif COD_VERSION == COD2_1_3
 	int sub_80E9758_offset = 0x80EBE8C;
 	int sub_80D9E84_offset = 0x80DC5A8;
-	int getWeaponStruct_offset = 0x80EB9A4;
 #endif
-
-	int weapon;
 
 	signed int (*sub_80E9758)(int a1);
 	*(int *)&sub_80E9758 = sub_80E9758_offset;
@@ -554,16 +441,13 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	int (*sub_80D9E84)(int a1, signed int a2);
 	*(int *)&sub_80D9E84 = sub_80D9E84_offset;
 
-	int (*getWeaponStruct)(int a1);
-	*(int *)&getWeaponStruct = getWeaponStruct_offset;
-
 	if ( !(unsigned char)sub_80E9758(a2) )
 		return 0;
 
 	if ( !(unsigned char)sub_80D9E84(a1 + 1348, a2) )
 		return 0;
 
-	weapon = getWeaponStruct(a2);
+	int weapon = BG_WeaponDefs(a2);
 
 	if ( !weapon )
 		return 0;
@@ -926,13 +810,13 @@ bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
 	return SVC_RateLimit( bucket, burst, period );
 }
 
-int hook_SVC_RemoteCommand(netadr_t from)
+void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 {
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
 		Com_DPrintf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
-		return 0;
+		return;
 	}
 
 	if ( !strlen( rcon_password->string ) || strcmp(Cmd_Argv(1), rcon_password->string) != 0 )
@@ -943,20 +827,20 @@ int hook_SVC_RemoteCommand(netadr_t from)
 		if ( SVC_RateLimit( &bucket, 10, 1000 ) )
 		{
 			Com_DPrintf( "SVC_RemoteCommand: rate limit exceeded, dropping request\n" );
-			return 0;
+			return;
 		}
 	}
 
-	return SVC_RemoteCommand(from);
+	SVC_RemoteCommand(from, msg);
 }
 
-int hook_SV_GetChallenge(netadr_t from)
+void hook_SV_GetChallenge(netadr_t from)
 {
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
 		Com_DPrintf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
-		return 0;
+		return;
 	}
 
 	// Allow getchallenge to be DoSed relatively easily, but prevent
@@ -964,19 +848,19 @@ int hook_SV_GetChallenge(netadr_t from)
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) )
 	{
 		Com_DPrintf( "SV_GetChallenge: rate limit exceeded, dropping request\n" );
-		return 0;
+		return;
 	}
 
-	return SV_GetChallenge(from);
+	SV_GetChallenge(from);
 }
 
-int hook_SVC_Info(netadr_t from)
+void hook_SVC_Info(netadr_t from)
 {
 	// Prevent using getinfo as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
 		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
-		return 0;
+		return;
 	}
 
 	// Allow getinfo to be DoSed relatively easily, but prevent
@@ -984,19 +868,19 @@ int hook_SVC_Info(netadr_t from)
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) )
 	{
 		Com_DPrintf( "SVC_Info: rate limit exceeded, dropping request\n" );
-		return 0;
+		return;
 	}
 
-	return SVC_Info(from);
+	SVC_Info(from);
 }
 
-int hook_SVC_Status(netadr_t from)
+void hook_SVC_Status(netadr_t from)
 {
 	// Prevent using getstatus as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n", NET_AdrToString( from ) );
-		return 0;
+		return;
 	}
 
 	// Allow getstatus to be DoSed relatively easily, but prevent
@@ -1004,10 +888,10 @@ int hook_SVC_Status(netadr_t from)
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) )
 	{
 		Com_DPrintf( "SVC_Status: rate limit exceeded, dropping request\n" );
-		return 0;
+		return;
 	}
 
-	return SVC_Status(from);
+	SVC_Status(from);
 }
 #endif
 
@@ -1024,9 +908,6 @@ void manymaps_prepare(char *mapname, int read)
 		strncpy(library_path, fs_library->string, sizeof(library_path));
 	else
 		snprintf(library_path, sizeof(library_path), "%s/%s/Library", fs_homepath->string, fs_game->string);
-
-	if (strcmp(map->string, mapname) == 0) // Same map is about to load, no need to trigger manymap (equals map_restart)
-		return;
 
 	char map_check[512];
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);

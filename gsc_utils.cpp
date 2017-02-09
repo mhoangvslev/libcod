@@ -313,7 +313,8 @@ void gsc_utils_FS_LoadDir()
 		stackPushUndefined();
 		return;
 	}
-	stackPushInt( FS_LoadDir(path, dir) );
+	FS_LoadDir(path, dir);
+	stackPushInt(1);
 }
 
 void gsc_utils_getType()
@@ -579,17 +580,8 @@ void gsc_G_FindConfigstringIndexOriginal()
 		stackPushUndefined();
 		return;
 	}
-	signed int (*sig)(char *name, int min, int max, int create, char *errormessage);
-#if COD_VERSION == COD2_1_0
-	*(int*)&sig = 0x0811AE70;
-#elif COD_VERSION == COD2_1_2
-	*(int*)&sig = 0x0811D1A4;
-#elif COD_VERSION == COD2_1_3
-	*(int*)&sig = 0x0811D300;
-#endif
-	int ret = sig(name, min, max, create, "G_FindConfigstringIndex() from GSC");
-	ret += min; // the real array index
-	stackPushInt(ret);
+
+	stackPushInt( G_FindConfigstringIndex(name, min, max, create, "G_FindConfigstringIndex() from GSC") );
 }
 
 // simple version, without crash
@@ -597,52 +589,40 @@ void gsc_G_FindConfigstringIndex()
 {
 	char *name;
 	int min, max;
-	char* (*func)(int i);
 	if ( ! stackGetParams("sii", &name, &min, &max))
 	{
 		stackError("gsc_G_FindConfigstringIndex() one or more arguments is undefined or has a wrong type");
 		return;
 	}
-#if COD_VERSION == COD2_1_0
-	*(int*)&func = 0x08091108;
-#elif COD_VERSION == COD2_1_2
-	*(int*)&func = 0x08092918;
-#elif COD_VERSION == COD2_1_3
-	*(int*)&func = 0x08092a1c;
-#endif
+
 	for (int i = 1; i < max; i++)
 	{
-		char *curitem = func(min + i);
+		char *curitem = SV_GetConfigstringConst(min + i);
+
 		if ( ! *curitem)
 			break;
+
 		if ( ! strcasecmp(name, curitem))
 		{
 			stackPushInt(i + min);
 			return;
 		}
 	}
+
 	stackPushInt(0);
-	return;
 }
 
 void gsc_get_configstring()
 {
 	int index;
-	char* (*func)(int index);
 	if ( ! stackGetParams("i", &index))
 	{
 		stackError("gsc_get_configstring() argument is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if COD_VERSION == COD2_1_0
-	*(int*)&func = 0x08091108;
-#elif COD_VERSION == COD2_1_2
-	*(int*)&func = 0x08092918;
-#elif COD_VERSION == COD2_1_3
-	*(int*)&func = 0x08092a1c;
-#endif
-	char *string = func(index);
+
+	char *string = SV_GetConfigstringConst(index);
 	if ( ! *string )
 		stackPushUndefined();
 	else
@@ -653,21 +633,15 @@ void gsc_set_configstring()
 {
 	int index;
 	char *string;
-	int (*func)(int index, char *string);
 	if ( ! stackGetParams("is", &index, &string))
 	{
 		stackError("gsc_set_configstring() one or more arguments is undefined or has a wrong type");
 		stackPushUndefined();
 		return;
 	}
-#if COD_VERSION == COD2_1_0
-	*(int*)&func = 0x08090E6C;
-#elif COD_VERSION == COD2_1_2
-	*(int*)&func = 0x0809267C;
-#elif COD_VERSION == COD2_1_3
-	*(int*)&func = 0x08092780;
-#endif
-	stackPushInt(func(index, string));
+
+	SV_SetConfigstring(index, string);
+	stackPushInt(1);
 }
 
 void gsc_call_function_raw()

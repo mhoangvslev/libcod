@@ -44,7 +44,8 @@ void gsc_player_velocity_set(int id)
 
 void gsc_player_clientuserinfochanged(int id)
 {
-	stackPushInt(changeClientUserinfo(id));
+	ClientUserinfoChanged(id);
+	stackPushInt(1);
 }
 
 void gsc_player_velocity_add(int id)
@@ -191,25 +192,16 @@ void gsc_player_stance_get(int id)
 	switch (code)
 	{
 	case  0:
-		stance = "stand";
-		break; // also in spec
-
 	case  2:
 		stance = "stand";
 		break;
 
 	case  4:
-		stance = "duck";
-		break;
-
 	case  6:
 		stance = "duck";
 		break;
 
 	case  8:
-		stance = "lie";
-		break;
-
 	case 10:
 		stance = "lie";
 		break;
@@ -271,7 +263,8 @@ void gsc_player_getping(int id)
 
 void gsc_player_ClientCommand(int id)
 {
-	stackPushInt(ClientCommand(id));
+	ClientCommand(id);
+	stackPushInt(1);
 }
 
 void gsc_player_getLastConnectTime(int id)
@@ -356,7 +349,7 @@ void gsc_player_outofbandprint(int id)
 
 	int info_player = PLAYERBASE(id);
 	netadr_t * from = (netadr_t*)(info_player + remoteaddress_offset);
-	NET_OutOfBandPrint(0, *from, cmd); // 0 = SERVER, 1 = CLIENT
+	NET_OutOfBandPrint(NS_SERVER, *from, cmd);
 
 	stackPushInt(1);
 }
