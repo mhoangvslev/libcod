@@ -17,14 +17,14 @@ void gsc_weapons_getweaponoffsetint(char* funcname, int offset)
 	if ( ! stackGetParams("i", &id))
 	{
 		stackError("wrongs args for: %s(id)", funcname);
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
 		stackError("index is out of bounds: %s(id)", funcname);
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
@@ -39,14 +39,14 @@ void gsc_weapons_setweaponoffsetint(char* funcname, int offset)
 	if ( ! stackGetParams("ii", &id, &value))
 	{
 		stackError("scriptengine> wrongs args for: %s(id, value)", funcname);
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
 		stackError("index is out of bounds: %s(id, value)", funcname);
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
@@ -147,14 +147,14 @@ void gsc_weapons_getweaponhitlocmultiplier()
 	if ( ! stackGetParams("is", &id, &hitloc))
 	{
 		stackError("gsc_weapons_getweaponhitlocmultiplier() one or more arguments is undefined or has a wrong type");
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
 		stackError("index is out of bounds: getweaponhitlocmultiplier(id, hitloc)");
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
@@ -171,14 +171,14 @@ void gsc_weapons_setweaponhitlocmultiplier()
 	if ( ! stackGetParams("isf", &id, &hitloc, &multiplier))
 	{
 		stackError("gsc_weapons_setweaponhitlocmultiplier() one or more arguments is undefined or has a wrong type");
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
 	if(!isValidWeaponId(id))
 	{
 		stackError("index out of bounds: getweaponhitlocmultiplier(id, hitloc, multiplier)");
-		stackPushInt(0);
+		stackPushUndefined();
 		return;
 	}
 
@@ -193,7 +193,11 @@ void gsc_weapons_getloadedweapons()
 	stackPushArray();
 	int weps = BG_GetNumWeapons();
 	if(weps == 0)
+	{
+		stackError("gsc_weapons_getloadedweapons(): A error has occured");
+		stackPushUndefined();
 		return;
+	}
 
 	for(int i=0; i<weps; i++)
 	{

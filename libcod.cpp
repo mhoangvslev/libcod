@@ -444,24 +444,6 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 // Segfault fix
 int hook_BG_IsWeaponValid(int a1, int a2)
 {
-
-#if COD_VERSION == COD2_1_0
-	int sub_80E9758_offset = 0x80E9758;
-	int sub_80D9E84_offset = 0x80D9E84;
-#elif COD_VERSION == COD2_1_2
-	int sub_80E9758_offset = 0x80EBD48;
-	int sub_80D9E84_offset = 0x80DC464;
-#elif COD_VERSION == COD2_1_3
-	int sub_80E9758_offset = 0x80EBE8C;
-	int sub_80D9E84_offset = 0x80DC5A8;
-#endif
-
-	signed int (*sub_80E9758)(int a1);
-	*(int *)&sub_80E9758 = sub_80E9758_offset;
-
-	int (*sub_80D9E84)(int a1, signed int a2);
-	*(int *)&sub_80D9E84 = sub_80D9E84_offset;
-
 	if ( !(unsigned char)sub_80E9758(a2) )
 		return 0;
 
@@ -482,24 +464,6 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 cvar_t *nodeveloper_errors;
 void hook_scriptError(int a1, int a2, int a3, void *a4)
 {
-
-#if COD_VERSION == COD2_1_0
-	int scriptError_offset = 0x8078282;
-	int runtimeError_offset = 0x807818C;
-#elif COD_VERSION == COD2_1_2
-	int scriptError_offset = 0x8078806;
-	int runtimeError_offset = 0x8078710;
-#elif COD_VERSION == COD2_1_3
-	int scriptError_offset = 0x80788D2;
-	int runtimeError_offset = 0x80787DC;
-#endif
-
-	int (*scriptError)(int a1, int a2, int a3, void *a4);
-	*(int *)&scriptError = scriptError_offset;
-
-	int (*runtimeError)(int a1, int a2, int a3, int a4);
-	*(int *)&runtimeError = runtimeError_offset;
-
 	scriptError(a1, a2, a3, a4);
 
 	if (!developer->integer && nodeveloper_errors->boolean)

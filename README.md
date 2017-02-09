@@ -6,20 +6,10 @@ The Call of Duty extension *libcod* is adding new server-side functions to:
 
 Requirements:
 ```
-gcc-multilib
-g++-multilib
-libmysqlclient-dev:i386 for MySQL (optional)
+g++ (multilib for x64)
+MySQL Server (MariaDB) (optional)
 ```
 
-Precompiled shared libraries (outdated): http://killtube.org/downloads/libcod/
-
-Starting the server:
-
-```
-export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
-./cod2_lnxded +set fs_game ... +set dedicated 2 ...
-```
-	
 Working with the source / Compiling:
 ```
 ./doit.sh cod2_1_0
@@ -27,19 +17,21 @@ Working with the source / Compiling:
 ./doit.sh cod2_1_3
 ```
 
-Mods depending on *libcod*:
-- http://killtube.org/showthread.php?1533-DOWNLOAD-CoD2-Surf-Mod
-- http://killtube.org/showthread.php?1527-DOWNLOAD-CoD2-Basetdm-Mod
-- http://killtube.org/showthread.php?1593-DOWNLOAD-CoD2-Portal-Mod
-- Jump-Mod by IzNoGod
-	
+Starting the server:
+```
+export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
+./cod2_lnxded +set fs_game ... +set dedicated 2 ...
+```
+
 Little overview of added functions:
 - MySQL
+- Linux shell command execution (adds tons of possibilites like executing external scripts, commands and pass thier output to GSC)
 - setVelocity, getVelocity, addVelocity (needed for the mods: portal, surf)
 - keyPressed-functions for left, right, forward, backward, leanleft, leanright, jump etc., (needed for: surf, doublejump made by IzNoGod)
 - setAlive-function (needed for: zombots, so xmodels are damagable without damage-trigger... zombots in stockmaps)
 - disableGlobalPlayerCollision() also disableGlobalPlayerEject()
 - native bot functions (bots can move, shoot, jump, melee, ads, set stance)
+- weapon-functions (get/set weapon damage, firetime, maxammo without editing thier files)
 
 Engine fixes:
 - Faster download for CoD2 1.0

@@ -1,4 +1,4 @@
-#if !defined(_FUNCTIONS_HPP_) && defined(COD_VERSION)
+#ifndef _FUNCTIONS_HPP_
 #define _FUNCTIONS_HPP_
 
 /* MAKE FUNCTIONS STATIC, SO THEY CAN BE IN EVERY FILE */
@@ -742,6 +742,60 @@ static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080E932
 static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080EB912;
 #elif COD_VERSION == COD2_1_3
 static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080EBA56;
+#endif
+
+typedef signed int (*sub_80E9758_t)(int a1);
+#if COD_VERSION == COD2_1_0
+static const sub_80E9758_t sub_80E9758 = (sub_80E9758_t)0x080E9758;
+#elif COD_VERSION == COD2_1_2
+static const sub_80E9758_t sub_80E9758 = (sub_80E9758_t)0x080EBD48;
+#elif COD_VERSION == COD2_1_3
+static const sub_80E9758_t sub_80E9758 = (sub_80E9758_t)0x080EBE8C;
+#endif
+
+typedef int (*sub_80D9E84_t)(int a1, signed int a2);
+#if COD_VERSION == COD2_1_0
+static const sub_80D9E84_t sub_80D9E84 = (sub_80D9E84_t)0x080D9E84;
+#elif COD_VERSION == COD2_1_2
+static const sub_80D9E84_t sub_80D9E84 = (sub_80D9E84_t)0x080DC464;
+#elif COD_VERSION == COD2_1_3
+static const sub_80D9E84_t sub_80D9E84 = (sub_80D9E84_t)0x080DC5A8;
+#endif
+
+typedef void (*scriptError_t)(int a1, int a2, int a3, void *a4);
+#if COD_VERSION == COD2_1_0
+static const scriptError_t scriptError = (scriptError_t)0x08078282;
+#elif COD_VERSION == COD2_1_2
+static const scriptError_t scriptError = (scriptError_t)0x08078806;
+#elif COD_VERSION == COD2_1_3
+static const scriptError_t scriptError = (scriptError_t)0x080788D2;
+#endif
+
+typedef void (*runtimeError_t)(int a1, int a2, int a3, int a4);
+#if COD_VERSION == COD2_1_0
+static const runtimeError_t runtimeError = (runtimeError_t)0x0807818C;
+#elif COD_VERSION == COD2_1_2
+static const runtimeError_t runtimeError = (runtimeError_t)0x08078710;
+#elif COD_VERSION == COD2_1_3
+static const runtimeError_t runtimeError = (runtimeError_t)0x080787DC;
+#endif
+
+typedef int (*Touch_Item_Auto_t)(int a1, int a2, int a3);
+#if COD_VERSION == COD2_1_0
+static const Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x081037F0;
+#elif COD_VERSION == COD2_1_2
+static const Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105B24;
+#elif COD_VERSION == COD2_1_3
+static const Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105C80;
+#endif
+
+typedef int (*BG_AnimationIndexForString_t)(char *src);
+#if COD_VERSION == COD2_1_0
+static const BG_AnimationIndexForString_t BG_AnimationIndexForString = (BG_AnimationIndexForString_t)0x080D46AC;
+#elif COD_VERSION == COD2_1_2
+static const BG_AnimationIndexForString_t BG_AnimationIndexForString = (BG_AnimationIndexForString_t)0x080D6C8C;
+#elif COD_VERSION == COD2_1_3
+static const BG_AnimationIndexForString_t BG_AnimationIndexForString = (BG_AnimationIndexForString_t)0x080D6DD0;
 #endif
 
 #endif

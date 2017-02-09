@@ -549,26 +549,13 @@ void gsc_player_setweaponfiremeleedelay(int id)
 }
 
 int disable_player_item_pickup[64] = {0};
-
 int hook_pickup_item(int weapon, int player, int message)
 {
 	int clientNum = G_ENTITY_ID(player);
-	if(disable_player_item_pickup[clientNum] != 1)
-	{
-		typedef int (*Touch_Item_Auto_t)(int a1, int a2, int a3);
-#if COD_VERSION == COD2_1_0
-		Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x081037F0;
-#elif COD_VERSION == COD2_1_2
-		Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105B24;
-#elif COD_VERSION == COD2_1_3
-		Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)0x08105C80;
-#else
-		Touch_Item_Auto_t Touch_Item_Auto = (Touch_Item_Auto_t)NULL;
-#endif
+	if (disable_player_item_pickup[clientNum] != 1)
 		return Touch_Item_Auto(weapon, player, message);
-	}
-
-	return 1;
+	else
+		return 0;
 }
 
 void gsc_player_disable_item_pickup(int id)
@@ -591,17 +578,6 @@ void gsc_player_set_anim(int id)
 		stackPushUndefined();
 		return;
 	}
-
-#if COD_VERSION == COD2_1_0
-	int anim_offset = 0x080D46AC;
-#elif COD_VERSION == COD2_1_2
-	int anim_offset = 0x080D6C8C;
-#elif COD_VERSION == COD2_1_3
-	int anim_offset = 0x080D6DD0;
-#endif
-
-	int (*BG_AnimationIndexForString)(char *src);
-	*(int *)&BG_AnimationIndexForString = anim_offset;
 
 	int animationIndex = 0;
 	extern int custom_animation[64];
