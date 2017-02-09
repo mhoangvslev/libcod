@@ -2,6 +2,9 @@
 
 char *stackGetParamTypeAsString(int param)
 {
+	if (param >= Scr_GetNumParam())
+		return "UNDEFINED";
+
 	VariableValue *var;
 	var = &scrVmPub.top[-param];
 
@@ -338,6 +341,9 @@ xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev)
 
 int stackGetParamType(int param)
 {
+	if (param >= Scr_GetNumParam())
+		return STACK_UNDEFINED;
+
 	VariableValue *var;
 	var = &scrVmPub.top[-param];
 
@@ -426,7 +432,6 @@ int stackGetParams(char *params, ...)
 	return errors == 0; // success if no errors
 }
 
-// todo: check if the parameter really exists (number_of_params)
 int stackGetParamInt(int param, int *value)
 {
 	if (param >= Scr_GetNumParam())
