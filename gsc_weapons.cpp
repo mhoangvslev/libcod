@@ -194,7 +194,7 @@ void gsc_weapons_getloadedweapons()
 	int weps = BG_GetNumWeapons();
 	if(weps == 0)
 	{
-		stackError("gsc_weapons_getloadedweapons(): A error has occured");
+		stackError("gsc_weapons_getloadedweapons() an error has occured");
 		stackPushUndefined();
 		return;
 	}

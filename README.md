@@ -25,13 +25,13 @@ export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
 
 Little overview of added functions:
 - MySQL
-- Linux shell command execution (adds tons of possibilites like executing external scripts, commands and pass thier output to GSC)
+- Linux shell command execution (adds tons of possibilites like executing external scripts, commands and pass their output to GSC)
 - setVelocity, getVelocity, addVelocity (needed for the mods: portal, surf)
 - keyPressed-functions for left, right, forward, backward, leanleft, leanright, jump etc., (needed for: surf, doublejump made by IzNoGod)
 - setAlive-function (needed for: zombots, so xmodels are damagable without damage-trigger... zombots in stockmaps)
 - disableGlobalPlayerCollision() also disableGlobalPlayerEject()
 - native bot functions (bots can move, shoot, jump, melee, ads, set stance)
-- weapon-functions (get/set weapon damage, firetime, maxammo without editing thier files)
+- weapon-functions (get/set weapon damage, firetime, maxammo without editing their files)
 
 Engine fixes:
 - Faster download for CoD2 1.0
