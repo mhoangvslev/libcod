@@ -69,9 +69,6 @@ fi
 mkdir -p bin
 mkdir -p objects_$1
 
-echo "##### COMPILE $1 LIBCOD.CPP #####"
-$cc $options $constants -c libcod.cpp -o objects_$1/libcod.opp
-
 echo "##### COMPILE $1 CRACKING.CPP #####"
 $cc $options $constants -c cracking.cpp -o objects_$1/cracking.opp
 
@@ -123,6 +120,9 @@ if [ -d extra ]; then
 	done
 	cd ..
 fi
+
+echo "##### COMPILE $1 LIBCOD.CPP #####"
+$cc $options $constants -c libcod.cpp -o objects_$1/libcod.opp
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
