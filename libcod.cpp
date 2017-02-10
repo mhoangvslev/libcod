@@ -470,6 +470,7 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 		runtimeError(0, a1, a2, a3);
 }
 
+#if COMPILE_PLAYER == 1
 int gamestate_size[64] = {0};
 void hook_gamestate_info(char *format, ...)
 {
@@ -499,7 +500,6 @@ void hook_gamestate_info(char *format, ...)
 	gamestate_size[clientnum] = gamestate;
 }
 
-#if COMPILE_PLAYER == 1
 int custom_animation[64] = {0};
 cHook *hook_set_anim;
 int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
@@ -1038,7 +1038,11 @@ public:
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
+#endif
+
 		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
 
 #if COMPILE_PLAYER == 1
@@ -1096,7 +1100,11 @@ public:
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
+#endif
+
 		cracking_hook_call(0x08090CA2, (int)hook_vid_restart);
 
 #if COMPILE_PLAYER == 1
@@ -1154,7 +1162,11 @@ public:
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
+#endif
+
 		cracking_hook_call(0x08090D36, (int)hook_vid_restart);
 
 #if COMPILE_PLAYER == 1
