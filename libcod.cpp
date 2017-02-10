@@ -615,14 +615,18 @@ int bot_reload[64] = {0};
 int bot_weapon[64] = {0};
 #endif
 
+#if COMPILE_PLAYER == 1
 int clientfps[64] = {0};
 int tempfps[64] = {0};
 int fpstime[64] = {0};
+#endif
 
 cHook *hook_play_movement;
 int play_movement(int a1, int a2)
 {
+#if COMPILE_PLAYER == 1 || COMPILE_BOTS == 1
 	int clientnum = PLAYERBASE_ID(a1);
+#endif
 
 #if COMPILE_PLAYER == 1
 	tempfps[clientnum]++;

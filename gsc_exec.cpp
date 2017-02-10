@@ -33,6 +33,7 @@ void gsc_exec()
 		stackError("gsc_exec() argument is undefined or has wrong type");
 		stackPushUndefined();
 	}
+	Com_DPrintf("gsc_exec() executing: %s\n", command);
 	FILE *fp;
 	fp = popen(command, "r");
 	if(fp == NULL)
@@ -118,6 +119,7 @@ void gsc_exec_async_create()
 		stackError("gsc_exec_async_create() argument is undefined or has wrong type");
 		stackPushUndefined();
 	}
+	Com_DPrintf("gsc_exec_async_create() executing: %s\n", command);
 	exec_async_task *current = first_exec_async_task;
 	while(current != NULL && current->next != NULL)
 		current = current->next;
@@ -163,6 +165,7 @@ void gsc_exec_async_create_nosave()
 		stackError("gsc_exec_async_create_nosave() argument is undefined or has wrong type");
 		stackPushUndefined();
 	}
+	Com_DPrintf("gsc_exec_async_create_nosave() executing: %s\n", command);
 	exec_async_task *current = first_exec_async_task;
 	while(current != NULL && current->next != NULL)
 		current = current->next;

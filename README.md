@@ -6,6 +6,7 @@ The Call of Duty extension *libcod* is adding new server-side functions to:
 
 Requirements:
 ```
+Perl
 g++ (multilib for x64)
 MySQL Server (MariaDB) (optional)
 ```

@@ -291,17 +291,6 @@ scr_method_t scriptMethods[] =
 	{"enableitempickup", gsc_player_enable_item_pickup, 0},
 	{"setanim", gsc_player_set_anim, 0},
 	{"getjumpslowdowntimer", gsc_player_getjumpslowdowntimer, 0},
-#if COMPILE_BOTS == 1
-	{"setwalkdir", gsc_player_set_walkdir, 0},
-	{"setlean", gsc_player_set_lean, 0},
-	{"setstance", gsc_player_set_stance, 0},
-	{"thrownade", gsc_player_thrownade, 0},
-	{"fireweapon", gsc_player_fireweapon, 0},
-	{"meleeweapon", gsc_player_meleeweapon, 0},
-	{"reloadweapon", gsc_player_reloadweapon, 0},
-	{"adsaim", gsc_player_adsaim, 0},
-	{"switchtoweaponid", gsc_player_switchtoweaponid, 0},
-#endif
 	{"getcooktime", gsc_player_getcooktime, 0},
 	{"setguid", gsc_player_setguid, 0},
 	{"clienthasclientmuted", gsc_player_clienthasclientmuted, 0},
@@ -310,6 +299,18 @@ scr_method_t scriptMethods[] =
 	{"setmovespeedscale", gsc_player_setmovespeedscale, 0},
 	{"ismantling", gsc_player_ismantling, 0},
 	{"isonladder", gsc_player_isonladder, 0},
+#endif
+
+#if COMPILE_BOTS == 1
+	{"setwalkdir", gsc_bots_set_walkdir, 0},
+	{"setlean", gsc_bots_set_lean, 0},
+	{"setstance", gsc_bots_set_stance, 0},
+	{"thrownade", gsc_bots_thrownade, 0},
+	{"fireweapon", gsc_bots_fireweapon, 0},
+	{"meleeweapon", gsc_bots_meleeweapon, 0},
+	{"reloadweapon", gsc_bots_reloadweapon, 0},
+	{"adsaim", gsc_bots_adsaim, 0},
+	{"switchtoweaponid", gsc_bots_switchtoweaponid, 0},
 #endif
 
 #ifdef EXTRA_METHODS_INC

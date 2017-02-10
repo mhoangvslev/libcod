@@ -10,6 +10,8 @@
 !functions.hpp
 !gsc.cpp
 !gsc.hpp
+!gsc_bots.cpp
+!gsc_bots.hpp
 !gsc_exec.cpp
 !gsc_exec.hpp
 !gsc_memory.cpp

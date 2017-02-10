@@ -20,14 +20,15 @@ extern "C" {
 #include <stdarg.h> // va_args
 
 #include "config.hpp"
+#include "cracking.hpp"
 #include "functions.hpp"
-#include "gsc_player.hpp"
+#include "gsc_bots.hpp"
 #include "gsc_exec.hpp"
-#include "gsc_mysql.hpp"
 #include "gsc_memory.hpp"
+#include "gsc_mysql.hpp"
+#include "gsc_player.hpp"
 #include "gsc_utils.hpp"
 #include "gsc_weapons.hpp"
-#include "cracking.hpp"
 
 #ifdef EXTRA_INCLUDES_INC
 #include "extra/includes.hpp"
