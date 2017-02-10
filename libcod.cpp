@@ -411,7 +411,7 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	if ( *(int *)(cl + block_offset) == *(int *)(cl + nextblock_offset) )
 	{
 		// We have transmitted the complete window, should we start resending?
-		if (getSVSTime() - *(int *)(cl + time_offset) > 1000)
+		if (SVS_TIME - *(int *)(cl + time_offset) > 1000)
 			*(int *)(cl + block_offset) = *(int *)(cl + section_offset);
 		else
 			return;
@@ -438,7 +438,7 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	// Move on to the next block
 	// It will get sent with next snap shot.  The rate will keep us in line.
 	( *(int *)(cl + block_offset) )++;
-	*(int *)(cl + time_offset) = getSVSTime();
+	*(int *)(cl + time_offset) = SVS_TIME;
 }
 
 // Segfault fix
@@ -551,7 +551,7 @@ int set_bot_variables()
 		if (CLIENTSTATE(i) == CS_ACTIVE && ADDRESSTYPE(i) == NA_BOT)
 		{
 			*(int *)(PLAYERBASE(i) + (ping_offset * 4)) = 0;
-			*(int *)(PLAYERBASE(i) + lastmsg_offset) = getSVSTime() + 50;
+			*(int *)(PLAYERBASE(i) + lastmsg_offset) = SVS_TIME + 50;
 		}
 	}
 

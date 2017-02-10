@@ -65,7 +65,15 @@ static const int addresstype_offset = 0x6E6D4;
 #define ADDRESSTYPE(playerid) (*(int *)(PLAYERBASE(playerid) + addresstype_offset))
 #define CLIENTSTATE(playerid) (*(int *)(PLAYERBASE(playerid)))
 
-int getSVSTime();
+#if COD_VERSION == COD2_1_0
+static const int svstime_offset = 0x0841FB04;
+#elif COD_VERSION == COD2_1_2
+static const int svstime_offset = 0x08422004;
+#elif COD_VERSION == COD2_1_3
+static const int svstime_offset = 0x08423084;
+#endif
+
+#define SVS_TIME (*(int *)svstime_offset)
 
 void gsc_player_velocity_set(int id);
 void gsc_player_velocity_add(int id);

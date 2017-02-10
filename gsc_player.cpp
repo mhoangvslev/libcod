@@ -1,21 +1,5 @@
 #include "gsc_player.hpp"
 
-/* Functions that must present even if COMPILE_PLAYER == 0 */
-
-int getSVSTime()
-{
-
-#if COD_VERSION == COD2_1_0
-	int info_start = *(int *)0x0841FB04;
-#elif COD_VERSION == COD2_1_2
-	int info_start = *(int *)0x08422004;
-#elif COD_VERSION == COD2_1_3
-	int info_start = *(int *)0x08423084;
-#endif
-
-	return info_start;
-}
-
 #if COMPILE_PLAYER == 1
 
 #define PLAYERSTATE_VELOCITY(playerid) (PLAYERSTATE(playerid) + 0x20)
@@ -277,7 +261,7 @@ void gsc_player_getLastConnectTime(int id)
 	int info_connecttime_offset = 0x20E24;
 #endif
 
-	int lastconnect = getSVSTime() - *(unsigned int *)(PLAYERBASE(id) + info_connecttime_offset);
+	int lastconnect = SVS_TIME - *(unsigned int *)(PLAYERBASE(id) + info_connecttime_offset);
 	stackPushInt(lastconnect);
 }
 
@@ -296,7 +280,7 @@ int getLastPacketTime(int id)
 
 void gsc_player_getLastMSG(int id)
 {
-	int lastmsg = getSVSTime() - *(unsigned int *)getLastPacketTime(id);
+	int lastmsg = SVS_TIME - *(unsigned int *)getLastPacketTime(id);
 	stackPushInt(lastmsg);
 }
 
