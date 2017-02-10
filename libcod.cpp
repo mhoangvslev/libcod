@@ -499,6 +499,7 @@ void hook_gamestate_info(char *format, ...)
 	gamestate_size[clientnum] = gamestate;
 }
 
+#if COMPILE_PLAYER == 1
 int custom_animation[64] = {0};
 cHook *hook_set_anim;
 int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
@@ -522,6 +523,7 @@ int set_anim(int a1, int a2, signed int a3, int a4, int a5, int a6, int a7)
 
 	return ret;
 }
+#endif
 
 #if COMPILE_BOTS == 1
 cHook *hook_set_bot_variables;
@@ -1006,6 +1008,7 @@ public:
 		// allow to write in executable memory
 		mprotect((void *)0x08048000, 0x135000, PROT_READ | PROT_WRITE | PROT_EXEC);
 
+#if COMPILE_PLAYER == 1
 #if COD_VERSION == COD2_1_0
 		int *addressToPickUpItemPointer = (int *)0x08167B34;
 #elif COD_VERSION == COD2_1_2
@@ -1015,6 +1018,7 @@ public:
 #endif
 
 		*addressToPickUpItemPointer = (int)hook_pickup_item;
+#endif
 
 #if COD_VERSION == COD2_1_0
 		int *addressToDownloadPointer = (int *)0x0815D584;
@@ -1036,13 +1040,21 @@ public:
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
 		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
+#endif
+
 		cracking_hook_call(0x08081CFE, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x0810DDEE, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
+
+#if COMPILE_PLAYER == 1
 		hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
 		hook_set_anim->hook();
+#endif
+
 		hook_player_collision = new cHook(0x080F2F2E, (int)player_collision);
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F474A, (int)player_eject);
@@ -1086,13 +1098,21 @@ public:
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
 		cracking_hook_call(0x08090CA2, (int)hook_vid_restart);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080E2546, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F76BF, (int)hook_player_g_speed);
+#endif
+
 		cracking_hook_call(0x0808227A, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x0811012A, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
+
+#if COMPILE_PLAYER == 1
 		hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
 		hook_set_anim->hook();
+#endif
+
 		hook_player_collision = new cHook(0x080F553E, (int)player_collision);
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F6D5A, (int)player_eject);
@@ -1136,13 +1156,21 @@ public:
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
 		cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
 		cracking_hook_call(0x08090D36, (int)hook_vid_restart);
+
+#if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F7803, (int)hook_player_g_speed);
+#endif
+
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
 		hook_gametype_scripts = new cHook(0x08110286, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
+
+#if COMPILE_PLAYER == 1
 		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
 		hook_set_anim->hook();
+#endif
+
 		hook_player_collision = new cHook(0x080F5682, (int)player_collision);
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F6E9E, (int)player_eject);
