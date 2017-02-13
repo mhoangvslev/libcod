@@ -12,17 +12,10 @@ if [ "$1" != "clean" ]; then
 	if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL\s(\d)$/\1/' config.hpp` == "0" ]; then
 		mysql_link=""
 	elif [ -d "./vendors/lib" ]; then
-		mysql_enable="true"
 		mysql_link="-lmysqlclient -L./vendors/lib"
 		export LD_LIBRARY_PATH_32="./vendors/lib"
-	elif [ -e "/usr/bin/mysql" ]; then
-		mysql_enable="true"
-		mysql_link="-lmysqlclient -L/usr/lib/mysql"
 	else
-		mysql_enable="false"
-		mysql_link=""
-		echo "##### WARNING: MYSQL server not found, MYSQL compilation will be skipped #####"
-		sed -i "/#define COMPILE_MYSQL 1/c\#define COMPILE_MYSQL 0" config.hpp
+		mysql_link="-lmysqlclient -L/usr/lib/mysql"
 	fi
 fi
 
@@ -127,7 +120,3 @@ $cc $options $constants -c libcod.cpp -o objects_$1/libcod.opp
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
 $cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link
-
-if [ "$mysql_enable" == "false" ]; then
-	sed -i "/#define COMPILE_MYSQL 0/c\#define COMPILE_MYSQL 1" config.hpp
-fi

@@ -8,7 +8,7 @@ Requirements:
 ```
 Perl
 g++ (multilib for x64)
-MySQL Server (MariaDB) (optional)
+MySQL (optional)
 ```
 
 Working with the source / Compiling:
