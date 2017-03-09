@@ -52,7 +52,7 @@ Transform Q3 colour codes to ANSI escape sequences
 #define MAXPRINTMSG 1024
 #define ColorIndex(c)	(((c) - '0') & 0x07)
 #define Q_COLOR_ESCAPE	'^'
-#define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isalnum(*((p)+1))) // ^[0-9a-zA-Z]
+#define Q_IsColorString(p)	((p) && *(p) == Q_COLOR_ESCAPE && *((p)+1) && isdigit(*((p)+1))) // ^[0-9]
 void Sys_AnsiColorPrint( const char *msg )
 {
 	static char buffer[ MAXPRINTMSG ];
