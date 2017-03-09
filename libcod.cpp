@@ -14,6 +14,7 @@ cvar_t *sv_allowDownload;
 cvar_t *sv_pure;
 cvar_t *developer;
 cvar_t *rcon_password;
+cvar_t *colored_prints;
 
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 cvar_t *sv_wwwDownload;
@@ -1222,6 +1223,7 @@ public:
 		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
 		nodeveloper_errors = Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
 		nodeveloper_prints = Cvar_RegisterBool("nodeveloper_prints", 0, 0x1000u);
+		colored_prints = Cvar_RegisterBool("colored_prints", 1, 0x1000u);
 		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
 		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
 		fs_library = Cvar_RegisterString("fs_library", "", 0x1000u);
