@@ -45,27 +45,6 @@ void hook_sv_init(char *format, ...)
 
 }
 
-cvar_t *nodeveloper_prints;
-cHook *hook_nodev_prints;
-void nodev_prints(char *format, ...)
-{
-	hook_nodev_prints->unhook();
-
-	char s[COD2_MAX_STRINGLENGTH];
-	va_list va;
-
-	va_start(va, format);
-	vsnprintf(s, sizeof(s), format, va);
-	va_end(va);
-
-	if (!developer->integer && nodeveloper_prints->boolean)
-		Com_Printf("%s", s);
-	else
-		Com_DPrintf("%s", s);
-
-	hook_nodev_prints->hook();
-}
-
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
@@ -462,13 +441,12 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	return 1;
 }
 
-cvar_t *nodeveloper_errors;
 void hook_scriptError(int a1, int a2, int a3, void *a4)
 {
-	scriptError(a1, a2, a3, a4);
-
-	if (!developer->integer && nodeveloper_errors->boolean)
+	if (developer->integer == 2)
 		runtimeError(0, a1, a2, a3);
+	else
+		scriptError(a1, a2, a3, a4);
 }
 
 #if COMPILE_PLAYER == 1
@@ -1064,8 +1042,6 @@ public:
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F474A, (int)player_eject);
 		hook_player_eject->hook();
-		hook_nodev_prints = new cHook(0x08060B7C, (int)nodev_prints);
-		hook_nodev_prints->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x0809443E, (int)set_bot_variables);
@@ -1126,8 +1102,6 @@ public:
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F6D5A, (int)player_eject);
 		hook_player_eject->hook();
-		hook_nodev_prints = new cHook(0x08060E42, (int)nodev_prints);
-		hook_nodev_prints->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x0809630E, (int)set_bot_variables);
@@ -1188,8 +1162,6 @@ public:
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F6E9E, (int)player_eject);
 		hook_player_eject->hook();
-		hook_nodev_prints = new cHook(0x08060E3A, (int)nodev_prints);
-		hook_nodev_prints->hook();
 
 #if COMPILE_BOTS == 1
 		hook_set_bot_variables = new cHook(0x080963C8, (int)set_bot_variables);
@@ -1221,8 +1193,6 @@ public:
 
 		// Register custom cvars
 		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
-		nodeveloper_errors = Cvar_RegisterBool("nodeveloper_errors", 0, 0x1000u);
-		nodeveloper_prints = Cvar_RegisterBool("nodeveloper_prints", 0, 0x1000u);
 		colored_prints = Cvar_RegisterBool("colored_prints", 1, 0x1000u);
 		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
 		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
