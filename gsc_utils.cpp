@@ -90,8 +90,7 @@ void Sys_AnsiColorPrint( const char *msg )
 			else
 			{
 				// Print the color code
-				Com_sprintf( buffer, sizeof( buffer ), "\033[1;%dm",
-				             q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
+				snprintf( buffer, sizeof( buffer ), "\033[1;%dm", q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
 				fputs( buffer, stdout );
 				msg += 2;
 			}
