@@ -195,6 +195,7 @@ scr_function_t scriptFunctions[] =
 	{"G_FindConfigstringIndexOriginal", gsc_G_FindConfigstringIndexOriginal, 0},
 	{"getconfigstring", gsc_get_configstring, 0},
 	{"setconfigstring", gsc_set_configstring, 0},
+	{"makelocalizedstring", gsc_make_localized_string, 0},
 	{"call_function_raw", gsc_call_function_raw, 0},
 	{"dlopen", gsc_dlopen, 0},
 	{"dlsym", gsc_dlsym, 0},

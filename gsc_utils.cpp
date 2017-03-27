@@ -824,4 +824,24 @@ void gsc_utils_sqrtInv()
 	stackPushFloat(x);
 }
 
+void gsc_make_localized_string()
+{
+	char *str;
+
+	if ( ! stackGetParams("s", &str))
+	{
+		stackError("gsc_make_localized_string() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	stackPushString(str);
+
+	VariableValue *var;
+	int param = 0;
+
+	var = &scrVmPub.top[-param];
+	var->type = STACK_LOCALIZED_STRING;
+}
+
 #endif
