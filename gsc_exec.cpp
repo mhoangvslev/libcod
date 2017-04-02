@@ -21,6 +21,7 @@ struct exec_async_task
 	bool error;
 	bool hascallback;
 	exec_outputline *output;
+	unsigned int levelId;
 };
 
 exec_async_task *first_exec_async_task = NULL;
@@ -139,6 +140,8 @@ void gsc_exec_async_create()
 	newtask->done = false;
 	newtask->save = true;
 	newtask->error = false;
+	newtask->levelId = scrVarPub.levelId;
+
 	if(current != NULL)
 		current->next = newtask;
 	else
@@ -185,6 +188,8 @@ void gsc_exec_async_create_nosave()
 	newtask->done = false;
 	newtask->save = false;
 	newtask->error = false;
+	newtask->levelId = scrVarPub.levelId;
+
 	if(current != NULL)
 		current->next = newtask;
 	else
@@ -212,7 +217,7 @@ void gsc_exec_async_checkdone()
 		if(task->done)
 		{
 			//push to cod
-			if(task->hascallback)
+			if(task->hascallback && (scrVarPub.levelId == task->levelId))
 			{
 				if(task->save && !task->error)
 				{
