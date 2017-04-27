@@ -193,6 +193,15 @@ void hook_ClientCommand(int clientNum)
 	Scr_FreeThread(ret);
 }
 
+cvar_t *sv_noauthorize;
+int hook_isLanAddress( netadr_t adr )
+{
+	if (sv_noauthorize->boolean)
+		return 1;
+
+	return Sys_IsLANAddress(adr);
+}
+
 cvar_t *sv_cracked;
 char* hook_AuthorizeState( int arg )
 {
@@ -1013,6 +1022,7 @@ public:
 		cracking_hook_call(0x08061FE7, (int)hook_sv_init);
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808BFCA, (int)hook_isLanAddress);
 		cracking_hook_call(0x0808AD00, (int)hook_findMap);
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
@@ -1073,6 +1083,7 @@ public:
 		cracking_hook_call(0x08062301, (int)hook_sv_init);
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808D22E, (int)hook_isLanAddress);
 		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
@@ -1133,6 +1144,7 @@ public:
 		cracking_hook_call(0x080622F9, (int)hook_sv_init);
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
+		cracking_hook_call(0x0808D2FA, (int)hook_isLanAddress);
 		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
@@ -1193,6 +1205,7 @@ public:
 
 		// Register custom cvars
 		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
+		sv_noauthorize = Cvar_RegisterBool("sv_noauthorize", 0, 0x1000u);
 		colored_prints = Cvar_RegisterBool("colored_prints", 1, 0x1000u);
 		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
 		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, 0x1000u);

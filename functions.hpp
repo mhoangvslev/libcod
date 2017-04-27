@@ -798,4 +798,13 @@ static const BG_AnimationIndexForString_t BG_AnimationIndexForString = (BG_Anima
 static const BG_AnimationIndexForString_t BG_AnimationIndexForString = (BG_AnimationIndexForString_t)0x080D6DD0;
 #endif
 
+typedef int (*Sys_IsLANAddress_t)(netadr_t adr);
+#if COD_VERSION == COD2_1_0
+static const Sys_IsLANAddress_t Sys_IsLANAddress = (Sys_IsLANAddress_t)0x080D2FC8;
+#elif COD_VERSION == COD2_1_2
+static const Sys_IsLANAddress_t Sys_IsLANAddress = (Sys_IsLANAddress_t)0x080D54F4;
+#elif COD_VERSION == COD2_1_3
+static const Sys_IsLANAddress_t Sys_IsLANAddress = (Sys_IsLANAddress_t)0x080D5638;
+#endif
+
 #endif
