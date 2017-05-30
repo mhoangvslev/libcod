@@ -167,6 +167,18 @@ void gsc_player_button_jump(int id)
 	stackPushInt(jumpButtonPressed);
 }
 
+void gsc_player_button_frag(int id)
+{
+	int cl = G_ENTITY(id);
+	stackPushInt(((*(unsigned int *)(*((int *)cl + 86) + 10184) | *(unsigned int *)(*((int *)cl + 86) + 10172)) & 0x10000) != 0);
+}
+
+void gsc_player_button_smoke(int id)
+{
+	int cl = G_ENTITY(id);
+	stackPushInt(((*(unsigned int *)(*((int *)cl + 86) + 10184) | *(unsigned int *)(*((int *)cl + 86) + 10172)) & 0x20000) != 0);
+}
+
 void gsc_player_stance_get(int id)
 {
 	unsigned char *stance_address = (unsigned char *)(G_ENTITY(id) + 8);

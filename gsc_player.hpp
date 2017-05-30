@@ -88,6 +88,8 @@ void gsc_player_button_leanleft(int id);
 void gsc_player_button_leanright(int id);
 void gsc_player_button_jump(int id);
 void gsc_player_button_reload(int id);
+void gsc_player_button_frag(int id);
+void gsc_player_button_smoke(int id);
 
 void gsc_player_stance_get(int id);
 
