@@ -22,6 +22,7 @@ void gsc_utils_getAscii();
 void gsc_utils_toupper();
 void gsc_utils_system();
 void gsc_utils_exponent();
+void gsc_utils_round();
 void gsc_utils_file_link();
 void gsc_utils_file_unlink();
 void gsc_utils_file_exists();

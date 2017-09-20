@@ -173,6 +173,7 @@ scr_function_t scriptFunctions[] =
 	{"toUpper", gsc_utils_toupper, 0},
 	{"system", gsc_utils_system, 0},
 	{"exponent", gsc_utils_exponent, 0},
+	{"round", gsc_utils_round, 0},
 	{"file_link", gsc_utils_file_link, 0},
 	{"file_unlink", gsc_utils_file_unlink, 0},
 	{"file_exists", gsc_utils_file_exists, 0},

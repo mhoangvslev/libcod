@@ -342,6 +342,18 @@ void gsc_utils_exponent()
 	stackPushFloat( pow(basis, exponent) );
 }
 
+void gsc_utils_round()
+{
+	float val;
+	if ( ! stackGetParams("f",  &val))
+	{
+		stackError("gsc_utils_round() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+	stackPushFloat( roundf(val * 100) / 100 );
+}
+
 void gsc_utils_file_link()
 {
 	char *source, *dest;
