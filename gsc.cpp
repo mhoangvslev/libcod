@@ -328,6 +328,11 @@ scr_method_t scriptMethods[] =
 	{"switchtoweaponid", gsc_bots_switchtoweaponid, 0},
 #endif
 
+#if COMPILE_ASYNC_MYSQL == 1
+	{"async_mysql_create_entity_query", gsc_async_mysql_create_entity_query, 0},
+	{"async_mysql_create_entity_query_nosave", gsc_async_mysql_create_entity_query_nosave, 0},
+#endif
+
 #ifdef EXTRA_METHODS_INC
 #include "extra/methods.hpp"
 #endif

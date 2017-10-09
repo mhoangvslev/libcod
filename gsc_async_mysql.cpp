@@ -33,6 +33,7 @@ struct async_mysql_task
 	float floatValue;
 	char *stringValue;
 	vec3_t vectorValue;
+	int entity;
 };
 
 MYSQL *async_mysql_connection = NULL;
@@ -193,6 +194,7 @@ void gsc_async_mysql_create_query()
 	newtask->remove = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
+	newtask->entity = -1;
 
 	int valueInt;
 	float valueFloat;
@@ -274,6 +276,171 @@ void gsc_async_mysql_create_query_nosave()
 	newtask->remove = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
+	newtask->entity = -1;
+
+	int valueInt;
+	float valueFloat;
+	char *valueString;
+	vec3_t valueVector;
+
+	if (stackGetParamInt(2, &valueInt))
+	{
+		newtask->valueType = INT_VALUE;
+		newtask->intValue = valueInt;
+	}
+	else if (stackGetParamFloat(2, &valueFloat))
+	{
+		newtask->valueType = FLOAT_VALUE;
+		newtask->floatValue = valueFloat;
+	}
+	else if (stackGetParamString(2, &valueString))
+	{
+		newtask->valueType = STRING_VALUE;
+		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
+		strcpy(newtask->stringValue, valueString);
+	}
+	else if (stackGetParamVector(2, valueVector))
+	{
+		newtask->valueType = VECTOR_VALUE;
+		newtask->vectorValue[0] = valueVector[0];
+		newtask->vectorValue[1] = valueVector[1];
+		newtask->vectorValue[2] = valueVector[2];
+	}
+	else
+		newtask->hasargument = false;
+
+	if (current != NULL)
+		current->next = newtask;
+	else
+		first_async_mysql_task = newtask;
+
+	stackPushInt(1);
+}
+
+void gsc_async_mysql_create_entity_query(int entid)
+{
+	char *query;
+
+	if ( ! stackGetParams("s", &query))
+	{
+		stackError("gsc_async_mysql_create_entity_query() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	static int id = 0;
+	id++;
+
+	async_mysql_task *current = first_async_mysql_task;
+
+	while (current != NULL && current->next != NULL)
+		current = current->next;
+
+	async_mysql_task *newtask = new async_mysql_task;
+	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
+	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	newtask->prev = current;
+	newtask->next = NULL;
+	newtask->id = id;
+
+	int callback;
+
+	if (!stackGetParamFunction(1, &callback))
+		newtask->callback = 0;
+	else
+		newtask->callback = callback;
+
+	newtask->result = 0;
+	newtask->done = false;
+	newtask->complete = false;
+	newtask->save = true;
+	newtask->error = false;
+	newtask->remove = false;
+	newtask->levelId = scrVarPub.levelId;
+	newtask->hasargument = true;
+	newtask->entity = entid;
+
+	int valueInt;
+	float valueFloat;
+	char *valueString;
+	vec3_t valueVector;
+
+	if (stackGetParamInt(2, &valueInt))
+	{
+		newtask->valueType = INT_VALUE;
+		newtask->intValue = valueInt;
+	}
+	else if (stackGetParamFloat(2, &valueFloat))
+	{
+		newtask->valueType = FLOAT_VALUE;
+		newtask->floatValue = valueFloat;
+	}
+	else if (stackGetParamString(2, &valueString))
+	{
+		newtask->valueType = STRING_VALUE;
+		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
+		strcpy(newtask->stringValue, valueString);
+	}
+	else if (stackGetParamVector(2, valueVector))
+	{
+		newtask->valueType = VECTOR_VALUE;
+		newtask->vectorValue[0] = valueVector[0];
+		newtask->vectorValue[1] = valueVector[1];
+		newtask->vectorValue[2] = valueVector[2];
+	}
+	else
+		newtask->hasargument = false;
+
+	if (current != NULL)
+		current->next = newtask;
+	else
+		first_async_mysql_task = newtask;
+
+	stackPushInt(1);
+}
+
+void gsc_async_mysql_create_entity_query_nosave(int entid)
+{
+	char *query;
+
+	if ( ! stackGetParams("s", &query))
+	{
+		stackError("gsc_async_mysql_create_entity_query_nosave() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	static int id = 0;
+	id++;
+
+	async_mysql_task *current = first_async_mysql_task;
+
+	while (current != NULL && current->next != NULL)
+		current = current->next;
+
+	async_mysql_task *newtask = new async_mysql_task;
+	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
+	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	newtask->prev = current;
+	newtask->next = NULL;
+	newtask->id = id;
+
+	int callback;
+
+	if (!stackGetParamFunction(1, &callback))
+		newtask->callback = 0;
+	else
+		newtask->callback = callback;
+
+	newtask->result = 0;
+	newtask->done = false;
+	newtask->complete = false;
+	newtask->save = false;
+	newtask->error = false;
+	newtask->remove = false;
+	newtask->levelId = scrVarPub.levelId;
+	newtask->hasargument = true;
+	newtask->entity = entid;
 
 	int valueInt;
 	float valueFloat;
@@ -362,7 +529,13 @@ void gsc_async_mysql_checkdone()
 				else
 					task->remove = true;
 
-				short ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
+				short ret;
+
+				if (task->entity != -1)
+					ret = Scr_ExecEntThread(G_ENTITY(task->entity), task->callback, (task->save + task->hasargument));
+				else
+					ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
+
 				Scr_FreeThread(ret);
 			}
 			else
