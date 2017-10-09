@@ -9,7 +9,7 @@ cc="g++"
 options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
 if [ "$1" != "clean" ]; then
-	if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL\s(\d)$/\1/' config.hpp` == "0" ]; then
+	if [ `perl -ne 'print if s/^#define\sCOMPILE(_ASYNC)?_MYSQL\s(\d)$/\1/' config.hpp` == "0" ]; then
 		mysql_link=""
 	elif [ -d "./vendors/lib" ]; then
 		mysql_link="-lmysqlclient -L./vendors/lib"
@@ -86,6 +86,11 @@ fi
 if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL\s(\d)$/\1/' config.hpp` == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
 	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp
+fi
+
+if [ `perl -ne 'print if s/^#define\sCOMPILE_ASYNC_MYSQL\s(\d)$/\1/' config.hpp` == "1" ]; then
+	echo "##### COMPILE $1 GSC_ASYNC_MYSQL.CPP #####"
+	$cc $options $constants -c gsc_async_mysql.cpp -o objects_$1/gsc_async_mysql.opp
 fi
 
 if [ `perl -ne 'print if s/^#define\sCOMPILE_PLAYER\s(\d)$/\1/' config.hpp` == "1" ]; then

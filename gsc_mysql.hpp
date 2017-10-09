@@ -16,8 +16,7 @@ extern "C" {
 /* offsetof */
 #include <stddef.h>
 
-void gsc_mysql_init();
-void gsc_mysql_real_connect();
+void gsc_mysql_initialize();
 void gsc_mysql_close();
 void gsc_mysql_query();
 void gsc_mysql_errno();
@@ -31,12 +30,6 @@ void gsc_mysql_fetch_field();
 void gsc_mysql_fetch_row();
 void gsc_mysql_free_result();
 void gsc_mysql_real_escape_string();
-void gsc_mysql_async_create_query();
-void gsc_mysql_async_create_query_nosave();
-void gsc_mysql_async_getdone_list();
-void gsc_mysql_async_getresult_and_free();
-void gsc_mysql_async_initializer();
-void gsc_mysql_reuse_connection();
 
 #ifdef __cplusplus
 }

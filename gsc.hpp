@@ -26,6 +26,7 @@ extern "C" {
 #include "gsc_exec.hpp"
 #include "gsc_memory.hpp"
 #include "gsc_mysql.hpp"
+#include "gsc_async_mysql.hpp"
 #include "gsc_player.hpp"
 #include "gsc_utils.hpp"
 #include "gsc_weapons.hpp"
