@@ -60,6 +60,8 @@ void *async_mysql_query_handler(void* dummy)
 					unsigned int errno = mysql_errno(async_mysql_connection);
 					printf("mysql_async_execute_query() failed to execute query: error %i\n", errno);
 					task->error = true;
+					task->complete = true;
+					task->remove = true;
 				}
 
 				task->done = true;
@@ -74,7 +76,7 @@ void *async_mysql_query_handler(void* dummy)
 				else
 					first_async_mysql_task = task->next;
 
-				if (task->result != 0)
+				if (task->result != NULL)
 					mysql_free_result(task->result);
 
 				delete task;
@@ -170,7 +172,7 @@ void gsc_async_mysql_create_query()
 	else
 		newtask->callback = callback;
 
-	newtask->result = 0;
+	newtask->result = NULL;
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = true;
@@ -248,7 +250,7 @@ void gsc_async_mysql_create_query_nosave()
 	else
 		newtask->callback = callback;
 
-	newtask->result = 0;
+	newtask->result = NULL;
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = false;
@@ -326,7 +328,7 @@ void gsc_async_mysql_create_entity_query(int entid)
 	else
 		newtask->callback = callback;
 
-	newtask->result = 0;
+	newtask->result = NULL;
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = true;
@@ -404,7 +406,7 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 	else
 		newtask->callback = callback;
 
-	newtask->result = 0;
+	newtask->result = NULL;
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = false;
@@ -571,7 +573,7 @@ void gsc_async_mysql_num_rows()
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
 
-	if (target_task->result == 0)
+	if (target_task->result == NULL)
 	{
 		stackError("gsc_async_mysql_num_rows() result is a NULL-pointer");
 		stackPushUndefined();
@@ -601,7 +603,7 @@ void gsc_async_mysql_num_fields()
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
 
-	if (target_task->result == 0)
+	if (target_task->result == NULL)
 	{
 		stackError("gsc_async_mysql_num_fields() result is a NULL-pointer");
 		stackPushUndefined();
@@ -632,7 +634,7 @@ void gsc_async_mysql_field_seek()
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
 
-	if (target_task->result == 0)
+	if (target_task->result == NULL)
 	{
 		stackError("gsc_async_mysql_field_seek() result is a NULL-pointer");
 		stackPushUndefined();
@@ -662,7 +664,7 @@ void gsc_async_mysql_fetch_field()
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
 
-	if (target_task->result == 0)
+	if (target_task->result == NULL)
 	{
 		stackError("gsc_async_mysql_fetch_field() result is a NULL-pointer");
 		stackPushUndefined();
@@ -701,7 +703,7 @@ void gsc_async_mysql_fetch_row()
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
 
-	if (target_task->result == 0)
+	if (target_task->result == NULL)
 	{
 		stackError("gsc_async_mysql_fetch_row() result is a NULL-pointer");
 		stackPushUndefined();
