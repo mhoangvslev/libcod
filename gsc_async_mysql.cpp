@@ -18,7 +18,6 @@ struct async_mysql_task
 	async_mysql_task *prev;
 	async_mysql_task *next;
 	char query[COD2_MAX_STRINGLENGTH];
-	int id;
 	int callback;
 	bool done;
 	bool complete;
@@ -38,7 +37,6 @@ struct async_mysql_task
 
 MYSQL *async_mysql_connection = NULL;
 async_mysql_task *first_async_mysql_task = NULL;
-pthread_mutex_t lock_async_mysql;
 
 void *async_mysql_query_handler(void* dummy)
 {
@@ -48,7 +46,6 @@ void *async_mysql_query_handler(void* dummy)
 
 		while (current != NULL)
 		{
-			pthread_mutex_lock(&lock_async_mysql);
 			async_mysql_task *task = current;
 			current = current->next;
 
@@ -82,8 +79,6 @@ void *async_mysql_query_handler(void* dummy)
 
 				delete task;
 			}
-
-			pthread_mutex_unlock(&lock_async_mysql);
 		}
 
 		usleep(50000);
@@ -113,13 +108,6 @@ void gsc_async_mysql_initialize()
 		if (!mysql_real_connect(my, host, user, pass, db, port, NULL, 0))
 		{
 			stackError("gsc_async_mysql_initialize() failed to initialize async mysql connection!");
-			stackPushUndefined();
-			return;
-		}
-
-		if (pthread_mutex_init(&lock_async_mysql, NULL) != 0)
-		{
-			stackError("Async mutex initialization failed!");
 			stackPushUndefined();
 			return;
 		}
@@ -164,9 +152,6 @@ void gsc_async_mysql_create_query()
 		return;
 	}
 
-	static int id = 0;
-	id++;
-
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -177,7 +162,6 @@ void gsc_async_mysql_create_query()
 	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
 	newtask->prev = current;
 	newtask->next = NULL;
-	newtask->id = id;
 
 	int callback;
 
@@ -246,9 +230,6 @@ void gsc_async_mysql_create_query_nosave()
 		return;
 	}
 
-	static int id = 0;
-	id++;
-
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -259,7 +240,6 @@ void gsc_async_mysql_create_query_nosave()
 	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
 	newtask->prev = current;
 	newtask->next = NULL;
-	newtask->id = id;
 
 	int callback;
 
@@ -328,9 +308,6 @@ void gsc_async_mysql_create_entity_query(int entid)
 		return;
 	}
 
-	static int id = 0;
-	id++;
-
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -341,7 +318,6 @@ void gsc_async_mysql_create_entity_query(int entid)
 	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
 	newtask->prev = current;
 	newtask->next = NULL;
-	newtask->id = id;
 
 	int callback;
 
@@ -410,9 +386,6 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 		return;
 	}
 
-	static int id = 0;
-	id++;
-
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -423,7 +396,6 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
 	newtask->prev = current;
 	newtask->next = NULL;
-	newtask->id = id;
 
 	int callback;
 
@@ -487,7 +459,6 @@ void gsc_async_mysql_checkdone()
 
 	while (current != NULL)
 	{
-		pthread_mutex_lock(&lock_async_mysql);
 		async_mysql_task *task = current;
 		current = current->next;
 
@@ -541,8 +512,6 @@ void gsc_async_mysql_checkdone()
 			else
 				task->remove = true;
 		}
-
-		pthread_mutex_unlock(&lock_async_mysql);
 	}
 }
 
