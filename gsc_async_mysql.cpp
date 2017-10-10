@@ -23,7 +23,7 @@ struct async_mysql_task
 	bool complete;
 	bool save;
 	bool error;
-	bool remove;
+	bool cleanup;
 	MYSQL_RES *result;
 	unsigned int levelId;
 	bool hasargument;
@@ -57,17 +57,15 @@ void *async_mysql_query_handler(void* dummy)
 					task->result = mysql_store_result(async_mysql_connection);
 				else
 				{
-					unsigned int errno = mysql_errno(async_mysql_connection);
-					printf("mysql_async_execute_query() failed to execute query: error %i\n", errno);
 					task->error = true;
 					task->complete = true;
-					task->remove = true;
+					task->cleanup = true;
 				}
 
 				task->done = true;
 			}
 
-			if (task->remove)
+			if (task->cleanup)
 			{
 				if (task->next != NULL)
 					task->next->prev = task->prev;
@@ -177,7 +175,7 @@ void gsc_async_mysql_create_query()
 	newtask->complete = false;
 	newtask->save = true;
 	newtask->error = false;
-	newtask->remove = false;
+	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
 	newtask->entity = -1;
@@ -255,7 +253,7 @@ void gsc_async_mysql_create_query_nosave()
 	newtask->complete = false;
 	newtask->save = false;
 	newtask->error = false;
-	newtask->remove = false;
+	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
 	newtask->entity = -1;
@@ -333,7 +331,7 @@ void gsc_async_mysql_create_entity_query(int entid)
 	newtask->complete = false;
 	newtask->save = true;
 	newtask->error = false;
-	newtask->remove = false;
+	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
 	newtask->entity = entid;
@@ -411,7 +409,7 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 	newtask->complete = false;
 	newtask->save = false;
 	newtask->error = false;
-	newtask->remove = false;
+	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
 	newtask->entity = entid;
@@ -500,7 +498,7 @@ void gsc_async_mysql_checkdone()
 				if (task->save)
 					stackPushInt(int(task));
 				else
-					task->remove = true;
+					task->cleanup = true;
 
 				short ret;
 
@@ -512,7 +510,7 @@ void gsc_async_mysql_checkdone()
 				Scr_FreeThread(ret);
 			}
 			else
-				task->remove = true;
+				task->cleanup = true;
 		}
 	}
 }
@@ -752,7 +750,7 @@ void gsc_async_mysql_free_task()
 	}
 
 	async_mysql_task *target_task = (async_mysql_task *)task;
-	target_task->remove = true;
+	target_task->cleanup = true;
 	stackPushInt(1);
 }
 
