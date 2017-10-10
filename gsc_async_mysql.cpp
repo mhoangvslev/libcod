@@ -57,7 +57,6 @@ void *async_mysql_query_handler(void* dummy)
 					task->result = mysql_store_result(async_mysql_connection);
 				else
 				{
-					task->error = true;
 					task->complete = true;
 					task->cleanup = true;
 				}
@@ -174,7 +173,6 @@ void gsc_async_mysql_create_query()
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = true;
-	newtask->error = false;
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
@@ -252,7 +250,6 @@ void gsc_async_mysql_create_query_nosave()
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = false;
-	newtask->error = false;
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
@@ -330,7 +327,6 @@ void gsc_async_mysql_create_entity_query(int entid)
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = true;
-	newtask->error = false;
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
@@ -408,7 +404,6 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 	newtask->done = false;
 	newtask->complete = false;
 	newtask->save = false;
-	newtask->error = false;
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
@@ -466,7 +461,7 @@ void gsc_async_mysql_checkdone()
 		{
 			task->complete = true;
 
-			if (task->callback && !task->error && (scrVarPub.levelId == task->levelId))
+			if (task->callback && (scrVarPub.levelId == task->levelId))
 			{
 				if (task->hasargument)
 				{
