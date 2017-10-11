@@ -213,17 +213,6 @@ char* hook_AuthorizeState( int arg )
 	return s;
 }
 
-void hook_SV_BeginDownload_f( int a1 )
-{
-	char *file = Cmd_Argv(1);
-	int len = strlen(file);
-
-	if (len > 3 && strcmp(&file[len - 4], ".iwd") == 0)
-		SV_BeginDownload_f(a1);
-	else
-		Com_DPrintf("Invalid download attempt: %s\n", file);
-}
-
 void hook_ClientUserinfoChanged(int clientNum)
 {
 	if ( ! codecallback_userinfochanged)
@@ -280,14 +269,24 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	int wwwdld_offset2 = 134676;
 #endif
 
+	int clientnum = PLAYERBASE_ID(cl);
+
+	if (CLIENTSTATE(clientnum) == CS_ACTIVE)
+	{
+		*(int *)(cl + file_offset) = 0;
+		*(int *)(cl + filename_offset) = 0;
+		return;
+	}
+
 	char *file = (char *)(cl + filename_offset);
 	int len = strlen(file);
 
-	if (!*(int *)(cl + filename_offset))
-		return;	// Nothing being downloaded
-
 	if (len < 4 || strcmp(&file[len - 4], ".iwd") != 0)
-		return;	// Not a valid iwd file
+	{
+		*(int *)(cl + file_offset) = 0;
+		*(int *)(cl + filename_offset) = 0;
+		return;
+	}
 
 	if (strlen(sv_downloadMessage->string))
 	{
@@ -296,6 +295,7 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 		MSG_WriteShort(msg, 0);
 		MSG_WriteLong(msg, -1);
 		MSG_WriteString(msg, errorMessage);
+		*(int *)(cl + file_offset) = 0;
 		*(int *)(cl + filename_offset) = 0;
 		return;
 	}
@@ -318,7 +318,7 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	{
 		// We open the file here
 
-		Com_Printf("clientDownload: %d : begining \"%s\"\n", PLAYERBASE_ID(cl), cl + filename_offset);
+		Com_Printf("clientDownload: %d : begining \"%s\"\n", clientnum, cl + filename_offset);
 
 		iwdFile = FS_iwIwd((char *)(cl + filename_offset), "main");
 
@@ -327,12 +327,12 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 			// cannot auto-download file
 			if (iwdFile)
 			{
-				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", PLAYERBASE_ID(cl), cl + filename_offset);
+				Com_Printf("clientDownload: %d : \"%s\" cannot download iwd files\n", clientnum, cl + filename_offset);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_CANTAUTODLGAMEIWD\x15%s", cl + filename_offset);
 			}
 			else if ( !sv_allowDownload->boolean )
 			{
-				Com_Printf("clientDownload: %d : \"%s\" download disabled\n", PLAYERBASE_ID(cl), cl + filename_offset);
+				Com_Printf("clientDownload: %d : \"%s\" download disabled\n", clientnum, cl + filename_offset);
 				if (sv_pure->boolean)
 					Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_SERVERDISABLED_PURE\x15%s", cl + filename_offset);
 				else
@@ -340,14 +340,14 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 			}
 			else
 			{
-				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", PLAYERBASE_ID(cl), cl + filename_offset);
+				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", clientnum, cl + filename_offset);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "EXE_AUTODL_FILENOTONSERVER\x15%s", cl + filename_offset);
 			}
+
 			MSG_WriteByte(msg, 5);
 			MSG_WriteShort(msg, 0);
 			MSG_WriteLong(msg, -1);
 			MSG_WriteString(msg, errorMessage);
-
 			*(int *)(cl + filename_offset) = 0;
 			return;
 		}
@@ -422,7 +422,7 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	if ( *(int *)(cl + 4 * curindex + unknown_offset2) )
 		MSG_WriteData(msg, *(void **)(cl + 4 * curindex + unknown_offset1), *(int *)(cl + 4 * curindex + unknown_offset2));
 
-	Com_DPrintf("clientDownload: %d : writing block %d\n", PLAYERBASE_ID(cl), *(int *)(cl + block_offset));
+	Com_DPrintf("clientDownload: %d : writing block %d\n", clientnum, *(int *)(cl + block_offset));
 
 	// Move on to the next block
 	// It will get sent with next snap shot.  The rate will keep us in line.
@@ -1007,16 +1007,6 @@ public:
 
 		*addressToPickUpItemPointer = (int)hook_pickup_item;
 #endif
-
-#if COD_VERSION == COD2_1_0
-		int *addressToDownloadPointer = (int *)0x0815D584;
-#elif COD_VERSION == COD2_1_2
-		int *addressToDownloadPointer = (int *)0x0817C9E4;
-#elif COD_VERSION == COD2_1_3
-		int *addressToDownloadPointer = (int *)0x0817DA04;
-#endif
-
-		*addressToDownloadPointer = (int)hook_SV_BeginDownload_f;
 
 #if COD_VERSION == COD2_1_0
 		cracking_hook_call(0x08061FE7, (int)hook_sv_init);
