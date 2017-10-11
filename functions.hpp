@@ -798,4 +798,13 @@ static const Sys_IsLANAddress_t Sys_IsLANAddress = (Sys_IsLANAddress_t)0x080D54F
 static const Sys_IsLANAddress_t Sys_IsLANAddress = (Sys_IsLANAddress_t)0x080D5638;
 #endif
 
+typedef int (*Scr_IsSystemActive_t)();
+#if COD_VERSION == COD2_1_0
+static const Scr_IsSystemActive_t Scr_IsSystemActive = (Scr_IsSystemActive_t)0x08084030;
+#elif COD_VERSION == COD2_1_2
+static const Scr_IsSystemActive_t Scr_IsSystemActive = (Scr_IsSystemActive_t)0x080845AC;
+#elif COD_VERSION == COD2_1_3
+static const Scr_IsSystemActive_t Scr_IsSystemActive = (Scr_IsSystemActive_t)0x08084678;
+#endif
+
 #endif

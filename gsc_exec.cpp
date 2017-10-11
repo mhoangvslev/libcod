@@ -324,7 +324,7 @@ void gsc_exec_async_checkdone()
 		if (task->done)
 		{
 			//push to cod
-			if (task->callback && !task->error && (scrVarPub.levelId == task->levelId))
+			if (Scr_IsSystemActive() && task->callback && !task->error && (scrVarPub.levelId == task->levelId))
 			{
 				if (task->hasargument)
 				{

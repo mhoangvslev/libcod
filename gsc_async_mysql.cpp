@@ -5,6 +5,9 @@
 #include <mysql/mysql.h>
 #include <pthread.h>
 
+#define INVALID_ENTITY -1024
+#define INVALID_STATE 0
+
 enum
 {
 	INT_VALUE,
@@ -32,7 +35,8 @@ struct async_mysql_task
 	float floatValue;
 	char *stringValue;
 	vec3_t vectorValue;
-	int entity;
+	int entityNum;
+	int entityState;
 };
 
 MYSQL *async_mysql_connection = NULL;
@@ -80,7 +84,7 @@ void *async_mysql_query_handler(void* dummy)
 			}
 		}
 
-		usleep(50000);
+		usleep(10000);
 	}
 
 	return NULL;
@@ -176,7 +180,8 @@ void gsc_async_mysql_create_query()
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
-	newtask->entity = -1;
+	newtask->entityNum = INVALID_ENTITY;
+	newtask->entityState = INVALID_STATE;
 
 	int valueInt;
 	float valueFloat;
@@ -253,7 +258,8 @@ void gsc_async_mysql_create_query_nosave()
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
-	newtask->entity = -1;
+	newtask->entityNum = INVALID_ENTITY;
+	newtask->entityState = INVALID_STATE;
 
 	int valueInt;
 	float valueFloat;
@@ -330,7 +336,8 @@ void gsc_async_mysql_create_entity_query(int entid)
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
-	newtask->entity = entid;
+	newtask->entityNum = entid;
+	newtask->entityState = *(int *)(G_ENTITY(newtask->entityNum) + 1);
 
 	int valueInt;
 	float valueFloat;
@@ -407,7 +414,8 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 	newtask->cleanup = false;
 	newtask->levelId = scrVarPub.levelId;
 	newtask->hasargument = true;
-	newtask->entity = entid;
+	newtask->entityNum = entid;
+	newtask->entityState = *(int *)(G_ENTITY(newtask->entityNum) + 1);
 
 	int valueInt;
 	float valueFloat;
@@ -461,7 +469,7 @@ void gsc_async_mysql_checkdone()
 		{
 			task->complete = true;
 
-			if (task->callback && (scrVarPub.levelId == task->levelId))
+			if (Scr_IsSystemActive() && task->callback && (scrVarPub.levelId == task->levelId))
 			{
 				if (task->hasargument)
 				{
@@ -495,14 +503,28 @@ void gsc_async_mysql_checkdone()
 				else
 					task->cleanup = true;
 
-				short ret;
+				if (task->entityNum != INVALID_ENTITY)
+				{
+					if (task->entityState != INVALID_STATE)
+					{
+						int state = *(int *)(G_ENTITY(task->entityNum) + 1);
 
-				if (task->entity != -1)
-					ret = Scr_ExecEntThread(G_ENTITY(task->entity), task->callback, (task->save + task->hasargument));
+						if (state != INVALID_STATE && state == task->entityState)
+						{
+							short ret = Scr_ExecEntThread(G_ENTITY(task->entityNum), task->callback, (task->save + task->hasargument));
+							Scr_FreeThread(ret);
+						}
+						else
+							task->cleanup = true;
+					}
+					else
+						task->cleanup = true;
+				}
 				else
-					ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
-
-				Scr_FreeThread(ret);
+				{
+					short ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
+					Scr_FreeThread(ret);
+				}
 			}
 			else
 				task->cleanup = true;
