@@ -41,6 +41,7 @@ struct async_mysql_task
 
 MYSQL *async_mysql_connection = NULL;
 async_mysql_task *first_async_mysql_task = NULL;
+pthread_mutex_t lock_async_mysql;
 
 void *async_mysql_query_handler(void* dummy)
 {
@@ -70,6 +71,8 @@ void *async_mysql_query_handler(void* dummy)
 
 			if (task->cleanup)
 			{
+				pthread_mutex_lock(&lock_async_mysql);
+
 				if (task->next != NULL)
 					task->next->prev = task->prev;
 				if (task->prev != NULL)
@@ -81,6 +84,8 @@ void *async_mysql_query_handler(void* dummy)
 					mysql_free_result(task->result);
 
 				delete task;
+
+				pthread_mutex_unlock(&lock_async_mysql);
 			}
 		}
 
@@ -115,11 +120,18 @@ void gsc_async_mysql_initialize()
 			return;
 		}
 
+		if (pthread_mutex_init(&lock_async_mysql, NULL) != 0)
+		{
+			stackError("gsc_async_mysql_initialize() mutex initialization failed!");
+			stackPushUndefined();
+			return;
+		}
+
 		pthread_t async_handler;
 
 		if (pthread_create(&async_handler, NULL, async_mysql_query_handler, NULL))
 		{
-			stackError("gsc_mysql_async_initializer() error detaching async handler thread");
+			stackError("gsc_mysql_async_initializer() error detaching async handler thread!");
 			return;
 		}
 
@@ -155,6 +167,8 @@ void gsc_async_mysql_create_query()
 		return;
 	}
 
+	pthread_mutex_lock(&lock_async_mysql);
+
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -218,6 +232,8 @@ void gsc_async_mysql_create_query()
 		current->next = newtask;
 	else
 		first_async_mysql_task = newtask;
+
+	pthread_mutex_unlock(&lock_async_mysql);
 
 	stackPushInt(1);
 }
@@ -233,6 +249,8 @@ void gsc_async_mysql_create_query_nosave()
 		return;
 	}
 
+	pthread_mutex_lock(&lock_async_mysql);
+
 	async_mysql_task *current = first_async_mysql_task;
 
 	while (current != NULL && current->next != NULL)
@@ -297,6 +315,8 @@ void gsc_async_mysql_create_query_nosave()
 	else
 		first_async_mysql_task = newtask;
 
+	pthread_mutex_unlock(&lock_async_mysql);
+
 	stackPushInt(1);
 }
 
@@ -310,6 +330,8 @@ void gsc_async_mysql_create_entity_query(int entid)
 		stackPushUndefined();
 		return;
 	}
+
+	pthread_mutex_lock(&lock_async_mysql);
 
 	async_mysql_task *current = first_async_mysql_task;
 
@@ -375,6 +397,8 @@ void gsc_async_mysql_create_entity_query(int entid)
 	else
 		first_async_mysql_task = newtask;
 
+	pthread_mutex_unlock(&lock_async_mysql);
+
 	stackPushInt(1);
 }
 
@@ -388,6 +412,8 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 		stackPushUndefined();
 		return;
 	}
+
+	pthread_mutex_lock(&lock_async_mysql);
 
 	async_mysql_task *current = first_async_mysql_task;
 
@@ -452,6 +478,8 @@ void gsc_async_mysql_create_entity_query_nosave(int entid)
 		current->next = newtask;
 	else
 		first_async_mysql_task = newtask;
+
+	pthread_mutex_unlock(&lock_async_mysql);
 
 	stackPushInt(1);
 }
