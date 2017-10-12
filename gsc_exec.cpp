@@ -324,7 +324,7 @@ void gsc_exec_async_checkdone()
 		if (task->done)
 		{
 			//push to cod
-			if (Scr_IsSystemActive() && task->callback && !task->error && (scrVarPub.levelId == task->levelId))
+			if (Scr_IsSystemActive() && task->save && task->callback && !task->error && (scrVarPub.levelId == task->levelId))
 			{
 				if (task->hasargument)
 				{
@@ -353,22 +353,18 @@ void gsc_exec_async_checkdone()
 					}
 				}
 
-				if (task->save)
+				stackPushArray();
+				exec_outputline *output = task->output;
+				while (output != NULL)
 				{
-					stackPushArray();
-					exec_outputline *output = task->output;
-
-					while (output != NULL)
-					{
-						exec_outputline *next = output->next;
-						stackPushString(output->content);
-						stackPushArrayLast();
-						delete output;
-						output = next;
-					}
+					exec_outputline *next = output->next;
+					stackPushString(output->content);
+					stackPushArrayLast();
+					delete output;
+					output = next;
 				}
 
-				short ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
+				short ret = Scr_ExecThread(task->callback, task->save + task->hasargument);
 				Scr_FreeThread(ret);
 			}
 

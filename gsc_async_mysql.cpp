@@ -5,7 +5,7 @@
 #include <mysql/mysql.h>
 #include <pthread.h>
 
-#define INVALID_ENTITY -1024
+#define INVALID_ENTITY -1
 #define INVALID_STATE 0
 
 enum
@@ -469,40 +469,8 @@ void gsc_async_mysql_checkdone()
 		{
 			task->complete = true;
 
-			if (Scr_IsSystemActive() && task->callback && (scrVarPub.levelId == task->levelId))
+			if (Scr_IsSystemActive() && task->save && task->callback && (scrVarPub.levelId == task->levelId))
 			{
-				if (task->hasargument)
-				{
-					switch(task->valueType)
-					{
-					case INT_VALUE:
-						stackPushInt(task->intValue);
-						break;
-
-					case FLOAT_VALUE:
-						stackPushFloat(task->floatValue);
-						break;
-
-					case STRING_VALUE:
-						stackPushString(task->stringValue);
-						free(task->stringValue);
-						break;
-
-					case VECTOR_VALUE:
-						stackPushVector(task->vectorValue);
-						break;
-
-					default:
-						stackPushUndefined();
-						break;
-					}
-				}
-
-				if (task->save)
-					stackPushInt(int(task));
-				else
-					task->cleanup = true;
-
 				if (task->entityNum != INVALID_ENTITY)
 				{
 					if (task->entityState != INVALID_STATE)
@@ -511,7 +479,36 @@ void gsc_async_mysql_checkdone()
 
 						if (state != INVALID_STATE && state == task->entityState)
 						{
-							short ret = Scr_ExecEntThread(G_ENTITY(task->entityNum), task->callback, (task->save + task->hasargument));
+							if (task->hasargument)
+							{
+								switch(task->valueType)
+								{
+								case INT_VALUE:
+									stackPushInt(task->intValue);
+									break;
+
+								case FLOAT_VALUE:
+									stackPushFloat(task->floatValue);
+									break;
+
+								case STRING_VALUE:
+									stackPushString(task->stringValue);
+									free(task->stringValue);
+									break;
+
+								case VECTOR_VALUE:
+									stackPushVector(task->vectorValue);
+									break;
+
+								default:
+									stackPushUndefined();
+									break;
+								}
+							}
+
+							stackPushInt(int(task));
+
+							short ret = Scr_ExecEntThread(G_ENTITY(task->entityNum), task->callback, task->save + task->hasargument);
 							Scr_FreeThread(ret);
 						}
 						else
@@ -522,7 +519,36 @@ void gsc_async_mysql_checkdone()
 				}
 				else
 				{
-					short ret = Scr_ExecThread(task->callback, (task->save + task->hasargument));
+					if (task->hasargument)
+					{
+						switch(task->valueType)
+						{
+						case INT_VALUE:
+							stackPushInt(task->intValue);
+							break;
+
+						case FLOAT_VALUE:
+							stackPushFloat(task->floatValue);
+							break;
+
+						case STRING_VALUE:
+							stackPushString(task->stringValue);
+							free(task->stringValue);
+							break;
+
+						case VECTOR_VALUE:
+							stackPushVector(task->vectorValue);
+							break;
+
+						default:
+							stackPushUndefined();
+							break;
+						}
+					}
+
+					stackPushInt(int(task));
+
+					short ret = Scr_ExecThread(task->callback, task->save + task->hasargument);
 					Scr_FreeThread(ret);
 				}
 			}
