@@ -129,6 +129,7 @@ void gsc_player_setguid(int id);
 void gsc_player_clienthasclientmuted(int id);
 void gsc_player_getlastgamestatesize(int id);
 void gsc_player_getfps(int id);
+void gsc_player_lookatkiller(int id);
 
 // entity functions
 void gsc_entity_setalive(int id);

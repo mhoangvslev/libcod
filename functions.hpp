@@ -807,4 +807,13 @@ static const Scr_IsSystemActive_t Scr_IsSystemActive = (Scr_IsSystemActive_t)0x0
 static const Scr_IsSystemActive_t Scr_IsSystemActive = (Scr_IsSystemActive_t)0x08084678;
 #endif
 
+typedef void (*LookAtKiller_t)(int self, int inflictor, int attacker);
+#if COD_VERSION == COD2_1_0
+static const LookAtKiller_t LookAtKiller = (LookAtKiller_t)0x080FF17A;
+#elif COD_VERSION == COD2_1_2
+static const LookAtKiller_t LookAtKiller = (LookAtKiller_t)0x081014AE;
+#elif COD_VERSION == COD2_1_3
+static const LookAtKiller_t LookAtKiller = (LookAtKiller_t)0x0810160A;
+#endif
+
 #endif

@@ -312,6 +312,7 @@ scr_method_t scriptMethods[] =
 	{"setmovespeedscale", gsc_player_setmovespeedscale, 0},
 	{"ismantling", gsc_player_ismantling, 0},
 	{"isonladder", gsc_player_isonladder, 0},
+	{"lookatkiller", gsc_player_lookatkiller, 0},
 #endif
 
 #if COMPILE_BOTS == 1
