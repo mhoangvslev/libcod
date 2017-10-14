@@ -810,6 +810,16 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 	}
 
+#if COD_VERSION == COD2_1_0
+	int lasttime_offset = 0x0848B674;
+#elif COD_VERSION == COD2_1_2
+	int lasttime_offset = 0x0849EB74;
+#elif COD_VERSION == COD2_1_3
+	int lasttime_offset = 0x0849FBF4;
+#endif
+
+	*(int *)lasttime_offset = 0;
+
 	SVC_RemoteCommand(from, msg);
 }
 
@@ -1064,9 +1074,6 @@ public:
 		cracking_hook_call(0x0809403E, (int)hook_SVC_Status);
 		cracking_hook_call(0x080940C4, (int)hook_SV_GetChallenge);
 		cracking_hook_call(0x08094191, (int)hook_SVC_RemoteCommand);
-		cracking_write_hex(0x080951BE, (char *)"9090909090909090"); // time = Com_Milliseconds();
-		cracking_write_hex(0x080951E0, (char *)"EB"); // skip `time - lasttime` check
-		cracking_write_hex(0x080951E7, (char *)"9090909090909090"); // lasttime = time;
 #endif
 
 #elif COD_VERSION == COD2_1_2
@@ -1125,9 +1132,6 @@ public:
 		cracking_hook_call(0x08095ADA, (int)hook_SVC_Status);
 		cracking_hook_call(0x08095BF8, (int)hook_SV_GetChallenge);
 		cracking_hook_call(0x08095D63, (int)hook_SVC_RemoteCommand);
-		cracking_write_hex(0x080970D6, (char *)"9090909090909090"); // time = Com_Milliseconds();
-		cracking_write_hex(0x080970F8, (char *)"EB"); // skip `time - lasttime` check
-		cracking_write_hex(0x080970FF, (char *)"9090909090909090"); // lasttime = time;
 #endif
 
 #elif COD_VERSION == COD2_1_3
@@ -1186,9 +1190,6 @@ public:
 		cracking_hook_call(0x08095B94, (int)hook_SVC_Status);
 		cracking_hook_call(0x08095CB2, (int)hook_SV_GetChallenge);
 		cracking_hook_call(0x08095E1D, (int)hook_SVC_RemoteCommand);
-		cracking_write_hex(0x080971BC, (char *)"9090909090909090"); // time = Com_Milliseconds();
-		cracking_write_hex(0x080971DE, (char *)"EB"); // skip `time - lasttime` check
-		cracking_write_hex(0x080971F3, (char *)"9090909090909090"); // lasttime = time;
 #endif
 
 #endif
