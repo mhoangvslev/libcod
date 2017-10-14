@@ -29,7 +29,6 @@ void gsc_utils_file_exists();
 void gsc_utils_FS_LoadDir();
 void gsc_utils_getType();
 void gsc_utils_float();
-void gsc_utils_rundll();
 void gsc_utils_ExecuteString();
 void gsc_utils_sendgameservercommand();
 void gsc_utils_scandir();
@@ -39,7 +38,6 @@ void gsc_get_configstring();
 void gsc_set_configstring();
 void gsc_make_localized_string();
 void gsc_utils_getlasttestclientnumber();
-
 void gsc_utils_fopen();
 void gsc_utils_fread();
 void gsc_utils_fwrite();
@@ -48,13 +46,6 @@ void gsc_utils_fsize();
 void gsc_utils_sprintf();
 void gsc_utils_getsystemtime();
 void gsc_utils_getlocaltime();
-
-void gsc_call_function_raw();
-
-void gsc_dlopen();
-void gsc_dlsym();
-void gsc_dlclose();
-
 void gsc_utils_sqrt();
 void gsc_utils_sqrtInv();
 

@@ -10,8 +10,6 @@ extern "C" {
 void cracking_hook_function(int from, int to);
 void cracking_hook_call(int from, int to);
 
-int cracking_call_function(int func_address, char *args, unsigned char *data);
-
 #ifdef __cplusplus
 }
 #endif
