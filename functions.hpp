@@ -816,4 +816,13 @@ static const LookAtKiller_t LookAtKiller = (LookAtKiller_t)0x081014AE;
 static const LookAtKiller_t LookAtKiller = (LookAtKiller_t)0x0810160A;
 #endif
 
+typedef int (*Sys_GetValue_t)(int key);
+#if COD_VERSION == COD2_1_0
+static const Sys_GetValue_t Sys_GetValue = (Sys_GetValue_t)0x080D44A4;
+#elif COD_VERSION == COD2_1_2
+static const Sys_GetValue_t Sys_GetValue = (Sys_GetValue_t)0x080D6A7C;
+#elif COD_VERSION == COD2_1_3
+static const Sys_GetValue_t Sys_GetValue = (Sys_GetValue_t)0x080D6BC0;
+#endif
+
 #endif
