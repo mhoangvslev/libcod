@@ -14,7 +14,7 @@ cvar_t *sv_allowDownload;
 cvar_t *sv_pure;
 cvar_t *developer;
 cvar_t *rcon_password;
-cvar_t *colored_prints;
+cvar_t *con_coloredPrints;
 
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 cvar_t *sv_wwwDownload;
@@ -811,8 +811,12 @@ bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
 	return SVC_RateLimit( bucket, burst, period );
 }
 
+cvar_t *sv_allowRcon;
 void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 {
+	if (!sv_allowRcon->boolean)
+		return;
+
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) )
 	{
@@ -1220,13 +1224,14 @@ public:
 #endif
 
 		// Register custom cvars
-		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, 0x1000u);
-		sv_noauthorize = Cvar_RegisterBool("sv_noauthorize", 0, 0x1000u);
-		colored_prints = Cvar_RegisterBool("colored_prints", 1, 0x1000u);
-		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, 0x1000u);
-		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, 0x1000u);
-		fs_library = Cvar_RegisterString("fs_library", "", 0x1000u);
-		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", 0x1000u);
+		sv_cracked = Cvar_RegisterBool("sv_cracked", 0, CVAR_ARCHIVE);
+		sv_noauthorize = Cvar_RegisterBool("sv_noauthorize", 0, CVAR_ARCHIVE);
+		con_coloredPrints = Cvar_RegisterBool("con_coloredPrints", 1, CVAR_ARCHIVE);
+		g_playerCollision = Cvar_RegisterBool("g_playerCollision", 1, CVAR_ARCHIVE);
+		g_playerEject = Cvar_RegisterBool("g_playerEject", 1, CVAR_ARCHIVE);
+		sv_allowRcon = Cvar_RegisterBool("sv_allowRcon", 1, CVAR_ARCHIVE);
+		fs_library = Cvar_RegisterString("fs_library", "", CVAR_ARCHIVE);
+		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", CVAR_ARCHIVE);
 
 		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 		printf("> [PLUGIN LOADED]\n");
