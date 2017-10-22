@@ -147,14 +147,19 @@ void gsc_async_mysql_initialize()
 
 		pthread_t async_handler;
 
-		if (pthread_create(&async_handler, NULL, async_mysql_query_handler, NULL))
+		if (pthread_create(&async_handler, NULL, async_mysql_query_handler, NULL) != 0)
 		{
-			stackError("gsc_mysql_async_initializer() error detaching async handler thread!");
+			stackError("gsc_mysql_async_initializer() error creating async mysql handler thread!");
 			stackPushUndefined();
 			return;
 		}
 
-		pthread_detach(async_handler);
+		if (pthread_detach(async_handler) != 0)
+		{
+			stackError("gsc_mysql_async_initializer() error detaching async mysql handler thread!");
+			stackPushUndefined();
+			return;
+		}
 
 		async_mysql_connection = (MYSQL*)my;
 	}
