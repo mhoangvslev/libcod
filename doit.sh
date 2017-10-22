@@ -8,14 +8,44 @@
 cc="g++"
 options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
+mysql_variant=0
+
 if [ "$1" != "clean" ]; then
-	if [ `perl -ne 'print if s/^#define\sCOMPILE(_ASYNC)?_MYSQL\s(\d)$/\1/' config.hpp` == "0" ]; then
-		mysql_link=""
-	elif [ -d "./vendors/lib" ]; then
-		mysql_link="-lmysqlclient -L./vendors/lib"
-		export LD_LIBRARY_PATH_32="./vendors/lib"
+	read -rsp $'\nChoose Your MySQL variant:\n
+	0. MySQL disabled. (default)\n
+	1. Default MySQL variant: A classic MySQL implentation
+	made by kung and izno.
+	Multiple connections, multiple threads,
+	good for servers that use
+	remote MySQL sessions, IRC stuff, and etc.\n
+	2. VoroN\'s MySQL variant. My own MySQL implentation.
+	Native callbacks, native arguments,
+	single connection, single thread,
+	good for local MySQL session,
+	less cpu usage, less memory usage.\n
+	Press a key to continue...\n' -n1 key
+
+	if [ "$key" = '1' ]; then
+		mysql_variant=1
+		sed -i "/#define COMPILE_MYSQL_DEFAULT 0/c\#define COMPILE_MYSQL_DEFAULT 1" config.hpp
+		if [ -d "./vendors/lib" ]; then
+			mysql_link="-lmysqlclient -L./vendors/lib"
+			export LD_LIBRARY_PATH_32="./vendors/lib"
+		else
+			mysql_link="-lmysqlclient -L/usr/lib/mysql"
+		fi
+	elif [ "$key" = '2' ]; then
+		mysql_variant=2
+		sed -i "/#define COMPILE_MYSQL_VORON 0/c\#define COMPILE_MYSQL_VORON 1" config.hpp
+		if [ -d "./vendors/lib" ]; then
+			mysql_link="-lmysqlclient -L./vendors/lib"
+			export LD_LIBRARY_PATH_32="./vendors/lib"
+		else
+			mysql_link="-lmysqlclient -L/usr/lib/mysql"
+		fi
 	else
-		mysql_link="-lmysqlclient -L/usr/lib/mysql"
+		mysql_link=""
+		mysql_variant=0
 	fi
 fi
 
@@ -83,14 +113,14 @@ if [ `perl -ne 'print if s/^#define\sCOMPILE_MEMORY\s(\d)$/\1/' config.hpp` == "
 	$cc $options $constants -c gsc_memory.cpp -o objects_$1/gsc_memory.opp
 fi
 
-if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL\s(\d)$/\1/' config.hpp` == "1" ]; then
+if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL_DEFAULT\s(\d)$/\1/' config.hpp` == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
 	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp
 fi
 
-if [ `perl -ne 'print if s/^#define\sCOMPILE_ASYNC_MYSQL\s(\d)$/\1/' config.hpp` == "1" ]; then
-	echo "##### COMPILE $1 GSC_ASYNC_MYSQL.CPP #####"
-	$cc $options $constants -c gsc_async_mysql.cpp -o objects_$1/gsc_async_mysql.opp
+if [ `perl -ne 'print if s/^#define\sCOMPILE_MYSQL_VORON\s(\d)$/\1/' config.hpp` == "1" ]; then
+	echo "##### COMPILE $1 GSC_MYSQL_VORON.CPP #####"
+	$cc $options $constants -c gsc_mysql_voron.cpp -o objects_$1/gsc_mysql_voron.opp
 fi
 
 if [ `perl -ne 'print if s/^#define\sCOMPILE_PLAYER\s(\d)$/\1/' config.hpp` == "1" ]; then
@@ -125,3 +155,12 @@ $cc $options $constants -c libcod.cpp -o objects_$1/libcod.opp
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
 $cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link
+rm objects_$1 -r
+
+if [ mysql_variant > 0 ]; then
+	sed -i "/#define COMPILE_MYSQL_DEFAULT 1/c\#define COMPILE_MYSQL_DEFAULT 0" config.hpp
+	sed -i "/#define COMPILE_MYSQL_VORON 1/c\#define COMPILE_MYSQL_VORON 0" config.hpp
+fi
+
+# Read leftover
+rm 0

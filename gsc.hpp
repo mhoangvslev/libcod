@@ -22,14 +22,38 @@ extern "C" {
 #include "config.hpp"
 #include "cracking.hpp"
 #include "functions.hpp"
+
+#if COMPILE_BOTS == 1
 #include "gsc_bots.hpp"
+#endif
+
+#if COMPILE_EXEC == 1
 #include "gsc_exec.hpp"
+#endif
+
+#if COMPILE_MEMORY == 1
 #include "gsc_memory.hpp"
+#endif
+
+#if COMPILE_MYSQL_DEFAULT == 1
 #include "gsc_mysql.hpp"
-#include "gsc_async_mysql.hpp"
+#endif
+
+#if COMPILE_MYSQL_VORON == 1
+#include "gsc_mysql_voron.hpp"
+#endif
+
+#if COMPILE_PLAYER == 1
 #include "gsc_player.hpp"
+#endif
+
+#if COMPILE_UTILS == 1
 #include "gsc_utils.hpp"
+#endif
+
+#if COMPILE_WEAPONS == 1
 #include "gsc_weapons.hpp"
+#endif
 
 #ifdef EXTRA_INCLUDES_INC
 #include "extra/includes.hpp"
@@ -91,14 +115,14 @@ int stackGetParamFloat(int param, float *value);
 int stackGetParamType(int param);
 int stackGetParams(char *params, ...);
 
-int stackPushUndefined();
-int stackPushInt(int ret);
-int stackPushVector(float *ret);
-int stackPushFloat(float ret);
-int stackPushString(char *toPush);
-int stackPushEntity(int arg);
-int stackPushArray();
-int stackPushArrayLast();
+#define stackPushUndefined Scr_AddUndefined
+#define stackPushInt Scr_AddInt
+#define stackPushFloat Scr_AddFloat
+#define stackPushString Scr_AddString
+#define stackPushVector Scr_AddVector
+#define stackPushEntity Scr_AddEntity
+#define stackPushArray Scr_MakeArray
+#define stackPushArrayLast Scr_AddArray
 
 xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev);
 xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev);

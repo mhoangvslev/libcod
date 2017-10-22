@@ -871,4 +871,76 @@ static const Sys_GetValue_t Sys_GetValue = (Sys_GetValue_t)0x080D6A7C;
 static const Sys_GetValue_t Sys_GetValue = (Sys_GetValue_t)0x080D6BC0;
 #endif
 
+typedef void (*Scr_AddInt_t)(int value);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddInt_t Scr_AddInt = (Scr_AddInt_t)0x08084B1C;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddInt_t Scr_AddInt = (Scr_AddInt_t)0x08085098;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddInt_t Scr_AddInt = (Scr_AddInt_t)0x08085164;
+#endif
+
+typedef void (*Scr_AddFloat_t)(float);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddFloat_t Scr_AddFloat = (Scr_AddFloat_t)0x08084B40;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddFloat_t Scr_AddFloat = (Scr_AddFloat_t)0x080850BC;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddFloat_t Scr_AddFloat = (Scr_AddFloat_t)0x08085188;
+#endif
+
+typedef void (*Scr_AddString_t)(const char *string);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddString_t Scr_AddString = (Scr_AddString_t)0x08084C1A;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddString_t Scr_AddString = (Scr_AddString_t)0x08085196;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddString_t Scr_AddString = (Scr_AddString_t)0x08085262;
+#endif
+
+typedef void (*Scr_AddUndefined_t)(void);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddUndefined_t Scr_AddUndefined = (Scr_AddUndefined_t)0x08084B88;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddUndefined_t Scr_AddUndefined = (Scr_AddUndefined_t)0x08085104;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddUndefined_t Scr_AddUndefined = (Scr_AddUndefined_t)0x080851D0;
+#endif
+
+typedef void (*Scr_AddVector_t)(vec3_t vec);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddVector_t Scr_AddVector = (Scr_AddVector_t)0x08084CBE;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddVector_t Scr_AddVector = (Scr_AddVector_t)0x0808523A;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddVector_t Scr_AddVector = (Scr_AddVector_t)0x08085306;
+#endif
+
+typedef void (*Scr_AddEntity_t)(int entity);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddEntity_t Scr_AddEntity = (Scr_AddEntity_t)0x08118CC0;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddEntity_t Scr_AddEntity = (Scr_AddEntity_t)0x0811AFF4;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddEntity_t Scr_AddEntity = (Scr_AddEntity_t)0x08117F50;
+#endif
+
+typedef void (*Scr_MakeArray_t)(void);
+#if COD_VERSION == COD2_1_0
+static const Scr_MakeArray_t Scr_MakeArray = (Scr_MakeArray_t)0x08084CF0;
+#elif COD_VERSION == COD2_1_2
+static const Scr_MakeArray_t Scr_MakeArray = (Scr_MakeArray_t)0x0808526C;
+#elif COD_VERSION == COD2_1_3
+static const Scr_MakeArray_t Scr_MakeArray = (Scr_MakeArray_t)0x08085338;
+#endif
+
+typedef void (*Scr_AddArray_t)(void);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddArray_t Scr_AddArray = (Scr_AddArray_t)0x08084D1C;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddArray_t Scr_AddArray = (Scr_AddArray_t)0x08085298;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddArray_t Scr_AddArray = (Scr_AddArray_t)0x08085364;
+#endif
+
 #endif

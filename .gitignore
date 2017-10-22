@@ -18,8 +18,8 @@
 !gsc_memory.hpp
 !gsc_mysql.cpp
 !gsc_mysql.hpp
-!gsc_async_mysql.cpp
-!gsc_async_mysql.hpp
+!gsc_mysql_voron.cpp
+!gsc_mysql_voron.hpp
 !gsc_player.cpp
 !gsc_player.hpp
 !gsc_utils.cpp
