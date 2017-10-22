@@ -15,9 +15,11 @@ cvar_t *sv_pure;
 cvar_t *developer;
 cvar_t *rcon_password;
 cvar_t *con_coloredPrints;
+cvar_t *cl_allowDownload;
 
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 cvar_t *sv_wwwDownload;
+cvar_t *cl_wwwDownload;
 #endif
 
 void hook_sv_init(char *format, ...)
@@ -114,48 +116,25 @@ cHook *hook_fire_grenade;
 int fire_grenade(int player, int a2, int a3, int weapon, int a5)
 {
 	hook_fire_grenade->unhook();
+
 	int (*sig)(int player, int a2, int a3, int a4, int a5);
 	*(int *)&sig = hook_fire_grenade->from;
+
 	int grenade = sig(player, a2, a3, weapon, a5);
+
 	hook_fire_grenade->hook();
-	int weapondef = BG_WeaponDefs(weapon);
-	char *weaponname = *(char**)weapondef;
-	stackPushString(weaponname);
-	stackPushEntity(grenade);
-	short ret = Scr_ExecEntThread(player, codecallback_fire_grenade, 2);
-	Scr_FreeThread(ret);
-	return grenade;
-}
 
-void hook_vid_restart(char *format, ...)
-{
-	char s[COD2_MAX_STRINGLENGTH];
-	va_list va;
-
-	va_start(va, format);
-	vsnprintf(s, sizeof(s), format, va);
-	va_end(va);
-
-	Com_DPrintf("%s", s);
-
-	if (strncmp(&s[strlen(s) - 4], "vdr", 3) == 0)
+	if (codecallback_fire_grenade)
 	{
-		char *name = &s[24];
-		name[strlen(name) - 6] = '\0';
-
-		for (int i = 0; i < sv_maxclients->integer; i++)
-		{
-			if (CLIENTSTATE(i) == CS_ACTIVE)
-			{
-				if (strcmp(name, (char*)(PLAYERBASE(i) + 134216)) == 0)
-				{
-					stackPushInt(i);
-					short ret = Scr_ExecEntThread(G_ENTITY(i), codecallback_vid_restart, 1);
-					Scr_FreeThread(ret);
-				}
-			}
-		}
+		int weapondef = BG_WeaponDefs(weapon);
+		char *weaponname = *(char**)weapondef;
+		stackPushString(weaponname);
+		stackPushEntity(grenade);
+		short ret = Scr_ExecEntThread(player, codecallback_fire_grenade, 2);
+		Scr_FreeThread(ret);
 	}
+
+	return grenade;
 }
 
 void hook_ClientCommand(int clientNum)
@@ -470,6 +449,41 @@ char *custom_va(char *format, ...)
 	s[COD2_MAX_STRINGLENGTH - 1] = '\0';
 
 	return s;
+}
+
+void hook_SV_VerifyIwds_f(int cl)
+{
+#if COD_VERSION == COD2_1_0
+	int pureauthentic_offset = 452016;
+#elif COD_VERSION == COD2_1_2
+	int pureauthentic_offset = 452288;
+#elif COD_VERSION == COD2_1_3
+	int pureauthentic_offset = 452288;
+#endif
+
+	if (sv_pure->boolean)
+		*(int *)(cl + pureauthentic_offset) = 1;
+}
+
+void hook_SV_ResetPureClient_f(int cl)
+{
+#if COD_VERSION == COD2_1_0
+	int pureauthentic_offset = 452016;
+#elif COD_VERSION == COD2_1_2
+	int pureauthentic_offset = 452288;
+#elif COD_VERSION == COD2_1_3
+	int pureauthentic_offset = 452288;
+#endif
+
+	*(int *)(cl + pureauthentic_offset) = 0;
+
+	if (codecallback_vid_restart)
+	{
+		int client_id = PLAYERBASE_ID(cl);
+		stackPushInt(client_id);
+		short ret = Scr_ExecEntThread(G_ENTITY(client_id), codecallback_vid_restart, 1);
+		Scr_FreeThread(ret);
+	}
 }
 
 void hook_scriptError(int a1, int a2, int a3, void *a4)
@@ -1058,8 +1072,6 @@ public:
 		cracking_hook_call(0x0808E18F, (int)hook_gamestate_info);
 #endif
 
-		cracking_hook_call(0x0808F412, (int)hook_vid_restart);
-
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080DFF66, (int)hook_player_setmovespeed);
 		cracking_hook_call(0x080F50AB, (int)hook_player_g_speed);
@@ -1095,6 +1107,8 @@ public:
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
 		cracking_hook_function(0x0808E544, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_function(0x080B59CE, (int)custom_va);
+		cracking_hook_function(0x0808EC66, (int)hook_SV_VerifyIwds_f);
+		cracking_hook_function(0x0808EEEC, (int)hook_SV_ResetPureClient_f);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08094081, (int)hook_SVC_Info);
@@ -1116,8 +1130,6 @@ public:
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F533, (int)hook_gamestate_info);
 #endif
-
-		cracking_hook_call(0x08090CA2, (int)hook_vid_restart);
 
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080E2546, (int)hook_player_setmovespeed);
@@ -1154,6 +1166,8 @@ public:
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
 		cracking_hook_function(0x0808FD2E, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_function(0x080B7E62, (int)custom_va);
+		cracking_hook_function(0x080904A0, (int)hook_SV_VerifyIwds_f);
+		cracking_hook_function(0x08090726, (int)hook_SV_ResetPureClient_f);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095B8E, (int)hook_SVC_Info);
@@ -1175,8 +1189,6 @@ public:
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x0808F5C7, (int)hook_gamestate_info);
 #endif
-
-		cracking_hook_call(0x08090D36, (int)hook_vid_restart);
 
 #if COMPILE_PLAYER == 1
 		cracking_hook_call(0x080E268A, (int)hook_player_setmovespeed);
@@ -1213,6 +1225,8 @@ public:
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
 		cracking_hook_function(0x0808FDC2, (int)custom_SV_WriteDownloadToClient);
 		cracking_hook_function(0x080B7FA6, (int)custom_va);
+		cracking_hook_function(0x08090534, (int)hook_SV_VerifyIwds_f);
+		cracking_hook_function(0x080907BA, (int)hook_SV_ResetPureClient_f);
 
 #if COMPILE_RATELIMITER == 1
 		cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
@@ -1232,6 +1246,13 @@ public:
 		sv_allowRcon = Cvar_RegisterBool("sv_allowRcon", 1, CVAR_ARCHIVE);
 		fs_library = Cvar_RegisterString("fs_library", "", CVAR_ARCHIVE);
 		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", CVAR_ARCHIVE);
+
+		// Force download on clients
+		cl_allowDownload = Cvar_RegisterBool("cl_allowDownload", 1, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
+
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+		cl_wwwDownload = Cvar_RegisterBool("cl_wwwDownload", 1, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
+#endif
 
 		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 		printf("> [PLUGIN LOADED]\n");
