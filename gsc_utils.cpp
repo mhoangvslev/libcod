@@ -8,38 +8,35 @@
 #include <sys/stat.h> // fsize
 
 //thanks to riicchhaarrd/php
-unsigned short Scr_GetArray(int param)
-{
-	if (param >= Scr_GetNumParam())
-	{
-		stackError("Scr_GetArray() one parameter is required");
-		return 0;
-	}
-
-	VariableValue *var;
-	var = &scrVmPub.top[-param];
-
-	if (var->type == STACK_OBJECT)
-		return *(unsigned short*)var;
-
-	stackError("Scr_GetArray() the parameter must be an array");
-	return 0;
-}
-
 void gsc_utils_getarraykeys()
 {
-	unsigned short arrIndex = Scr_GetArray(0);
+	int arrIndex;
+
+	if (!stackGetParamObject(0, &arrIndex))
+	{
+		stackError("gsc_utils_getarraykeys() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	int arraysize = GetArraySize(arrIndex);
+
+	if (!arraysize)
+	{
+		stackError("gsc_utils_getarraykeys() got an empty or invalid array");
+		stackPushUndefined();
+		return;
+	}
+
+	int next = GetNextVariable(arrIndex);
+
 	stackPushArray();
 
-	if (arrIndex == 0)
-		return; // we didn't find a valid array
-
-	unsigned short i;
-	for(i = GetNextVariable(arrIndex); i != 0;)
+	for (int i = 0; i < arraysize; i++)
 	{
-		stackPushString(SL_ConvertToString(GetVariableName(i)));
+		stackPushString(SL_ConvertToString(GetVariableName(next)));
 		stackPushArrayLast();
-		i = GetNextVariable(i);
+		next = GetNextVariable(next);
 	}
 }
 

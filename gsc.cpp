@@ -557,3 +557,19 @@ int stackGetParamFloat(int param, float *value)
 
 	return 1;
 }
+
+int stackGetParamObject(int param, int *value)
+{
+	if (param >= Scr_GetNumParam())
+		return 0;
+
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_OBJECT)
+		return 0;
+
+	*value = *(int *)var;
+
+	return 1;
+}
