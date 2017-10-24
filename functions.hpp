@@ -1183,4 +1183,13 @@ static const G_LocationalTrace_t G_LocationalTrace = (G_LocationalTrace_t)0x0810
 static const G_LocationalTrace_t G_LocationalTrace = (G_LocationalTrace_t)0x0810A5CC;
 #endif
 
+typedef void (*G_AddEvent_t)(int ent, int event, int eventParm);
+#if COD_VERSION == COD2_1_0
+static const G_AddEvent_t G_AddEvent = (G_AddEvent_t)0x0811CDA2;
+#elif COD_VERSION == COD2_1_2
+static const G_AddEvent_t G_AddEvent = (G_AddEvent_t)0x0811F0D6;
+#elif COD_VERSION == COD2_1_3
+static const G_AddEvent_t G_AddEvent = (G_AddEvent_t)0x0811F232;
+#endif
+
 #endif

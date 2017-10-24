@@ -210,6 +210,37 @@ void gsc_player_stance_get(int id)
 	stackPushString(stance);
 }
 
+void gsc_player_stance_set(int id)
+{
+	char* stance;
+
+	if ( ! stackGetParams("s", &stance))
+	{
+		stackError("gsc_player_stance_set() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	int event;
+
+	if (strcmp(stance, "stand") == 0)
+		event = EV_STANCE_FORCE_STAND;
+	else if (strcmp(stance, "crouch") == 0)
+		event = EV_STANCE_FORCE_CROUCH;
+	else if (strcmp(stance, "prone") == 0)
+		event = EV_STANCE_FORCE_PRONE;
+	else
+	{
+		stackError("gsc_player_stance_set() invalid argument '%s'. Valid arguments are: 'stand' 'crouch' 'prone'", stance);
+		stackPushUndefined();
+		return;
+	}
+
+	G_AddEvent(G_ENTITY(id), event, 0);
+
+	stackPushInt(1);
+}
+
 void gsc_player_spectatorclient_get(int id)
 {
 	int spectatorClient = *(unsigned char *)(PLAYERSTATE(id) + 0xCC);

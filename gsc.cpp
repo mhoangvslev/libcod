@@ -290,6 +290,7 @@ scr_method_t scriptMethods[] =
 
 #if COMPILE_PLAYER == 1
 	{"getStance", gsc_player_stance_get, 0},
+	{"setStance", gsc_player_stance_set, 0},
 	{"setVelocity", gsc_player_velocity_set, 0},
 	{"addVelocity", gsc_player_velocity_add, 0},
 	{"getVelocity", gsc_player_velocity_get, 0},
@@ -342,7 +343,7 @@ scr_method_t scriptMethods[] =
 #if COMPILE_BOTS == 1
 	{"setwalkdir", gsc_bots_set_walkdir, 0},
 	{"setlean", gsc_bots_set_lean, 0},
-	{"setstance", gsc_bots_set_stance, 0},
+	{"setbotstance", gsc_bots_set_stance, 0},
 	{"thrownade", gsc_bots_thrownade, 0},
 	{"fireweapon", gsc_bots_fireweapon, 0},
 	{"meleeweapon", gsc_bots_meleeweapon, 0},
