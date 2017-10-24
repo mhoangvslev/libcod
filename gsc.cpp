@@ -223,6 +223,7 @@ scr_function_t scriptFunctions[] =
 	{"fsize", gsc_utils_fsize, 0},
 	{"sprintf", gsc_utils_sprintf, 0},
 	{"getsystemtime", gsc_utils_getsystemtime, 0},
+	{"getserverstarttime", gsc_utils_getserverstarttime, 0},
 	{"getlocaltime", gsc_utils_getlocaltime, 0},
 	{"G_FindConfigstringIndex", gsc_G_FindConfigstringIndex, 0},
 	{"G_FindConfigstringIndexOriginal", gsc_G_FindConfigstringIndexOriginal, 0},
@@ -523,7 +524,7 @@ int stackGetParamString(int param, char **value)
 	return 1;
 }
 
-int stackGetParamVector(int param, float value[3])
+int stackGetParamVector(int param, vec3_t value)
 {
 	if (param >= Scr_GetNumParam())
 		return 0;
@@ -556,4 +557,3 @@ int stackGetParamFloat(int param, float *value)
 
 	return 1;
 }
-

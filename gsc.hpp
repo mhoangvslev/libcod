@@ -18,6 +18,11 @@ extern "C" {
 #include <math.h>
 #include <dlfcn.h> // dlcall
 #include <stdarg.h> // va_args
+#include <unistd.h> //link, unlink, usleep
+#include <dirent.h> // dir stuff
+#include <sys/mman.h> // mprotect
+#include <execinfo.h> // stacktrace
+#include <stddef.h> // offsetof
 
 #include "config.hpp"
 #include "cracking.hpp"
@@ -103,6 +108,77 @@ static const int vmpub_offset = 0x083D8A80;
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 
+#if COD_VERSION == COD2_1_0
+static const int playerStates = 0x086F1480;
+static const int sizeOfPlayer = 0x28A4;
+#elif COD_VERSION == COD2_1_2
+static const int playerStates = 0x08705480;
+static const int sizeOfPlayer = 0x28A4;
+#elif COD_VERSION == COD2_1_3
+static const int playerStates = 0x087a2500;
+static const int sizeOfPlayer = 0x28A4;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int gentities = 0x08665480;
+static const int gentities_size = 560;
+#elif COD_VERSION == COD2_1_2
+static const int gentities = 0x08679380;
+static const int gentities_size = 560;
+#elif COD_VERSION == COD2_1_3
+static const int gentities = 0x08716400;
+static const int gentities_size = 560;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int playerinfo_base = 0x0841FB0C;
+static const int playerinfo_size = 0x78F14;
+#elif COD_VERSION == COD2_1_2
+static const int playerinfo_base = 0x0842200C;
+static const int playerinfo_size = 0x79064;
+#elif COD_VERSION == COD2_1_3
+static const int playerinfo_base = 0x0842308C;
+static const int playerinfo_size = 0xB1064;
+#endif
+
+#define PLAYERBASE(playerid) (*(int *)(playerinfo_base) + playerid * playerinfo_size)
+#define PLAYERSTATE(playerid) (playerStates + playerid * sizeOfPlayer)
+#define G_ENTITY(playerid) (gentities + gentities_size * playerid)
+
+#define PLAYERBASE_ID(address) ((address - *(int *)playerinfo_base) / playerinfo_size)
+#define PLAYERSTATE_ID(address) ((address - playerStates) / sizeOfPlayer)
+#define G_ENTITY_ID(address) ((address - gentities) / gentities_size)
+
+#if COD_VERSION == COD2_1_0
+static const int addresstype_offset = 0x6E5C4;
+#elif COD_VERSION == COD2_1_2
+static const int addresstype_offset = 0x6E6D4;
+#elif COD_VERSION == COD2_1_3
+static const int addresstype_offset = 0x6E6D4;
+#endif
+
+#define ADDRESSTYPE(playerid) (*(int *)(PLAYERBASE(playerid) + addresstype_offset))
+#define CLIENTSTATE(playerid) (*(int *)(PLAYERBASE(playerid)))
+
+#if COD_VERSION == COD2_1_0
+static const int svstime_offset = 0x0841FB04;
+#elif COD_VERSION == COD2_1_2
+static const int svstime_offset = 0x08422004;
+#elif COD_VERSION == COD2_1_3
+static const int svstime_offset = 0x08423084;
+#endif
+
+#define SVS_TIME (*(int *)svstime_offset)
+
+#define stackPushUndefined Scr_AddUndefined
+#define stackPushInt Scr_AddInt
+#define stackPushFloat Scr_AddFloat
+#define stackPushString Scr_AddString
+#define stackPushVector Scr_AddVector
+#define stackPushEntity Scr_AddEntity
+#define stackPushArray Scr_MakeArray
+#define stackPushArrayLast Scr_AddArray
+
 void stackError(char *format, ...);
 
 char *stackGetParamTypeAsString(int param);
@@ -114,15 +190,6 @@ int stackGetParamVector(int param, float value[3]);
 int stackGetParamFloat(int param, float *value);
 int stackGetParamType(int param);
 int stackGetParams(char *params, ...);
-
-#define stackPushUndefined Scr_AddUndefined
-#define stackPushInt Scr_AddInt
-#define stackPushFloat Scr_AddFloat
-#define stackPushString Scr_AddString
-#define stackPushVector Scr_AddVector
-#define stackPushEntity Scr_AddEntity
-#define stackPushArray Scr_MakeArray
-#define stackPushArrayLast Scr_AddArray
 
 xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev);
 xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev);

@@ -312,6 +312,12 @@ void gsc_utils_system()
 	stackPushInt( system(cmd) );
 }
 
+static int starttime = time(NULL);
+void gsc_utils_getserverstarttime()
+{
+	stackPushInt( starttime );
+}
+
 void gsc_utils_getsystemtime()
 {
 	time_t timer;

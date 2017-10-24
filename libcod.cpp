@@ -1,12 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h> // dir stuff
-
-#include <sys/mman.h> // mprotect
-#include <execinfo.h> // stacktrace
-
-#include "cracking.hpp"
 #include "gsc.hpp"
 
 cvar_t *sv_maxclients;

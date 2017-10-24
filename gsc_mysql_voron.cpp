@@ -43,7 +43,7 @@ struct async_mysql_task
 MYSQL *async_mysql_connection = NULL;
 async_mysql_task *first_async_mysql_task = NULL;
 pthread_mutex_t lock_async_mysql;
-int async_task_id;
+int async_task_id = 0;
 
 async_mysql_task *task_id_to_pointer(int id)
 {

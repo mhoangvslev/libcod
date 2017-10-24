@@ -39,6 +39,8 @@ Engine fixes:
 - Directory traversal fix
 - Weapon struct segfault fix
 - Rate Limiter
+
+Credits to CoD4x developer for many function/typedef references, thanks!
 	
 Community / Help: http://killtube.org/forum.php
 

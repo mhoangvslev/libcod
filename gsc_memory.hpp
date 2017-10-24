@@ -5,11 +5,6 @@
 extern "C" {
 #endif
 
-/* default stuff */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 /* gsc functions */
 #include "gsc.hpp"
 
@@ -18,7 +13,6 @@ void gsc_memory_free();
 void gsc_memory_int_get();
 void gsc_memory_int_set();
 void gsc_memory_memset();
-
 void gsc_binarybuffer_new();
 void gsc_binarybuffer_free();
 void gsc_binarybuffer_seek();

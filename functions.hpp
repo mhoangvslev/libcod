@@ -196,30 +196,6 @@ typedef union
 	byte rgba[4];
 } ucolor_t;
 
-typedef enum
-{
-	CVAR_BOOL,
-	CVAR_FLOAT,
-	CVAR_VEC2,
-	CVAR_VEC3,
-	CVAR_VEC4,
-	CVAR_INT,
-	CVAR_ENUM,
-	CVAR_STRING,
-	CVAR_COLOR
-} cvarType_t;
-
-typedef	union value_s
-{
-	float floatval;
-	float value;
-	int integer;
-	char* string;
-	byte boolean;
-	vec3_t vec3;
-	vec4_t vec4;
-} value_t;
-
 typedef struct cvar_s
 {
 	char *name;
@@ -276,8 +252,6 @@ typedef struct cvar_s
 	struct cvar_s *hashNext;
 } cvar_t;
 
-extern int cvar_modifiedFlags;
-
 //defines Cvarflags
 #define	CVAR_ARCHIVE		1	// set to cause it to be saved to vars.rc
 // used for system variables, not for player
@@ -298,16 +272,6 @@ extern int cvar_modifiedFlags;
 #define CVAR_NORESTART		1024	// do not clear when a cvar_restart is issued
 #define	CVAR_USER_CREATED	16384	// created by a set command
 
-struct VariableStackBuffer
-{
-	const char *pos;
-	unsigned short size;
-	unsigned short bufLen;
-	unsigned short localId;
-	char time;
-	char buf[1];
-};
-
 union VariableUnion
 {
 	int intValue;
@@ -326,17 +290,36 @@ typedef struct
 	int type;
 } VariableValue;
 
-typedef struct leakyBucket_s leakyBucket_t;
-struct leakyBucket_s
+typedef struct
 {
-	netadrtype_t type;
-	unsigned char adr[4];
-	int	lastTime;
-	signed char	burst;
-	long hash;
-
-	leakyBucket_t *prev, *next;
-};
+	const char *fieldBuffer;
+	u_int16_t canonicalStrCount;
+	byte developer;
+	byte developer_script;
+	byte evaluate;
+	byte pad[3];
+	const char *error_message;
+	int error_index;
+	unsigned int time;
+	unsigned int timeArrayId;
+	unsigned int pauseArrayId;
+	unsigned int levelId;
+	unsigned int gameId;
+	unsigned int animId;
+	unsigned int freeEntList;
+	unsigned int tempVariable;
+	byte bInited;
+	byte pad2;
+	u_int16_t savecount;
+	unsigned int checksum;
+	unsigned int entId;
+	unsigned int entFieldName;
+	struct HunkUser *programHunkUser;
+	const char *programBuffer;
+	const char *endScriptBuffer;
+	u_int16_t saveIdMap[24574];
+	u_int16_t saveIdMapRev[24574];
+} scrVarPub_t;
 
 struct function_stack_t
 {
@@ -360,46 +343,15 @@ typedef struct
 	int function_count;
 	struct function_frame_t *function_frame;
 	VariableValue *top;
-	unsigned char debugCode;
-	unsigned char abort_on_error;
-	unsigned char terminal_error;
-	unsigned char pad;
+	byte debugCode;
+	byte abort_on_error;
+	byte terminal_error;
+	byte pad;
 	unsigned int inparamcount;
 	unsigned int outparamcount;
 	struct function_frame_t function_frame_start[32];
 	VariableValue stack[2048];
 } scrVmPub_t;
-
-typedef struct
-{
-	const char *fieldBuffer;
-	unsigned short canonicalStrCount;
-	unsigned char developer;
-	unsigned char developer_script;
-	unsigned char evaluate;
-	unsigned char pad[3];
-	const char *error_message;
-	int error_index;
-	unsigned int time;
-	unsigned int timeArrayId;
-	unsigned int pauseArrayId;
-	unsigned int levelId;
-	unsigned int gameId;
-	unsigned int animId;
-	unsigned int freeEntList;
-	unsigned int tempVariable;
-	unsigned char bInited;
-	unsigned char pad2;
-	unsigned short savecount;
-	unsigned int checksum;
-	unsigned int entId;
-	unsigned int entFieldName;
-	struct HunkUser *programHunkUser;
-	const char *programBuffer;
-	const char *endScriptBuffer;
-	unsigned short saveIdMap[24574];
-	unsigned short saveIdMapRev[24574];
-} scrVarPub_t;
 
 typedef int	fileHandle_t;
 
@@ -650,6 +602,18 @@ typedef struct trace_s
 	byte walkable;
 	byte padding;
 } trace_t;
+
+typedef struct leakyBucket_s leakyBucket_t;
+struct leakyBucket_s
+{
+	netadrtype_t type;
+	unsigned char adr[4];
+	int	lastTime;
+	signed char	burst;
+	long hash;
+
+	leakyBucket_t *prev, *next;
+};
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
 #if COD_VERSION == COD2_1_0
