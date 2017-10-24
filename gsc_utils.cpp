@@ -760,4 +760,28 @@ void gsc_utils_getlasttestclientnumber()
 	stackPushInt(*(int *)offset);
 }
 
+void gsc_utils_bullethiteffect()
+{
+	vec3_t origin;
+	vec3_t normal;
+
+	if ( ! stackGetParams("vv", &origin, &normal))
+	{
+		stackError("gsc_utils_bullethiteffect() one or more arguments is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	int entity = G_TempEntity(origin, EV_SHOTGUN_HIT);
+	*(int *)(entity + 160) = DirToByte(normal);
+
+	trace_t trace;
+
+	vec3_t end_origin = { origin[0] - (normal[0] * 10), origin[1] - (normal[1] * 10), origin[2] - (normal[2] * 10) };
+	G_LocationalTrace(&trace, origin, end_origin, 1023, 1);
+	*(int *)(entity + 136) = trace.surfaceFlags >> 20;
+
+	stackPushInt(1);
+}
+
 #endif

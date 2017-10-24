@@ -38,6 +38,7 @@ void gsc_get_configstring();
 void gsc_set_configstring();
 void gsc_make_localized_string();
 void gsc_utils_getlasttestclientnumber();
+void gsc_utils_bullethiteffect();
 void gsc_utils_fopen();
 void gsc_utils_fread();
 void gsc_utils_fwrite();
