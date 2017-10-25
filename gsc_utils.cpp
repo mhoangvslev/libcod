@@ -787,4 +787,23 @@ void gsc_utils_bullethiteffect()
 	stackPushInt(1);
 }
 
+#define VectorScale(v, s, o) ((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
+void gsc_utils_vectorscale()
+{
+	vec3_t vector;
+	float scale;
+
+	if ( ! stackGetParams("vf", &vector, &scale))
+	{
+		stackError("gsc_utils_vectorscale() one or more arguments is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	vec3_t out;
+
+	VectorScale(vector, scale, out);
+	stackPushVector(out);
+}
+
 #endif

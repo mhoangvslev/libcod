@@ -42,6 +42,7 @@ void gsc_utils_getserverstarttime();
 void gsc_utils_getlocaltime();
 void gsc_utils_sqrt();
 void gsc_utils_sqrtInv();
+void gsc_utils_vectorscale();
 
 #ifdef __cplusplus
 }
