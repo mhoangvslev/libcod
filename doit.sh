@@ -27,7 +27,7 @@ if [ "$1" != "clean" ]; then
 
 	if [ "$key" = '1' ]; then
 		mysql_variant=1
-		sed -i "/#define COMPILE_MYSQL_DEFAULT 0/c\#define COMPILE_MYSQL_DEFAULT 1" config.hpp
+		sed -i "/#define COMPILE_MYSQL_DEFAULT 0/c\\#define COMPILE_MYSQL_DEFAULT 1" config.hpp
 		if [ -d "./vendors/lib" ]; then
 			mysql_link="-lmysqlclient -L./vendors/lib"
 			export LD_LIBRARY_PATH_32="./vendors/lib"
@@ -36,7 +36,7 @@ if [ "$1" != "clean" ]; then
 		fi
 	elif [ "$key" = '2' ]; then
 		mysql_variant=2
-		sed -i "/#define COMPILE_MYSQL_VORON 0/c\#define COMPILE_MYSQL_VORON 1" config.hpp
+		sed -i "/#define COMPILE_MYSQL_VORON 0/c\\#define COMPILE_MYSQL_VORON 1" config.hpp
 		if [ -d "./vendors/lib" ]; then
 			mysql_link="-lmysqlclient -L./vendors/lib"
 			export LD_LIBRARY_PATH_32="./vendors/lib"
@@ -90,52 +90,52 @@ if [ -f extra/methods.hpp ]; then
 fi
 
 mkdir -p bin
-mkdir -p objects_$1
+mkdir -p objects_"$1"
 
 echo "##### COMPILE $1 CRACKING.CPP #####"
-$cc $options $constants -c cracking.cpp -o objects_$1/cracking.opp
+$cc $options $constants -c cracking.cpp -o objects_"$1"/cracking.opp
 
 echo "##### COMPILE $1 GSC.CPP #####"
-$cc $options $constants -c gsc.cpp -o objects_$1/gsc.opp
+$cc $options $constants -c gsc.cpp -o objects_"$1"/gsc.opp
 
-if [ `awk '/#define\sCOMPILE_BOTS/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_BOTS' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_BOTS.CPP #####"
-	$cc $options $constants -c gsc_bots.cpp -o objects_$1/gsc_bots.opp
+	$cc $options $constants -c gsc_bots.cpp -o objects_"$1"/gsc_bots.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_EXEC/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_EXEC' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_EXEC.CPP #####"
-	$cc $options $constants -c gsc_exec.cpp -o objects_$1/gsc_exec.opp
+	$cc $options $constants -c gsc_exec.cpp -o objects_"$1"/gsc_exec.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_MEMORY/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_MEMORY' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_MEMORY.CPP #####"
-	$cc $options $constants -c gsc_memory.cpp -o objects_$1/gsc_memory.opp
+	$cc $options $constants -c gsc_memory.cpp -o objects_"$1"/gsc_memory.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_MYSQL_DEFAULT/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_MYSQL_DEFAULT' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
-	$cc $options $constants -c gsc_mysql.cpp -o objects_$1/gsc_mysql.opp
+	$cc $options $constants -c gsc_mysql.cpp -o objects_"$1"/gsc_mysql.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_MYSQL_VORON/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_MYSQL_VORON' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL_VORON.CPP #####"
-	$cc $options $constants -c gsc_mysql_voron.cpp -o objects_$1/gsc_mysql_voron.opp
+	$cc $options $constants -c gsc_mysql_voron.cpp -o objects_"$1"/gsc_mysql_voron.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_PLAYER/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_PLAYER' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
-	$cc $options $constants -c gsc_player.cpp -o objects_$1/gsc_player.opp
+	$cc $options $constants -c gsc_player.cpp -o objects_"$1"/gsc_player.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_UTILS/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_UTILS' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_UTILS.CPP #####"
-	$cc $options $constants -c gsc_utils.cpp -o objects_$1/gsc_utils.opp
+	$cc $options $constants -c gsc_utils.cpp -o objects_"$1"/gsc_utils.opp
 fi
 
-if [ `awk '/#define\sCOMPILE_WEAPONS/{ print $3 }' config.hpp` == "1" ]; then
+if [ "$(< config.hpp grep '#define COMPILE_WEAPONS' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_WEAPONS.CPP #####"
-	$cc $options $constants -c gsc_weapons.cpp -o objects_$1/gsc_weapons.opp
+	$cc $options $constants -c gsc_weapons.cpp -o objects_"$1"/gsc_weapons.opp
 fi
 
 if [ -d extra ]; then
@@ -144,23 +144,20 @@ if [ -d extra ]; then
 	for F in *.cpp;
 	do
 		echo "###### COMPILE $1 EXTRA: $F #####"
-		$cc $options $constants -c $F -o ../objects_$1/${F%.cpp}.opp;
+		$cc $options $constants -c "$F" -o ../objects_"$1"/"${F%.cpp}".opp;
 	done
 	cd ..
 fi
 
 echo "##### COMPILE $1 LIBCOD.CPP #####"
-$cc $options $constants -c libcod.cpp -o objects_$1/libcod.opp
+$cc $options $constants -c libcod.cpp -o objects_"$1"/libcod.opp
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
-$cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link
-rm objects_$1 -r
+$cc -m32 -shared -L/lib32 -o bin/lib"$1".so -ldl $objects -lpthread $mysql_link
+rm objects_"$1" -r
 
-if [ mysql_variant > 0 ]; then
-	sed -i "/#define COMPILE_MYSQL_DEFAULT 1/c\#define COMPILE_MYSQL_DEFAULT 0" config.hpp
-	sed -i "/#define COMPILE_MYSQL_VORON 1/c\#define COMPILE_MYSQL_VORON 0" config.hpp
+if [ $mysql_variant -gt 0 ]; then
+	sed -i "/#define COMPILE_MYSQL_DEFAULT 1/c\\#define COMPILE_MYSQL_DEFAULT 0" config.hpp
+	sed -i "/#define COMPILE_MYSQL_VORON 1/c\\#define COMPILE_MYSQL_VORON 0" config.hpp
 fi
-
-# Read leftover
-rm 0
