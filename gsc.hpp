@@ -191,7 +191,7 @@ int stackGetParamFunction(int param, int *value);
 int stackGetParamString(int param, char **value);
 int stackGetParamVector(int param, vec3_t value);
 int stackGetParamFloat(int param, float *value);
-int stackGetParamObject(int param, int *value);
+int stackGetParamObject(int param, unsigned int *value);
 
 xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev);
 xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev);

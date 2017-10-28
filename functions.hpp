@@ -3,7 +3,7 @@
 
 /* MAKE FUNCTIONS STATIC, SO THEY CAN BE IN EVERY FILE */
 
-typedef int (*GetVariableName_t)(int a1);
+typedef unsigned int (*GetVariableName_t)(unsigned int a1);
 #if COD_VERSION == COD2_1_0
 static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807CA72;
 #elif COD_VERSION == COD2_1_2
@@ -12,7 +12,7 @@ static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807CFF6;
 static const GetVariableName_t GetVariableName = (GetVariableName_t)0x0807D0C2;
 #endif
 
-typedef int (*GetNextVariable_t)(int a1);
+typedef unsigned int (*GetNextVariable_t)(unsigned int a1);
 #if COD_VERSION == COD2_1_0
 static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807C9CE;
 #elif COD_VERSION == COD2_1_2
@@ -21,7 +21,7 @@ static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807CF52;
 static const GetNextVariable_t GetNextVariable = (GetNextVariable_t)0x0807D01E;
 #endif
 
-typedef int (*GetArraySize_t)(int a1);
+typedef int (*GetArraySize_t)(unsigned int a1);
 #if COD_VERSION == COD2_1_0
 static const GetArraySize_t GetArraySize = (GetArraySize_t)0x0807C9AC;
 #elif COD_VERSION == COD2_1_2

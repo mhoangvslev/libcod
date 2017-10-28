@@ -116,8 +116,34 @@ char *stackGetParamTypeAsString(int param)
 	return type;
 }
 
+void NULL_FUNC(void) {}
+
 scr_function_t scriptFunctions[] =
 {
+#if COD_VERSION == COD2_1_0
+	{"endparty", NULL_FUNC, 0},
+#endif
+
+#if COMPILE_EXEC == 1
+	{"exec", gsc_exec, 0},
+	{"exec_async_create", gsc_exec_async_create, 0},
+	{"exec_async_create_nosave", gsc_exec_async_create_nosave, 0},
+	{"exec_async_checkdone", gsc_exec_async_checkdone, 0},
+#endif
+
+#if COMPILE_MEMORY == 1
+	{"memory_malloc", gsc_memory_malloc, 0},
+	{"memory_free", gsc_memory_free, 0},
+	{"memory_int_get", gsc_memory_int_get, 0},
+	{"memory_int_set", gsc_memory_int_set, 0},
+	{"memory_memset", gsc_memory_memset, 0},
+	{"binarybuffer_new", gsc_binarybuffer_new, 0},
+	{"binarybuffer_free", gsc_binarybuffer_free, 0},
+	{"binarybuffer_seek", gsc_binarybuffer_seek, 0},
+	{"binarybuffer_write", gsc_binarybuffer_write, 0},
+	{"binarybuffer_read", gsc_binarybuffer_read, 0},
+#endif
+
 #if COMPILE_MYSQL_DEFAULT == 1
 	{"mysql_init", gsc_mysql_init, 0},
 	{"mysql_real_connect", gsc_mysql_real_connect, 0},
@@ -175,28 +201,8 @@ scr_function_t scriptFunctions[] =
 	{"async_mysql_real_escape_string", gsc_async_mysql_real_escape_string, 0},
 #endif
 
-#if COMPILE_EXEC == 1
-	{"exec", gsc_exec, 0},
-	{"exec_async_create", gsc_exec_async_create, 0},
-	{"exec_async_create_nosave", gsc_exec_async_create_nosave, 0},
-	{"exec_async_checkdone", gsc_exec_async_checkdone, 0},
-#endif
-
 #if COMPILE_PLAYER == 1
 	{"kick2", gsc_kick_slot, 0},
-#endif
-
-#if COMPILE_MEMORY == 1
-	{"memory_malloc", gsc_memory_malloc, 0},
-	{"memory_free", gsc_memory_free, 0},
-	{"memory_int_get", gsc_memory_int_get, 0},
-	{"memory_int_set", gsc_memory_int_set, 0},
-	{"memory_memset", gsc_memory_memset, 0},
-	{"binarybuffer_new", gsc_binarybuffer_new, 0},
-	{"binarybuffer_free", gsc_binarybuffer_free, 0},
-	{"binarybuffer_seek", gsc_binarybuffer_seek, 0},
-	{"binarybuffer_write", gsc_binarybuffer_write, 0},
-	{"binarybuffer_read", gsc_binarybuffer_read, 0},
 #endif
 
 #if COMPILE_UTILS == 1
@@ -269,6 +275,7 @@ scr_function_t scriptFunctions[] =
 xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev)
 {
 	xfunction_t m = Scr_GetFunction(fname, fdev);
+
 	if (m)
 		return m;
 
@@ -278,8 +285,10 @@ xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev)
 			continue;
 
 		scr_function_t func = scriptFunctions[i];
+
 		*fname = func.name;
 		*fdev = func.developer;
+
 		return func.call;
 	}
 
@@ -288,6 +297,22 @@ xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev)
 
 scr_method_t scriptMethods[] =
 {
+#if COMPILE_BOTS == 1
+	{"setwalkdir", gsc_bots_set_walkdir, 0},
+	{"setlean", gsc_bots_set_lean, 0},
+	{"setbotstance", gsc_bots_set_stance, 0},
+	{"thrownade", gsc_bots_thrownade, 0},
+	{"fireweapon", gsc_bots_fireweapon, 0},
+	{"meleeweapon", gsc_bots_meleeweapon, 0},
+	{"reloadweapon", gsc_bots_reloadweapon, 0},
+	{"adsaim", gsc_bots_adsaim, 0},
+	{"switchtoweaponid", gsc_bots_switchtoweaponid, 0},
+#endif
+
+#if COMPILE_MYSQL_VORON == 1
+	{"async_mysql_create_entity_query", gsc_async_mysql_create_entity_query, 0},
+	{"async_mysql_create_entity_query_nosave", gsc_async_mysql_create_entity_query_nosave, 0},
+#endif
 
 #if COMPILE_PLAYER == 1
 	{"getStance", gsc_player_stance_get, 0},
@@ -341,23 +366,6 @@ scr_method_t scriptMethods[] =
 	{"lookatkiller", gsc_player_lookatkiller, 0},
 #endif
 
-#if COMPILE_BOTS == 1
-	{"setwalkdir", gsc_bots_set_walkdir, 0},
-	{"setlean", gsc_bots_set_lean, 0},
-	{"setbotstance", gsc_bots_set_stance, 0},
-	{"thrownade", gsc_bots_thrownade, 0},
-	{"fireweapon", gsc_bots_fireweapon, 0},
-	{"meleeweapon", gsc_bots_meleeweapon, 0},
-	{"reloadweapon", gsc_bots_reloadweapon, 0},
-	{"adsaim", gsc_bots_adsaim, 0},
-	{"switchtoweaponid", gsc_bots_switchtoweaponid, 0},
-#endif
-
-#if COMPILE_MYSQL_VORON == 1
-	{"async_mysql_create_entity_query", gsc_async_mysql_create_entity_query, 0},
-	{"async_mysql_create_entity_query_nosave", gsc_async_mysql_create_entity_query_nosave, 0},
-#endif
-
 #ifdef EXTRA_METHODS_INC
 #include "extra/methods.hpp"
 #endif
@@ -368,6 +376,7 @@ scr_method_t scriptMethods[] =
 xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev)
 {
 	xmethod_t m = Scr_GetMethod(fname, fdev);
+
 	if (m)
 		return m;
 
@@ -377,8 +386,10 @@ xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev)
 			continue;
 
 		scr_method_t func = scriptMethods[i];
+
 		*fname = func.name;
 		*fdev = func.developer;
+
 		return func.call;
 	}
 
@@ -560,7 +571,7 @@ int stackGetParamFloat(int param, float *value)
 	return 1;
 }
 
-int stackGetParamObject(int param, int *value)
+int stackGetParamObject(int param, unsigned int *value)
 {
 	if (param >= Scr_GetNumParam())
 		return 0;
@@ -571,7 +582,7 @@ int stackGetParamObject(int param, int *value)
 	if (var->type != STACK_OBJECT)
 		return 0;
 
-	*value = *(int *)var;
+	*value = *(unsigned int *)var;
 
 	return 1;
 }

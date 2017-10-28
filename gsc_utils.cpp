@@ -10,7 +10,7 @@
 //thanks to riicchhaarrd/php
 void gsc_utils_getarraykeys()
 {
-	int arrIndex;
+	unsigned int arrIndex;
 
 	if (!stackGetParamObject(0, &arrIndex))
 	{
@@ -28,7 +28,7 @@ void gsc_utils_getarraykeys()
 		return;
 	}
 
-	int next = GetNextVariable(arrIndex);
+	unsigned int next = GetNextVariable(arrIndex);
 
 	stackPushArray();
 
