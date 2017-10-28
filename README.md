@@ -8,6 +8,7 @@ Requirements:
 ```
 g++ (multilib for x64)
 MySQL (optional)
+SQLite (optional)
 ```
 
 Working with the source / Compiling:
@@ -25,6 +26,7 @@ export LD_PRELOAD="$HOME/cod2_1_0/libcod2_1_0.so"
 
 Little overview of added functions:
 - MySQL
+- SQLite
 - Linux shell command execution (adds tons of possibilites like executing external scripts, commands and pass their output to GSC)
 - setVelocity, getVelocity, addVelocity (needed for the mods: portal, surf)
 - keyPressed-functions for left, right, forward, backward, leanleft, leanright, jump etc., (needed for: surf, doublejump made by IzNoGod)

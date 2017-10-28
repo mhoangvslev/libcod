@@ -52,6 +52,10 @@ extern "C" {
 #include "gsc_player.hpp"
 #endif
 
+#if COMPILE_SQLITE == 1
+#include "gsc_sqlite.hpp"
+#endif
+
 #if COMPILE_UTILS == 1
 #include "gsc_utils.hpp"
 #endif
@@ -178,6 +182,7 @@ static const int svstime_offset = 0x08423084;
 #define stackPushEntity Scr_AddEntity
 #define stackPushArray Scr_MakeArray
 #define stackPushArrayLast Scr_AddArray
+#define stackPushObject Scr_AddObject
 
 void stackError(char *format, ...);
 

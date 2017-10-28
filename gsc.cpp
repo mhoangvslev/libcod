@@ -205,6 +205,12 @@ scr_function_t scriptFunctions[] =
 	{"kick2", gsc_kick_slot, 0},
 #endif
 
+#if COMPILE_SQLITE == 1
+	{"sqlite_open", gsc_sqlite_open, 0},
+	{"sqlite_query", gsc_sqlite_query, 0},
+	{"sqlite_close", gsc_sqlite_close, 0},
+#endif
+
 #if COMPILE_UTILS == 1
 	{"printf", gsc_utils_printf, 0},
 	{"getArrayKeys", gsc_utils_getarraykeys, 0},
@@ -415,6 +421,8 @@ void stackError(char *format, ...)
 	va_start(va, format);
 	vsnprintf(errorMessage, sizeof(errorMessage), format, va);
 	va_end(va);
+
+	errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
 
 	Scr_Error(errorMessage);
 }

@@ -9,7 +9,8 @@ enum
 	INT_VALUE,
 	FLOAT_VALUE,
 	STRING_VALUE,
-	VECTOR_VALUE
+	VECTOR_VALUE,
+	OBJECT_VALUE
 };
 
 struct exec_outputline
@@ -35,6 +36,7 @@ struct exec_async_task
 	float floatValue;
 	char *stringValue;
 	vec3_t vectorValue;
+	unsigned int objectValue;
 };
 
 exec_async_task *first_exec_async_task = NULL;
@@ -183,6 +185,7 @@ void gsc_exec_async_create()
 	float valueFloat;
 	char *valueString;
 	vec3_t valueVector;
+	unsigned int valueObject;
 
 	if (stackGetParamInt(2, &valueInt))
 	{
@@ -206,6 +209,11 @@ void gsc_exec_async_create()
 		newtask->vectorValue[0] = valueVector[0];
 		newtask->vectorValue[1] = valueVector[1];
 		newtask->vectorValue[2] = valueVector[2];
+	}
+	else if (stackGetParamObject(2, &valueObject))
+	{
+		newtask->valueType = OBJECT_VALUE;
+		newtask->objectValue = valueObject;
 	}
 	else
 		newtask->hasargument = false;
@@ -276,6 +284,7 @@ void gsc_exec_async_create_nosave()
 	float valueFloat;
 	char *valueString;
 	vec3_t valueVector;
+	unsigned int valueObject;
 
 	if (stackGetParamInt(2, &valueInt))
 	{
@@ -299,6 +308,11 @@ void gsc_exec_async_create_nosave()
 		newtask->vectorValue[0] = valueVector[0];
 		newtask->vectorValue[1] = valueVector[1];
 		newtask->vectorValue[2] = valueVector[2];
+	}
+	else if (stackGetParamObject(2, &valueObject))
+	{
+		newtask->valueType = OBJECT_VALUE;
+		newtask->objectValue = valueObject;
 	}
 	else
 		newtask->hasargument = false;
@@ -360,6 +374,10 @@ void gsc_exec_async_checkdone()
 
 					case VECTOR_VALUE:
 						stackPushVector(task->vectorValue);
+						break;
+
+					case OBJECT_VALUE:
+						stackPushObject(task->objectValue);
 						break;
 
 					default:

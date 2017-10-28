@@ -1156,6 +1156,15 @@ static const Scr_AddArray_t Scr_AddArray = (Scr_AddArray_t)0x08085298;
 static const Scr_AddArray_t Scr_AddArray = (Scr_AddArray_t)0x08085364;
 #endif
 
+typedef void (*Scr_AddObject_t)(unsigned int object);
+#if COD_VERSION == COD2_1_0
+static const Scr_AddObject_t Scr_AddObject = (Scr_AddObject_t)0x08084BA2;
+#elif COD_VERSION == COD2_1_2
+static const Scr_AddObject_t Scr_AddObject = (Scr_AddObject_t)0x0808511E;
+#elif COD_VERSION == COD2_1_3
+static const Scr_AddObject_t Scr_AddObject = (Scr_AddObject_t)0x080851EA;
+#endif
+
 typedef int (*G_TempEntity_t)(vec3_t origin, int event);
 #if COD_VERSION == COD2_1_0
 static const G_TempEntity_t G_TempEntity = (G_TempEntity_t)0x0811CB34;

@@ -22,6 +22,8 @@
 !gsc_mysql_voron.hpp
 !gsc_player.cpp
 !gsc_player.hpp
+!gsc_sqlite.cpp
+!gsc_sqlite.hpp
 !gsc_utils.cpp
 !gsc_utils.hpp
 !gsc_weapons.cpp

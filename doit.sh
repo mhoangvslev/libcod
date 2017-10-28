@@ -9,6 +9,10 @@ cc="g++"
 options="-I. -m32 -fPIC -Wall -Wno-write-strings"
 
 mysql_variant=0
+pthread_link=""
+sqlite_found="false"
+sqlite_libpath=""
+sqlite_link=""
 
 if [ "$1" != "clean" ]; then
 	read -rsp $'\nChoose Your MySQL variant:\n
@@ -46,6 +50,17 @@ if [ "$1" != "clean" ]; then
 	else
 		mysql_link=""
 		mysql_variant=0
+	fi
+
+	MACHINE_TYPE=$(uname -m)
+	if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+		sqlite_libpath="/usr/lib32/libsqlite3.so"
+	else
+		sqlite_libpath="/usr/lib/libsqlite3.so"
+	fi
+
+	if [ -e $sqlite_libpath ]; then
+		sqlite_found="true"
 	fi
 fi
 
@@ -106,6 +121,7 @@ fi
 if [ "$(< config.hpp grep '#define COMPILE_EXEC' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_EXEC.CPP #####"
 	$cc $options $constants -c gsc_exec.cpp -o objects_"$1"/gsc_exec.opp
+	pthread_link="-lpthread"
 fi
 
 if [ "$(< config.hpp grep '#define COMPILE_MEMORY' | grep -o '[0-9]')" == "1" ]; then
@@ -116,16 +132,28 @@ fi
 if [ "$(< config.hpp grep '#define COMPILE_MYSQL_DEFAULT' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL.CPP #####"
 	$cc $options $constants -c gsc_mysql.cpp -o objects_"$1"/gsc_mysql.opp
+	pthread_link="-lpthread"
 fi
 
 if [ "$(< config.hpp grep '#define COMPILE_MYSQL_VORON' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_MYSQL_VORON.CPP #####"
 	$cc $options $constants -c gsc_mysql_voron.cpp -o objects_"$1"/gsc_mysql_voron.opp
+	pthread_link="-lpthread"
 fi
 
 if [ "$(< config.hpp grep '#define COMPILE_PLAYER' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_PLAYER.CPP #####"
 	$cc $options $constants -c gsc_player.cpp -o objects_"$1"/gsc_player.opp
+fi
+
+if [ $sqlite_found == "true" ]; then
+	if [ "$(< config.hpp grep '#define COMPILE_SQLITE' | grep -o '[0-9]')" == "1" ]; then
+		echo "##### COMPILE $1 GSC_SQLITE.CPP #####"
+		$cc $options $constants -c gsc_sqlite.cpp -o objects_"$1"/gsc_sqlite.opp
+		sqlite_link="-lsqlite3"
+	fi
+else
+	echo "##### WARNING: SQLite lib not found, SQLite compilation skipped #####"
 fi
 
 if [ "$(< config.hpp grep '#define COMPILE_UTILS' | grep -o '[0-9]')" == "1" ]; then
@@ -154,7 +182,7 @@ $cc $options $constants -c libcod.cpp -o objects_"$1"/libcod.opp
 
 echo "##### LINKING lib$1.so #####"
 objects="$(ls objects_$1/*.opp)"
-$cc -m32 -shared -L/lib32 -o bin/lib"$1".so -ldl $objects -lpthread $mysql_link
+$cc -m32 -shared -L/lib32 -o bin/lib"$1".so -ldl $objects $pthread_link $mysql_link $sqlite_link
 rm objects_"$1" -r
 
 if [ $mysql_variant -gt 0 ]; then
