@@ -41,7 +41,7 @@ struct async_sqlite_task
 	int valueType;
 	int intValue;
 	float floatValue;
-	char *stringValue;
+	char stringValue[COD2_MAX_STRINGLENGTH];
 	vec3_t vectorValue;
 	unsigned int objectValue;
 	int entityNum;
@@ -221,7 +221,6 @@ void gsc_async_sqlite_create_query()
 	else if (stackGetParamString(3, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(3, valueVector))
@@ -327,7 +326,6 @@ void gsc_async_sqlite_create_query_nosave()
 	else if (stackGetParamString(3, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(3, valueVector))
@@ -433,7 +431,6 @@ void gsc_async_sqlite_create_entity_query(int entid)
 	else if (stackGetParamString(3, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(3, valueVector))
@@ -539,7 +536,6 @@ void gsc_async_sqlite_create_entity_query_nosave(int entid)
 	else if (stackGetParamString(3, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(3, valueVector))
@@ -604,7 +600,6 @@ void gsc_async_sqlite_checkdone()
 
 										case STRING_VALUE:
 											stackPushString(task->stringValue);
-											free(task->stringValue);
 											break;
 
 										case VECTOR_VALUE:
@@ -657,7 +652,6 @@ void gsc_async_sqlite_checkdone()
 
 								case STRING_VALUE:
 									stackPushString(task->stringValue);
-									free(task->stringValue);
 									break;
 
 								case VECTOR_VALUE:

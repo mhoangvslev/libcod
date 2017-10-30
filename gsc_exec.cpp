@@ -34,7 +34,7 @@ struct exec_async_task
 	int valueType;
 	int intValue;
 	float floatValue;
-	char *stringValue;
+	char stringValue[COD2_MAX_STRINGLENGTH];
 	vec3_t vectorValue;
 	unsigned int objectValue;
 };
@@ -200,7 +200,6 @@ void gsc_exec_async_create()
 	else if (stackGetParamString(2, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(2, valueVector))
@@ -299,7 +298,6 @@ void gsc_exec_async_create_nosave()
 	else if (stackGetParamString(2, &valueString))
 	{
 		newtask->valueType = STRING_VALUE;
-		newtask->stringValue = (char *)malloc(strlen(valueString) + 1);
 		strcpy(newtask->stringValue, valueString);
 	}
 	else if (stackGetParamVector(2, valueVector))
@@ -369,7 +367,6 @@ void gsc_exec_async_checkdone()
 
 					case STRING_VALUE:
 						stackPushString(task->stringValue);
-						free(task->stringValue);
 						break;
 
 					case VECTOR_VALUE:
