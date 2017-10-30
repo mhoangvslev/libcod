@@ -405,6 +405,7 @@ void gsc_exec_async_checkdone()
 			//free task
 			if (task->next != NULL)
 				task->next->prev = task->prev;
+
 			if (task->prev != NULL)
 				task->prev->next = task->next;
 			else

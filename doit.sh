@@ -151,6 +151,7 @@ if [ $sqlite_found == "true" ]; then
 		echo "##### COMPILE $1 GSC_SQLITE.CPP #####"
 		$cc $options $constants -c gsc_sqlite.cpp -o objects_"$1"/gsc_sqlite.opp
 		sqlite_link="-lsqlite3"
+		pthread_link="-lpthread"
 	fi
 else
 	echo "##### WARNING: SQLite lib not found, SQLite compilation skipped #####"

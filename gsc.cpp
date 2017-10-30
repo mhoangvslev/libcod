@@ -209,6 +209,10 @@ scr_function_t scriptFunctions[] =
 	{"sqlite_open", gsc_sqlite_open, 0},
 	{"sqlite_query", gsc_sqlite_query, 0},
 	{"sqlite_close", gsc_sqlite_close, 0},
+	{"async_sqlite_initialize", gsc_async_sqlite_initialize, 0},
+	{"async_sqlite_create_query", gsc_async_sqlite_create_query, 0},
+	{"async_sqlite_create_query_nosave", gsc_async_sqlite_create_query_nosave, 0},
+	{"async_sqlite_checkdone", gsc_async_sqlite_checkdone, 0},
 #endif
 
 #if COMPILE_UTILS == 1
@@ -370,6 +374,11 @@ scr_method_t scriptMethods[] =
 	{"ismantling", gsc_player_ismantling, 0},
 	{"isonladder", gsc_player_isonladder, 0},
 	{"lookatkiller", gsc_player_lookatkiller, 0},
+#endif
+
+#if COMPILE_SQLITE == 1
+	{"async_sqlite_create_entity_query", gsc_async_sqlite_create_entity_query, 0},
+	{"async_sqlite_create_entity_query_nosave", gsc_async_sqlite_create_entity_query_nosave, 0},
 #endif
 
 #ifdef EXTRA_METHODS_INC

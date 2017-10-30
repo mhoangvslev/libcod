@@ -27,7 +27,6 @@ struct async_mysql_task
 	bool done;
 	bool complete;
 	bool save;
-	bool error;
 	bool cleanup;
 	MYSQL_RES *result;
 	unsigned int levelId;
@@ -95,6 +94,7 @@ void *async_mysql_query_handler(void* dummy)
 
 				if (task->next != NULL)
 					task->next->prev = task->prev;
+
 				if (task->prev != NULL)
 					task->prev->next = task->next;
 				else
