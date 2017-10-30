@@ -1201,4 +1201,22 @@ static const G_AddEvent_t G_AddEvent = (G_AddEvent_t)0x0811F0D6;
 static const G_AddEvent_t G_AddEvent = (G_AddEvent_t)0x0811F232;
 #endif
 
+typedef unsigned int (*SL_GetString_t)(const char *str, int type);
+#if COD_VERSION == COD2_1_0
+static const SL_GetString_t SL_GetString = (SL_GetString_t)0x08079290;
+#elif COD_VERSION == COD2_1_2
+static const SL_GetString_t SL_GetString = (SL_GetString_t)0x08079814;
+#elif COD_VERSION == COD2_1_3
+static const SL_GetString_t SL_GetString = (SL_GetString_t)0x080798E0;
+#endif
+
+typedef void (*SL_RemoveRefToString_t)(unsigned int);
+#if COD_VERSION == COD2_1_0
+static const SL_RemoveRefToString_t SL_RemoveRefToString = (SL_RemoveRefToString_t)0x080796A2;
+#elif COD_VERSION == COD2_1_2
+static const SL_RemoveRefToString_t SL_RemoveRefToString = (SL_RemoveRefToString_t)0x08079C26;
+#elif COD_VERSION == COD2_1_3
+static const SL_RemoveRefToString_t SL_RemoveRefToString = (SL_RemoveRefToString_t)0x08079CF2;
+#endif
+
 #endif

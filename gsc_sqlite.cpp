@@ -8,9 +8,9 @@
 #define INVALID_ENTITY -1
 #define INVALID_STATE 0
 
-#define MAX_SQLITE_FIELDS 128
-#define MAX_SQLITE_ROWS 128
-#define MAX_SQLITE_TASKS 128
+#define MAX_SQLITE_FIELDS 256
+#define MAX_SQLITE_ROWS 256
+#define MAX_SQLITE_TASKS 512
 
 enum
 {
@@ -28,7 +28,7 @@ struct async_sqlite_task
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 	char query[COD2_MAX_STRINGLENGTH];
-	char row[MAX_SQLITE_FIELDS][MAX_SQLITE_ROWS][COD2_MAX_STRINGLENGTH];
+	unsigned int row[MAX_SQLITE_FIELDS][MAX_SQLITE_ROWS];
 	int fields_size;
 	int rows_size;
 	int callback;
@@ -68,27 +68,28 @@ void *async_sqlite_query_handler(void* dummy)
 
 				if (rc == SQLITE_OK)
 				{
-					task->fields_size = 0;
-
-					while (sqlite3_step(task->statement) == SQLITE_ROW)
+					if (task->save && task->callback)
 					{
-						if (task->fields_size > MAX_SQLITE_FIELDS - 1)
-							continue;
+						task->fields_size = 0;
 
-						task->rows_size = 0;
-
-						for (int i = 0; i < sqlite3_column_count(task->statement); i++)
+						while (sqlite3_step(task->statement) == SQLITE_ROW)
 						{
-							if (task->rows_size > MAX_SQLITE_ROWS - 1)
+							if (task->fields_size > MAX_SQLITE_FIELDS - 1)
 								continue;
 
-							strncpy(task->row[task->fields_size][task->rows_size], (char *)sqlite3_column_text(task->statement, i), COD2_MAX_STRINGLENGTH - 1);
-							task->row[task->fields_size][task->rows_size][COD2_MAX_STRINGLENGTH - 1] = '\0';
+							task->rows_size = 0;
 
-							task->rows_size++;
+							for (int i = 0; i < sqlite3_column_count(task->statement); i++)
+							{
+								if (task->rows_size > MAX_SQLITE_ROWS - 1)
+									continue;
+
+								task->row[task->fields_size][task->rows_size] = SL_GetString((char *)sqlite3_column_text(task->statement, i), 0);
+								task->rows_size++;
+							}
+
+							task->fields_size++;
 						}
-
-						task->fields_size++;
 					}
 				}
 				else
@@ -624,7 +625,8 @@ void gsc_async_sqlite_checkdone()
 
 										for (int x = 0; x < task->rows_size; x++)
 										{
-											stackPushString(task->row[i][x]);
+											stackPushString(SL_ConvertToString(task->row[i][x]));
+											SL_RemoveRefToString(task->row[i][x]);
 											stackPushArrayLast();
 										}
 
@@ -672,7 +674,8 @@ void gsc_async_sqlite_checkdone()
 
 								for (int x = 0; x < task->rows_size; x++)
 								{
-									stackPushString(task->row[i][x]);
+									stackPushString(SL_ConvertToString(task->row[i][x]));
+									SL_RemoveRefToString(task->row[i][x]);
 									stackPushArrayLast();
 								}
 
