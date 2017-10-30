@@ -69,10 +69,23 @@ void *async_sqlite_query_handler(void* dummy)
 				if (rc == SQLITE_OK)
 				{
 					if (task->save && task->callback)
-					{
 						task->fields_size = 0;
 
-						while (sqlite3_step(task->statement) == SQLITE_ROW)
+					int rs = sqlite3_step(task->statement);
+
+					while (rs != SQLITE_DONE)
+					{
+						if (rs < SQLITE_NOTICE && rs != SQLITE_BUSY)
+						{
+							task->error = true;
+
+							strncpy(task->errorMessage, sqlite3_errmsg(task->db), COD2_MAX_STRINGLENGTH - 1);
+							task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
+							sqlite3_finalize(task->statement);
+							break;
+						}
+
+						if (rs == SQLITE_ROW && task->save && task->callback)
 						{
 							if (task->fields_size > MAX_SQLITE_FIELDS - 1)
 								continue;
@@ -90,6 +103,8 @@ void *async_sqlite_query_handler(void* dummy)
 
 							task->fields_size++;
 						}
+
+						rs = sqlite3_step(task->statement);
 					}
 				}
 				else
@@ -757,17 +772,32 @@ void gsc_sqlite_query()
 
 	stackPushArray();
 
-	while (sqlite3_step(statement) == SQLITE_ROW)
-	{
-		stackPushArray();
+	int rs = sqlite3_step(statement);
 
-		for (int i = 0; i < sqlite3_column_count(statement); i++)
+	while (rs != SQLITE_DONE)
+	{
+		if (rs < SQLITE_NOTICE)
 		{
-			stackPushString((char *)sqlite3_column_text(statement, i));
+			stackError("gsc_sqlite_query() failed to execute query: %s", sqlite3_errmsg((sqlite3 *)db));
+			stackPushUndefined();
+			sqlite3_finalize(statement);
+			return;
+		}
+
+		if (rs == SQLITE_ROW)
+		{
+			stackPushArray();
+
+			for (int i = 0; i < sqlite3_column_count(statement); i++)
+			{
+				stackPushString((char *)sqlite3_column_text(statement, i));
+				stackPushArrayLast();
+			}
+
 			stackPushArrayLast();
 		}
 
-		stackPushArrayLast();
+		rs = sqlite3_step(statement);
 	}
 
 	sqlite3_finalize(statement);
