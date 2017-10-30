@@ -38,6 +38,25 @@ void hook_sv_init(char *format, ...)
 
 }
 
+void hook_sv_spawnserver(char *format, ...)
+{
+	char s[COD2_MAX_STRINGLENGTH];
+	va_list va;
+
+	va_start(va, format);
+	vsnprintf(s, sizeof(s), format, va);
+	va_end(va);
+
+	Com_Printf("%s", s);
+
+	/* Do stuff after sv has been spawned here */
+
+#if COMPILE_SQLITE == 1
+	free_sqlite_db_stores_and_tasks();
+#endif
+
+}
+
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
@@ -1051,6 +1070,7 @@ public:
 
 #if COD_VERSION == COD2_1_0
 		cracking_hook_call(0x08061FE7, (int)hook_sv_init);
+		cracking_hook_call(0x08091D0C, (int)hook_sv_spawnserver);
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BFCA, (int)hook_isLanAddress);
@@ -1110,6 +1130,7 @@ public:
 
 #elif COD_VERSION == COD2_1_2
 		cracking_hook_call(0x08062301, (int)hook_sv_init);
+		cracking_hook_call(0x08093572, (int)hook_sv_spawnserver);
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D22E, (int)hook_isLanAddress);
@@ -1169,6 +1190,7 @@ public:
 
 #elif COD_VERSION == COD2_1_3
 		cracking_hook_call(0x080622F9, (int)hook_sv_init);
+		cracking_hook_call(0x0809362A, (int)hook_sv_spawnserver);
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D2FA, (int)hook_isLanAddress);

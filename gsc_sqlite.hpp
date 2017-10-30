@@ -20,6 +20,8 @@ void gsc_async_sqlite_checkdone();
 void gsc_async_sqlite_create_entity_query(int entid);
 void gsc_async_sqlite_create_entity_query_nosave(int entid);
 
+void free_sqlite_db_stores_and_tasks();
+
 #ifdef __cplusplus
 }
 #endif
