@@ -58,15 +58,13 @@ struct sqlite_db_store
 
 async_sqlite_task *first_async_sqlite_task = NULL;
 sqlite_db_store *first_sqlite_db_store = NULL;
-pthread_mutex_t lock_async_sqlite;
+pthread_mutex_t lock_async_sqlite_task_position;
+pthread_mutex_t lock_async_sqlite_server_spawn;
 int async_sqlite_initialized = 0;
-int async_sqlite_server_restarting = 0;
 
 void free_sqlite_db_stores_and_tasks()
 {
-	async_sqlite_server_restarting = 1;
-
-	pthread_mutex_lock(&lock_async_sqlite);
+	pthread_mutex_lock(&lock_async_sqlite_server_spawn);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -110,34 +108,25 @@ void free_sqlite_db_stores_and_tasks()
 		delete store;
 	}
 
-	pthread_mutex_unlock(&lock_async_sqlite);
-
-	async_sqlite_server_restarting = 0;
+	pthread_mutex_unlock(&lock_async_sqlite_server_spawn);
 }
 
 void *async_sqlite_query_handler(void* dummy)
 {
 	while(1)
 	{
-		async_sqlite_task *current = first_async_sqlite_task;
+		pthread_mutex_lock(&lock_async_sqlite_server_spawn);
 
-		if (async_sqlite_server_restarting)
-			goto sleep;
+		async_sqlite_task *current = first_async_sqlite_task;
 
 		while (current != NULL)
 		{
-			if (async_sqlite_server_restarting)
-				goto sleep;
-
 			async_sqlite_task *task = current;
 			current = current->next;
 
 			if (!task->done)
 			{
 				int rc = sqlite3_prepare_v2(task->db, task->query, COD2_MAX_STRINGLENGTH, &task->statement, 0);
-
-				if (async_sqlite_server_restarting)
-					goto sleep;
 
 				if (rc == SQLITE_OK)
 				{
@@ -148,9 +137,6 @@ void *async_sqlite_query_handler(void* dummy)
 
 					while (rs != SQLITE_DONE)
 					{
-						if (async_sqlite_server_restarting)
-							goto sleep;
-
 						if (rs < SQLITE_NOTICE && rs != SQLITE_BUSY)
 						{
 							task->error = true;
@@ -199,7 +185,7 @@ void *async_sqlite_query_handler(void* dummy)
 
 			if (task->complete)
 			{
-				pthread_mutex_lock(&lock_async_sqlite);
+				pthread_mutex_lock(&lock_async_sqlite_task_position);
 
 				if (task->next != NULL)
 					task->next->prev = task->prev;
@@ -214,11 +200,12 @@ void *async_sqlite_query_handler(void* dummy)
 
 				delete task;
 
-				pthread_mutex_unlock(&lock_async_sqlite);
+				pthread_mutex_unlock(&lock_async_sqlite_task_position);
 			}
 		}
 
-sleep:
+		pthread_mutex_unlock(&lock_async_sqlite_server_spawn);
+
 		usleep(10000);
 	}
 
@@ -229,9 +216,16 @@ void gsc_async_sqlite_initialize()
 {
 	if (!async_sqlite_initialized)
 	{
-		if (pthread_mutex_init(&lock_async_sqlite, NULL) != 0)
+		if (pthread_mutex_init(&lock_async_sqlite_task_position, NULL) != 0)
 		{
-			stackError("gsc_async_sqlite_initialize() mutex initialization failed!");
+			stackError("gsc_async_sqlite_initialize() task position mutex initialization failed!");
+			stackPushUndefined();
+			return;
+		}
+
+		if (pthread_mutex_init(&lock_async_sqlite_server_spawn, NULL) != 0)
+		{
+			stackError("gsc_async_sqlite_initialize() server spawn mutex initialization failed!");
 			stackPushUndefined();
 			return;
 		}
@@ -279,7 +273,7 @@ void gsc_async_sqlite_create_query()
 		return;
 	}
 
-	pthread_mutex_lock(&lock_async_sqlite);
+	pthread_mutex_lock(&lock_async_sqlite_task_position);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -365,7 +359,7 @@ void gsc_async_sqlite_create_query()
 	else
 		first_async_sqlite_task = newtask;
 
-	pthread_mutex_unlock(&lock_async_sqlite);
+	pthread_mutex_unlock(&lock_async_sqlite_task_position);
 
 	stackPushInt(1);
 }
@@ -389,7 +383,7 @@ void gsc_async_sqlite_create_query_nosave()
 		return;
 	}
 
-	pthread_mutex_lock(&lock_async_sqlite);
+	pthread_mutex_lock(&lock_async_sqlite_task_position);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -475,7 +469,7 @@ void gsc_async_sqlite_create_query_nosave()
 	else
 		first_async_sqlite_task = newtask;
 
-	pthread_mutex_unlock(&lock_async_sqlite);
+	pthread_mutex_unlock(&lock_async_sqlite_task_position);
 
 	stackPushInt(1);
 }
@@ -499,7 +493,7 @@ void gsc_async_sqlite_create_entity_query(int entid)
 		return;
 	}
 
-	pthread_mutex_lock(&lock_async_sqlite);
+	pthread_mutex_lock(&lock_async_sqlite_task_position);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -585,7 +579,7 @@ void gsc_async_sqlite_create_entity_query(int entid)
 	else
 		first_async_sqlite_task = newtask;
 
-	pthread_mutex_unlock(&lock_async_sqlite);
+	pthread_mutex_unlock(&lock_async_sqlite_task_position);
 
 	stackPushInt(1);
 }
@@ -609,7 +603,7 @@ void gsc_async_sqlite_create_entity_query_nosave(int entid)
 		return;
 	}
 
-	pthread_mutex_lock(&lock_async_sqlite);
+	pthread_mutex_lock(&lock_async_sqlite_task_position);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -695,7 +689,7 @@ void gsc_async_sqlite_create_entity_query_nosave(int entid)
 	else
 		first_async_sqlite_task = newtask;
 
-	pthread_mutex_unlock(&lock_async_sqlite);
+	pthread_mutex_unlock(&lock_async_sqlite_task_position);
 
 	stackPushInt(1);
 }
