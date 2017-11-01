@@ -8,8 +8,9 @@
 #define INVALID_ENTITY -1
 #define INVALID_STATE 0
 
-#define MAX_SQLITE_FIELDS 256
-#define MAX_SQLITE_ROWS 256
+#define MAX_SQLITE_FIELDS 128
+#define MAX_SQLITE_ROWS 128
+#define MAX_SQLITE_ROW_LENGTH 256
 #define MAX_SQLITE_TASKS 512
 
 #define SQLITE_TIMEOUT 2000
@@ -30,7 +31,7 @@ struct async_sqlite_task
 	sqlite3 *db;
 	sqlite3_stmt *statement;
 	char query[COD2_MAX_STRINGLENGTH];
-	unsigned int row[MAX_SQLITE_FIELDS][MAX_SQLITE_ROWS];
+	char row[MAX_SQLITE_FIELDS][MAX_SQLITE_ROWS][MAX_SQLITE_ROW_LENGTH];
 	int result;
 	int timeout;
 	int fields_size;
@@ -143,7 +144,7 @@ void *async_sqlite_query_handler(void* dummy)
 							break;
 						}
 					}
-					else if (task->result < SQLITE_NOTICE)
+					else
 					{
 						task->error = true;
 
@@ -176,7 +177,30 @@ void *async_sqlite_query_handler(void* dummy)
 								break;
 							}
 						}
-						else if (task->result < SQLITE_NOTICE)
+						else if (task->result == SQLITE_ROW)
+						{
+							if (task->save && task->callback)
+							{
+								if (task->fields_size > MAX_SQLITE_FIELDS - 1)
+									continue;
+
+								task->rows_size = 0;
+
+								for (int i = 0; i < sqlite3_column_count(task->statement); i++)
+								{
+									if (task->rows_size > MAX_SQLITE_ROWS - 1)
+										continue;
+
+									strncpy(task->row[task->fields_size][task->rows_size], (const char *)sqlite3_column_text(task->statement, i), MAX_SQLITE_ROW_LENGTH - 1);
+									task->row[task->fields_size][task->rows_size][MAX_SQLITE_ROW_LENGTH - 1] = '\0';
+
+									task->rows_size++;
+								}
+
+								task->fields_size++;
+							}
+						}
+						else
 						{
 							task->error = true;
 
@@ -184,24 +208,6 @@ void *async_sqlite_query_handler(void* dummy)
 							task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
 
 							break;
-						}
-						else if (task->result == SQLITE_ROW && task->save && task->callback)
-						{
-							if (task->fields_size > MAX_SQLITE_FIELDS - 1)
-								continue;
-
-							task->rows_size = 0;
-
-							for (int i = 0; i < sqlite3_column_count(task->statement); i++)
-							{
-								if (task->rows_size > MAX_SQLITE_ROWS - 1)
-									continue;
-
-								task->row[task->fields_size][task->rows_size] = SL_GetString((const char *)sqlite3_column_text(task->statement, i), 0);
-								task->rows_size++;
-							}
-
-							task->fields_size++;
 						}
 
 						task->result = sqlite3_step(task->statement);
@@ -738,8 +744,7 @@ void gsc_async_sqlite_checkdone()
 
 									for (int x = 0; x < task->rows_size; x++)
 									{
-										stackPushString(SL_ConvertToString(task->row[i][x]));
-										SL_RemoveRefToString(task->row[i][x]);
+										stackPushString(task->row[i][x]);
 										stackPushArrayLast();
 									}
 
@@ -787,8 +792,7 @@ void gsc_async_sqlite_checkdone()
 
 							for (int x = 0; x < task->rows_size; x++)
 							{
-								stackPushString(SL_ConvertToString(task->row[i][x]));
-								SL_RemoveRefToString(task->row[i][x]);
+								stackPushString(task->row[i][x]);
 								stackPushArrayLast();
 							}
 
@@ -888,7 +892,7 @@ void gsc_sqlite_query()
 				return;
 			}
 		}
-		else if (result < SQLITE_NOTICE)
+		else
 		{
 			stackError("gsc_sqlite_query() failed to fetch query data: %s", sqlite3_errmsg((sqlite3 *)db));
 			stackPushUndefined();
@@ -915,13 +919,6 @@ void gsc_sqlite_query()
 				return;
 			}
 		}
-		else if (result < SQLITE_NOTICE)
-		{
-			stackError("gsc_sqlite_query() failed to execute query: %s", sqlite3_errmsg((sqlite3 *)db));
-			stackPushUndefined();
-			sqlite3_finalize(statement);
-			return;
-		}
 		else if (result == SQLITE_ROW)
 		{
 			stackPushArray();
@@ -933,6 +930,13 @@ void gsc_sqlite_query()
 			}
 
 			stackPushArrayLast();
+		}
+		else
+		{
+			stackError("gsc_sqlite_query() failed to execute query: %s", sqlite3_errmsg((sqlite3 *)db));
+			stackPushUndefined();
+			sqlite3_finalize(statement);
+			return;
 		}
 
 		result = sqlite3_step(statement);
