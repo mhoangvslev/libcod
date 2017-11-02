@@ -937,7 +937,7 @@ void hook_SVC_Status(netadr_t from)
 cvar_t *fs_library;
 void manymaps_prepare(char *mapname, int read)
 {
-	char library_path[512];
+	char library_path[512], map_check[512];
 
 	cvar_t *fs_homepath = Cvar_FindVar("fs_homepath");
 	cvar_t *fs_game = Cvar_FindVar("fs_game");
@@ -948,9 +948,7 @@ void manymaps_prepare(char *mapname, int read)
 	else
 		snprintf(library_path, sizeof(library_path), "%s/%s/Library", fs_homepath->string, fs_game->string);
 
-	char map_check[512];
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
-	int map_exists = access(map_check, F_OK) != -1;
 
 #if COD_VERSION == COD2_1_0
 	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
@@ -958,8 +956,7 @@ void manymaps_prepare(char *mapname, int read)
 	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
-	bool map_found = false;
-	bool from_stock_map = false;
+	bool map_found = false, from_stock_map = false;
 
 	for (int i = 0; i < int( sizeof(stock_maps) / sizeof(stock_maps[0]) ); i++)
 	{
@@ -975,6 +972,7 @@ void manymaps_prepare(char *mapname, int read)
 		if (strcmp(mapname, stock_maps[i]) == 0)
 		{
 			map_found = true;
+
 			if (from_stock_map) // When changing from stock map to stock map do not trigger manymap
 				return;
 			else
@@ -982,26 +980,32 @@ void manymaps_prepare(char *mapname, int read)
 		}
 	}
 
+	int map_exists = access(map_check, F_OK) != -1;
+
 	if (!map_exists && !map_found)
 		return;
 
 	DIR *dir;
 	struct dirent *dir_ent;
+
 	dir = opendir(library_path);
 
 	if (!dir)
 		return;
 
-	while ( (dir_ent = readdir(dir)) != NULL)
+	while ((dir_ent = readdir(dir)) != NULL)
 	{
 		if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
 			continue;
 
 		char fileDelete[512];
 		snprintf(fileDelete, sizeof(fileDelete), "%s/%s/%s", fs_homepath->string, fs_game->string, dir_ent->d_name);
-		int exists = access(fileDelete, F_OK) != -1;
-		if (exists)
-			printf("manymaps> REMOVED MANYMAP: %s result of unlink: %d\n", fileDelete, unlink(fileDelete));
+
+		if (access(fileDelete, F_OK) != -1)
+		{
+			int unlink_success = unlink(fileDelete) == 0;
+			printf("manymaps> REMOVED OLD LINK: %s result of unlink: %s\n", fileDelete, unlink_success?"success":"failed");
+		}
 	}
 
 	closedir(dir);
@@ -1009,16 +1013,16 @@ void manymaps_prepare(char *mapname, int read)
 	if (map_exists)
 	{
 		char src[512], dst[512];
+
 		snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
 		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", fs_homepath->string, fs_game->string, mapname);
-		printf("manymaps> LINK src=%s dst=%s\n", src, dst);
+
 		if (access(src, F_OK) != -1)
 		{
-			char cmd[COD2_MAX_STRINGLENGTH];
-			snprintf(cmd, sizeof(cmd), "ln -sfn %s %s", src, dst);
-			int link_success = system(cmd) == 0;
-			printf("manymaps> LINK: %s\n", link_success?"success":"failed (probably already exists)");
-			if (read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
+			int link_success = symlink(src, dst) == 0;
+			printf("manymaps> NEW LINK: src=%s dst=%s result of link: %s\n", src, dst, link_success?"success":"failed");
+
+			if (link_success && read == -1) // FS_LoadDir is needed when empty.iwd is missing (then .d3dbsp isn't referenced anywhere)
 				FS_LoadDir(fs_homepath->string, fs_game->string);
 		}
 	}
