@@ -332,9 +332,8 @@ void gsc_utils_getlocaltime()
 	const char *timestring = asctime(timeinfo);
 	char stripped_time[128];
 
-	int len = strlen(timestring) - 1;
-	strncpy(stripped_time, timestring, len);
-	stripped_time[len] = '\0';
+	strncpy(stripped_time, timestring, sizeof(stripped_time));
+	stripped_time[strlen(timestring) - 1] = '\0';
 
 	stackPushString( stripped_time );
 }
