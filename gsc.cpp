@@ -1,6 +1,6 @@
 #include "gsc.hpp"
 
-char *stackGetParamTypeAsString(int param)
+const char *stackGetParamTypeAsString(int param)
 {
 	if (param >= Scr_GetNumParam())
 		return "UNDEFINED";
@@ -8,112 +8,83 @@ char *stackGetParamTypeAsString(int param)
 	VariableValue *var;
 	var = &scrVmPub.top[-param];
 
-	char *type;
-
 	switch (var->type)
 	{
-	case  0:
-		type = "UNDEFINED";
-		break;
+	case 0:
+		return "UNDEFINED";
 
-	case  1:
-		type = "OBJECT";
-		break;
+	case 1:
+		return "OBJECT";
 
-	case  2:
-		type = "STRING";
-		break;
+	case 2:
+		return "STRING";
 
-	case  3:
-		type = "LOCALIZED_STRING";
-		break;
+	case 3:
+		return "LOCALIZED_STRING";
 
-	case  4:
-		type = "VECTOR";
-		break;
+	case 4:
+		return "VECTOR";
 
-	case  5:
-		type = "FLOAT";
-		break;
+	case 5:
+		return "FLOAT";
 
-	case  6:
-		type = "INT";
-		break;
+	case 6:
+		return "INT";
 
-	case  7:
-		type = "CODEPOS";
-		break;
+	case 7:
+		return "CODEPOS";
 
-	case  8:
-		type = "PRECODEPOS";
-		break;
+	case 8:
+		return "PRECODEPOS";
 
-	case  9:
-		type = "FUNCTION";
-		break;
+	case 9:
+		return "FUNCTION";
 
 	case 10:
-		type = "STACK";
-		break;
+		return "STACK";
 
 	case 11:
-		type = "ANIMATION";
-		break;
+		return "ANIMATION";
 
 	case 12:
-		type = "DEVELOPER_CODEPOS";
-		break;
+		return "DEVELOPER_CODEPOS";
 
 	case 13:
-		type = "INCLUDE_CODEPOS";
-		break;
+		return "INCLUDE_CODEPOS";
 
 	case 14:
-		type = "THREAD_LIST";
-		break;
+		return "THREAD_LIST";
 
 	case 15:
-		type = "THREAD_1";
-		break;
+		return "THREAD_1";
 
 	case 16:
-		type = "THREAD_2";
-		break;
+		return "THREAD_2";
 
 	case 17:
-		type = "THREAD_3";
-		break;
+		return "THREAD_3";
 
 	case 18:
-		type = "THREAD_4";
-		break;
+		return "THREAD_4";
 
 	case 19:
-		type = "STRUCT";
-		break;
+		return "STRUCT";
 
 	case 20:
-		type = "REMOVED_ENTITY";
-		break;
+		return "REMOVED_ENTITY";
 
 	case 21:
-		type = "ENTITY";
-		break;
+		return "ENTITY";
 
 	case 22:
-		type = "ARRAY";
-		break;
+		return "ARRAY";
 
 	case 23:
-		type = "REMOVED_THREAD";
-		break;
+		return "REMOVED_THREAD";
 
 	default:
-		type = "UNKNOWN TYPE";
-		break;
+		return "UNKNOWN TYPE";
 	}
-
-	return type;
 }
 
 void NULL_FUNC(void) {}
@@ -422,7 +393,7 @@ int stackGetParamType(int param)
 	return var->type;
 }
 
-void stackError(char *format, ...)
+void stackError(const char *format, ...)
 {
 	char errorMessage[COD2_MAX_STRINGLENGTH];
 	va_list va;
@@ -436,15 +407,14 @@ void stackError(char *format, ...)
 	Scr_Error(errorMessage);
 }
 
-int stackGetParams(char *params, ...)
+int stackGetParams(const char *params, ...)
 {
 	va_list args;
 	va_start(args, params);
 
 	int errors = 0;
-	int len = strlen(params);
 
-	for (int i = 0; i < len; i++)
+	for (size_t i = 0; i < strlen(params); i++)
 	{
 		switch (params[i])
 		{

@@ -184,12 +184,11 @@ static const int svstime_offset = 0x08423084;
 #define stackPushArrayLast Scr_AddArray
 #define stackPushObject Scr_AddObject
 
-void stackError(char *format, ...);
-
 int stackGetParamType(int param);
-char *stackGetParamTypeAsString(int param);
+const char *stackGetParamTypeAsString(int param);
 
-int stackGetParams(char *params, ...);
+int stackGetParams(const char *params, ...);
+void stackError(const char *format, ...);
 
 int stackGetParamInt(int param, int *value);
 int stackGetParamFunction(int param, int *value);

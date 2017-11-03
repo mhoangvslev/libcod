@@ -13,7 +13,7 @@ cvar_t *sv_wwwDownload;
 cvar_t *cl_wwwDownload;
 #endif
 
-void hook_sv_init(char *format, ...)
+void hook_sv_init(const char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
 	va_list va;
@@ -38,7 +38,7 @@ void hook_sv_init(char *format, ...)
 
 }
 
-void hook_sv_spawnserver(char *format, ...)
+void hook_sv_spawnserver(const char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
 	va_list va;
@@ -192,9 +192,9 @@ int hook_isLanAddress( netadr_t adr )
 }
 
 cvar_t *sv_cracked;
-char* hook_AuthorizeState( int arg )
+const char* hook_AuthorizeState( int arg )
 {
-	char *s = Cmd_Argv(arg);
+	const char *s = Cmd_Argv(arg);
 
 	if (sv_cracked->boolean && strcmp(s, "deny") == 0)
 		return "accept";
@@ -439,7 +439,7 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	return 1;
 }
 
-char *custom_va(char *format, ...)
+char *custom_va(const char *format, ...)
 {
 	char *s;
 	va_list va;
@@ -506,7 +506,7 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 
 #if COMPILE_PLAYER == 1
 int gamestate_size[64] = {0};
-void hook_gamestate_info(char *format, ...)
+void hook_gamestate_info(const char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
 	va_list va;
@@ -951,9 +951,9 @@ void manymaps_prepare(char *mapname, int read)
 	snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
 
 #if COD_VERSION == COD2_1_0
-	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
+	const char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation" };
 #else
-	char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
+	const char *stock_maps[] = { "mp_breakout", "mp_brecourt", "mp_burgundy", "mp_carentan", "mp_dawnville", "mp_decoy", "mp_downtown", "mp_farmhouse", "mp_leningrad", "mp_matmata", "mp_railyard", "mp_toujane", "mp_trainstation", "mp_rhine", "mp_harbor" };
 #endif
 
 	bool map_found = false, from_stock_map = false;

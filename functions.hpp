@@ -378,18 +378,18 @@ typedef void (*xfunction_t)();
 
 typedef struct scr_function_s
 {
-	char			*name;
-	xfunction_t		call;
-	int				developer;
+	const char      *name;
+	xfunction_t     call;
+	int             developer;
 } scr_function_t;
 
 typedef void (*xmethod_t)(int);
 
 typedef struct scr_method_s
 {
-	char			*name;
-	xmethod_t		call;
-	int				developer;
+	const char     *name;
+	xmethod_t      call;
+	int            developer;
 } scr_method_t;
 
 typedef enum
@@ -958,7 +958,7 @@ static const FS_SV_FOpenFileRead_t FS_SV_FOpenFileRead = (FS_SV_FOpenFileRead_t)
 static const FS_SV_FOpenFileRead_t FS_SV_FOpenFileRead = (FS_SV_FOpenFileRead_t)0x08064558;
 #endif
 
-typedef int (*FS_iwIwd_t)(char *a1, char *a2);
+typedef int (*FS_iwIwd_t)(const char *a1, const char *a2);
 #if COD_VERSION == COD2_1_0
 static const FS_iwIwd_t FS_iwIwd = (FS_iwIwd_t)0x08064ECC;
 #elif COD_VERSION == COD2_1_2

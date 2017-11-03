@@ -6,7 +6,7 @@
 # ./doit.sh cod2_1_3
 
 cc="g++"
-options="-I. -m32 -fPIC -Wall -Wno-write-strings"
+options="-I. -m32 -fPIC -Wall"
 
 mysql_variant=0
 pthread_link=""
