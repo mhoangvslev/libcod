@@ -1,10 +1,6 @@
 #ifndef _GSC_HPP_
 #define _GSC_HPP_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define COD2_1_0 210
 #define COD2_1_2 212
 #define COD2_1_3 213
@@ -25,8 +21,8 @@ extern "C" {
 #include <stddef.h> // offsetof
 
 #include "config.hpp"
-#include "cracking.hpp"
 #include "functions.hpp"
+#include "cracking.hpp"
 
 #if COMPILE_BOTS == 1
 #include "gsc_bots.hpp"
@@ -199,9 +195,5 @@ int stackGetParamObject(int param, unsigned int *value);
 
 xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev);
 xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

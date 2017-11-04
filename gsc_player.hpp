@@ -1,10 +1,6 @@
 #ifndef _GSC_PLAYER_HPP_
 #define _GSC_PLAYER_HPP_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* gsc functions */
 #include "gsc.hpp"
 
@@ -71,9 +67,5 @@ void gsc_entity_setbounds(int id);
 
 // player functions without entity
 void gsc_kick_slot();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

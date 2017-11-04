@@ -1,10 +1,6 @@
 #ifndef _GSC_MEMORY_HPP_
 #define _GSC_MEMORY_HPP_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* gsc functions */
 #include "gsc.hpp"
 
@@ -18,9 +14,5 @@ void gsc_binarybuffer_free();
 void gsc_binarybuffer_seek();
 void gsc_binarybuffer_write();
 void gsc_binarybuffer_read();
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

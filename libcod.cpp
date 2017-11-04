@@ -935,7 +935,7 @@ void hook_SVC_Status(netadr_t from)
 #endif
 
 cvar_t *fs_library;
-void manymaps_prepare(char *mapname, int read)
+void manymaps_prepare(const char *mapname, int read)
 {
 	char library_path[512], map_check[512];
 
