@@ -484,6 +484,12 @@ int stackGetParamInt(int param, int *value)
 	VariableValue *var;
 	var = &scrVmPub.top[-param];
 
+	if (var->type == STACK_FLOAT)
+	{
+		*value = var->u.floatValue;
+		return 1;
+	}
+
 	if (var->type != STACK_INT)
 		return 0;
 
@@ -549,6 +555,12 @@ int stackGetParamFloat(int param, float *value)
 
 	VariableValue *var;
 	var = &scrVmPub.top[-param];
+
+	if (var->type == STACK_INT)
+	{
+		*value = var->u.intValue;
+		return 1;
+	}
 
 	if (var->type != STACK_FLOAT)
 		return 0;
