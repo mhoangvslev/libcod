@@ -1286,13 +1286,14 @@ cCallOfDuty2Pro *pro;
 // lol, single again: because it got loaded two times now
 // both now: able to load with wrapper AND directly
 // IMPORTANT: file needs "lib" infront of name, otherwise it wont be loaded
+// will be called when LD_PRELOAD is referencing this .so
 
-extern "C" void __attribute__ ((constructor)) lib_load(void) // will be called when LD_PRELOAD is referencing this .so
+void __attribute__ ((constructor)) lib_load(void)
 {
 	pro = new cCallOfDuty2Pro;
 }
 
-extern "C" void __attribute__ ((destructor)) lib_unload(void)
+void __attribute__ ((destructor)) lib_unload(void)
 {
 	delete pro;
 }
