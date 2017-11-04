@@ -10,7 +10,7 @@ options="-I. -m32 -fPIC -Wall"
 
 mysql_variant=0
 pthread_link=""
-sqlite_found="false"
+sqlite_found=0
 sqlite_libpath=""
 sqlite_link=""
 
@@ -60,7 +60,9 @@ if [ "$1" != "clean" ]; then
 	fi
 
 	if [ -e $sqlite_libpath ]; then
-		sqlite_found="true"
+		sqlite_found=1
+	else
+		sed -i "/#define COMPILE_SQLITE 1/c\\#define COMPILE_SQLITE 0" config.hpp
 	fi
 fi
 
@@ -146,7 +148,7 @@ if [ "$(< config.hpp grep '#define COMPILE_PLAYER' | grep -o '[0-9]')" == "1" ];
 	$cc $options $constants -c gsc_player.cpp -o objects_"$1"/gsc_player.opp
 fi
 
-if [ $sqlite_found == "true" ]; then
+if [ $sqlite_found -eq 1 ]; then
 	if [ "$(< config.hpp grep '#define COMPILE_SQLITE' | grep -o '[0-9]')" == "1" ]; then
 		echo "##### COMPILE $1 GSC_SQLITE.CPP #####"
 		$cc $options $constants -c gsc_sqlite.cpp -o objects_"$1"/gsc_sqlite.opp
@@ -189,4 +191,8 @@ rm objects_"$1" -r
 if [ $mysql_variant -gt 0 ]; then
 	sed -i "/#define COMPILE_MYSQL_DEFAULT 1/c\\#define COMPILE_MYSQL_DEFAULT 0" config.hpp
 	sed -i "/#define COMPILE_MYSQL_VORON 1/c\\#define COMPILE_MYSQL_VORON 0" config.hpp
+fi
+
+if [ $sqlite_found -eq 0 ]; then
+	sed -i "/#define COMPILE_SQLITE 0/c\\#define COMPILE_SQLITE 1" config.hpp
 fi
