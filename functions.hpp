@@ -147,6 +147,10 @@ static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A22D8;
 static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
 #endif
 
+#define qboolean int
+#define qtrue 1
+#define qfalse 0
+
 typedef enum
 {
 	CS_FREE,		// can be reused for a new connection
@@ -630,9 +634,97 @@ struct leakyBucket_s
 	int	lastTime;
 	signed char	burst;
 	long hash;
-
 	leakyBucket_t *prev, *next;
 };
+
+typedef struct usercmd_s
+{
+	int serverTime;
+	int buttons;
+	int angles[3];
+	byte weapon;
+	byte offHandIndex;
+	char forwardmove;
+	char rightmove;
+	float meleeChargeYaw;
+	byte meleeChargeDist;
+	byte selectedLocation[2];
+	byte pad;
+} usercmd_t;
+
+typedef struct
+{
+	int			outgoingSequence;
+	netsrc_t	sock;
+	int			dropped;
+	int			incomingSequence;
+	netadr_t	remoteAddress;
+	unsigned short			qport;
+	unsigned short			upperqport;
+	int			fragmentSequence;
+	int			fragmentLength;
+	byte		*fragmentBuffer;
+	int			fragmentBufferSize;
+	qboolean	unsentFragments;
+	int			unsentFragmentStart;
+	int			unsentLength;
+	byte		*unsentBuffer;
+	int			unsentBufferSize;
+} netchan_t;
+
+#define MAX_DOWNLOAD_BLKSIZE 1024
+#define MAX_DOWNLOAD_WINDOW 8
+
+typedef struct client_s
+{
+	clientState_t	state;
+	int				unknown4;
+	int				unknown8;
+	char			userinfo[1024];
+	char			unknown132096[132096];
+	int				reliableSequence;
+	int				reliableAcknowledge;
+	int				reliableSent;
+	int				messageAcknowledge;
+	int				gamestateMessageNum;
+	int				challenge;
+	usercmd_t  	 	lastUsercmd;
+	int				lastClientCommand;
+	char			lastClientCommandString[1024];
+	int 			gentity;
+	char 			name[32];
+	char			downloadName[64];
+	fileHandle_t	download;
+	int				downloadSize;
+	int				downloadCount;
+	int				downloadClientBlock;
+	int				downloadCurrentBlock;
+	int				downloadXmitBlock;
+	unsigned char	*downloadBlocks[MAX_DOWNLOAD_WINDOW];
+	int				downloadBlockSize[MAX_DOWNLOAD_WINDOW];
+	qboolean		downloadEOF;
+	int				downloadSendTime;
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char			wwwDownloadURL[256];
+	qboolean		wwwDownload;
+	qboolean		wwwDownloadStarted;
+	qboolean		wwwDlAck;
+	qboolean		wwwDl_failed;
+#endif
+	int				deltaMessage;
+	int				nextReliableTime;
+	int				lastPacketTime;
+	int				lastConnectTime;
+	int				nextSnapshotTime;
+	qboolean		rateDelayed;
+	int				timeoutCount;
+	char 			unknown317564[317564];
+	int				ping;
+	int				rate;
+	int				snapshotMsec;
+	int				pureAuthentic;
+	netchan_t		netchan;
+} client_t;
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
 #if COD_VERSION == COD2_1_0

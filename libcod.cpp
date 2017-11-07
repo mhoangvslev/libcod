@@ -222,9 +222,6 @@ void custom_SV_WriteDownloadToClient(int cl, msg_t *msg)
 	int iwdFile;
 	int curindex;
 
-	int MAX_DOWNLOAD_BLKSIZE = 1024; // default -> 2048
-	int MAX_DOWNLOAD_WINDOW = 8;
-
 #if COD_VERSION == COD2_1_0
 	int rate_offset = 452008;
 #elif COD_VERSION == COD2_1_2
