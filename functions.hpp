@@ -641,15 +641,11 @@ typedef struct usercmd_s
 {
 	int serverTime;
 	int buttons;
-	int angles[3];
 	byte weapon;
 	byte offHandIndex;
+	int angles[3];
 	char forwardmove;
 	char rightmove;
-	float meleeChargeYaw;
-	byte meleeChargeDist;
-	byte selectedLocation[2];
-	byte pad;
 } usercmd_t;
 
 typedef struct
@@ -725,7 +721,7 @@ typedef struct client_s
 	int				nextSnapshotTime;
 	qboolean		rateDelayed;
 	int				timeoutCount;
-	char 			unknown317564[317564];
+	char 			unknown317568[317568];
 	int				ping;
 	int				rate;
 	int				snapshotMsec;
@@ -774,6 +770,18 @@ typedef struct
 	netadr_t	redirectAddress;
 	netadr_t	authorizeAddress;
 } serverStatic_t;
+
+enum svc_ops_e
+{
+	svc_nop,
+	svc_gamestate,
+	svc_configstring,
+	svc_baseline,
+	svc_serverCommand,
+	svc_download,
+	svc_snapshot,
+	svc_EOF
+};
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
 #if COD_VERSION == COD2_1_0
