@@ -105,8 +105,17 @@ static const int vmpub_offset = 0x083D7A00;
 static const int vmpub_offset = 0x083D8A80;
 #endif
 
+#if COD_VERSION == COD2_1_0
+static const int svs_offset = 0x0841FB00;
+#elif COD_VERSION == COD2_1_2
+static const int svs_offset = 0x08422000;
+#elif COD_VERSION == COD2_1_3
+static const int svs_offset = 0x08423080;
+#endif
+
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
+#define svs (*((serverStatic_t*)( svs_offset )))
 
 #if COD_VERSION == COD2_1_0
 static const int playerStates = 0x086F1480;

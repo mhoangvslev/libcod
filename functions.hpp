@@ -151,6 +151,8 @@ static const FS_LoadDir_t FS_LoadDir = (FS_LoadDir_t)0x080A241C;
 #define qtrue 1
 #define qfalse 0
 
+typedef unsigned char byte;
+
 typedef enum
 {
 	CS_FREE,		// can be reused for a new connection
@@ -174,8 +176,8 @@ typedef enum
 typedef struct
 {
 	netadrtype_t type;
-	unsigned char ip[4];
-	char ipx[10];
+	byte ip[4];
+	byte ipx[10];
 	unsigned short port;
 } netadr_t;
 
@@ -200,8 +202,6 @@ typedef vec_t vec2_t[2];
 typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
-
-typedef unsigned char byte;
 
 typedef union
 {
@@ -724,18 +724,49 @@ typedef struct client_s
 	int				snapshotMsec;
 	int				pureAuthentic;
 	netchan_t		netchan;
-#if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
 	char 			unknown32756[32756];
-#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+#elif COD_VERSION == COD2_1_3
 	char 			unknown262132[262132];
 #endif
 	int 			guid;
-#if COD_VERSION == COD2_1_0
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
 	char 			unknown10528[10528];
-#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+#elif COD_VERSION == COD2_1_3
 	char 			unknown10592[10592];
 #endif
 } client_t;
+
+typedef struct
+{
+	netadr_t adr;
+	int challenge;
+	int time;
+	int pingTime;
+	int firstTime;
+	int firstPing;
+	qboolean connected;
+	int guid;
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char unknown68[68];
+#endif
+} challenge_t;
+
+typedef struct
+{
+	qboolean	initialized;
+	int			time;
+	int			snapFlagServerBit;
+	client_t	*clients;
+	int			numSnapshotEntities;
+	int			nextSnapshotEntities;
+	int			unknown15[15];
+	int			nextHeartbeatTime;
+	int 		nextStatusResponseTime;
+	challenge_t	challenges[1024];
+	netadr_t	redirectAddress;
+	netadr_t	authorizeAddress;
+} serverStatic_t;
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
 #if COD_VERSION == COD2_1_0
