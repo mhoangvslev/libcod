@@ -672,6 +672,13 @@ typedef struct
 	int			unsentBufferSize;
 } netchan_t;
 
+typedef struct
+{
+	char command[1024];
+	int cmdTime;
+	int cmdType;
+} reliableCommands_t;
+
 #define MAX_DOWNLOAD_BLKSIZE 1024
 #define MAX_DOWNLOAD_WINDOW 8
 
@@ -681,7 +688,7 @@ typedef struct client_s
 	int				unknown4;
 	int				unknown8;
 	char			userinfo[1024];
-	char			unknown132096[132096];
+	reliableCommands_t	reliableCommands[128];
 	int				reliableSequence;
 	int				reliableAcknowledge;
 	int				reliableSent;
