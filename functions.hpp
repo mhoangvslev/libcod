@@ -724,6 +724,17 @@ typedef struct client_s
 	int				snapshotMsec;
 	int				pureAuthentic;
 	netchan_t		netchan;
+#if COD_VERSION == COD2_1_0
+	char 			unknown32756[32756];
+#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char 			unknown262132[262132];
+#endif
+	int 			guid;
+#if COD_VERSION == COD2_1_0
+	char 			unknown10528[10528];
+#elif COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char 			unknown10592[10592];
+#endif
 } client_t;
 
 typedef xfunction_t (*Scr_GetFunction_t)(const char** v_function, int* v_developer);
