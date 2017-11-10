@@ -905,19 +905,60 @@ typedef struct
 	int enterTime;
 	int voteCount;
 	int teamVoteCount;
-	int unknown;
+	float moveSpeedScaleMultiplier;
 	int viewmodelIndex;
 	qboolean noSpectate;
-	int unknown2;
+	int teamInfo;
 	int clientId;
-	sessionTeam_t team; // 10060
-} clientSession_t;
+	sessionTeam_t team;
+	int model;
+	int attachedModels[6];
+	int attachedModelsTags[6];
+	char manualModeName[32];
+	int psOffsetTime;
+} clientSession_t; // verified
 
 struct gclient_s
 {
 	playerState_t ps;
 	clientSession_t sess;
-};
+	int spectatorClient;
+	qboolean noclip;
+	qboolean ufo;
+	qboolean bFrozen;
+	int lastCmdTime;
+	int buttons;
+	int oldbuttons;
+	int latched_buttons;
+	int buttonsSinceLastFrame;
+	vec3_t oldOrigin;
+	float fGunPitch;
+	float fGunYaw;
+	int damage_blood;
+	vec3_t damage_from;
+	qboolean damage_fromWorld;
+	int accurateCount; // N/A
+	int accuracy_shots; // N/A
+	int accuracy_hits; // N/A
+	int inactivityTime;
+	qboolean inactivityWarning;
+	int playerTalkTime;
+	int rewardTime; // N/A
+	float antilagShootTime;
+	int unused_space[6];
+	gentity_t *lookAtEntity; // needs a NULL check, otherwise crash.
+	int activateEntNumber;
+	int activateTime;
+	int nonPVSFriendlyEntNum;
+	int pingPlayerTime;
+	int damageFeedBackTime;
+	vec2_t damageFeedBackDir;
+	float weaponSwayDir; // 10316
+	int unused_space2[15];
+	float weaponRecoil; // 10380
+	int unused_space3[4];
+	int lastServerTime;
+}; // verified
 
 typedef int turretInfo_s;
 
@@ -926,7 +967,54 @@ struct gentity_s
 	entityState_t s;
 	entityShared_t r;
 	struct gclient_s *client;
-	//turretInfo_s *pTurretInfo;
-};
+	turretInfo_s *pTurretInfo;
+	byte physicsObject; // 352
+	byte takedamage;
+	byte active;
+	byte nopickup;
+	byte handler;
+	byte team;
+	u_int16_t classname;
+	u_int16_t target;
+	u_int16_t targetname;
+	u_int16_t pad;
+	int spawnflags;
+	int flags;
+	int eventTime;
+	int tempEntity;
+	int dobj; // ? maybe not 384
+	int clipmask;
+	int unknown; //  392
+	int pointContents;
+	int nextthink; // 400
+	int damage;
+	int unknown2;
+	int damage2;
+	int unknownItemRelated;
+	int unknown3;
+	int unknownItemRelated2;
+	int item; // 428
+	int hurtTouchTime;
+	int useSharedNum;
+	int offsetTime;
+	int unknown4[9];
+	int think; // ?
+	float unknown5;
+	int unknown6;
+	int playerStatePrediction[3]; // 500
+	vec3_t lerpPosition; // 512
+	vec3_t moverOrigin; // 524
+	byte attachedModels[6]; // 528
+	byte free;
+	byte free2;
+	byte numAttachedModels; // 540
+	byte free3;
+	byte free4;
+	int animTree; // ?
+	vec4_t color;
+}; // verified
+
+#define g_entities ((gentity_t*)(gentities))
+#define g_clients ((gclient_t*)(playerStates))
 
 #endif
