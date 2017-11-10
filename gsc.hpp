@@ -21,6 +21,7 @@
 #include <stddef.h> // offsetof
 
 #include "config.hpp"
+#include "declarations.hpp"
 #include "functions.hpp"
 #include "cracking.hpp"
 

@@ -6,6 +6,7 @@
 !config.hpp
 !cracking.cpp
 !cracking.hpp
+!declarations.hpp
 !doit.sh
 !functions.hpp
 !gsc.cpp

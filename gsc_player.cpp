@@ -389,7 +389,8 @@ void gsc_player_connectionlesspacket(int id)
 		return;
 	}
 
-	char message[COD2_MAX_STRINGLENGTH];
+	/*
+	byte message[COD2_MAX_STRINGLENGTH];
 	message[0] = -1;
 	message[1] = -1;
 	message[2] = -1;
@@ -404,15 +405,18 @@ void gsc_player_connectionlesspacket(int id)
 	msg.overflowed = false;
 	msg.bit = 0;
 
-#if COD_VERSION == COD2_1_0
+	#if COD_VERSION == COD2_1_0
 	int remoteaddress_offset = 452036;
-#else
+	#else
 	int remoteaddress_offset = 452308;
-#endif
+	#endif
 
 	int info_player = PLAYERBASE(id);
 	netadr_t * from = (netadr_t*)(info_player + remoteaddress_offset);
 	SV_ConnectionlessPacket(*from, &msg);
+	*/
+
+	// This stuff needs a rewrite, will do later.
 
 	stackPushInt(1);
 }
