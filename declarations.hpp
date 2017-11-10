@@ -524,24 +524,22 @@ typedef struct usercmd_s
 	char rightmove;
 } usercmd_t;
 
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
+#define NETCHAN_UNSENTBUFFER_SIZE 0x4000
+#elif COD_VERSION == COD2_1_3
+#define NETCHAN_UNSENTBUFFER_SIZE 0x20000
+#endif
+
+#define NETCHAN_FRAGMENTBUFFER_SIZE 0x800
+
 typedef struct
 {
-	int			outgoingSequence;
-	netsrc_t	sock;
-	int			dropped;
-	int			incomingSequence;
-	netadr_t	remoteAddress;
-	unsigned short			qport;
-	unsigned short			upperqport;
-	int			fragmentSequence;
-	int			fragmentLength;
-	byte		*fragmentBuffer;
-	int			fragmentBufferSize;
-	qboolean	unsentFragments;
-	int			unsentFragmentStart;
-	int			unsentLength;
-	byte		*unsentBuffer;
-	int			unsentBufferSize;
+	int	outgoingSequence;
+	netsrc_t sock;
+	int dropped;
+	int incomingSequence;
+	netadr_t remoteAddress;
+	unsigned short qport;
 } netchan_t;
 
 typedef struct
@@ -948,6 +946,16 @@ typedef struct
 	int	messageSize;
 } clientSnapshot_t;
 
+#pragma pack(push)
+#pragma pack(1)
+typedef struct
+{
+	char num;
+	char data[256];
+	int dataLen;
+} voices_t;
+#pragma pack(pop)
+
 typedef struct client_s
 {
 	clientState_t	state;
@@ -997,16 +1005,22 @@ typedef struct client_s
 	int				snapshotMsec;
 	int				pureAuthentic;
 	netchan_t		netchan;
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
-	char 			unknown32756[32756];
-#elif COD_VERSION == COD2_1_3
-	char 			unknown262132[262132];
+	byte			unsentBuffer[NETCHAN_UNSENTBUFFER_SIZE];
+	byte			fragmentBuffer[NETCHAN_FRAGMENTBUFFER_SIZE];
+	byte 			unknown[14360];
+#if COD_VERSION == COD2_1_3
+	byte 			unknown_1_3[114688];
 #endif
 	int 			guid;
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
-	char 			unknown10528[10528];
-#elif COD_VERSION == COD2_1_3
-	char 			unknown10592[10592];
+	short			clscriptid;
+	int				bot;
+	int				serverId;
+	voices_t		voicedata[40];
+	int				unsentVoiceData;
+	byte			mutedClients[64];
+	byte			hasVoip;
+#if COD_VERSION == COD2_1_3
+	byte 			unknown_1_3_2[64];
 #endif
 } client_t;
 
@@ -1030,9 +1044,9 @@ typedef struct
 #define g_clients ((gclient_t*)(playerStates))
 
 #define KEY_MASK_FORWARD        127
+#define KEY_MASK_BACK           -127
 #define KEY_MASK_MOVERIGHT      127
-#define KEY_MASK_BACK           129
-#define KEY_MASK_MOVELEFT       129
+#define KEY_MASK_MOVELEFT       -127
 
 #define KEY_MASK_FIRE           1
 #define KEY_MASK_MELEE			4
