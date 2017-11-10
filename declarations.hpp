@@ -551,71 +551,6 @@ typedef struct
 	int cmdType;
 } reliableCommands_t;
 
-#define MAX_DOWNLOAD_BLKSIZE 1024
-#define MAX_DOWNLOAD_WINDOW 8
-
-typedef struct client_s
-{
-	clientState_t	state;
-	int				unknown4;
-	int				unknown8;
-	char			userinfo[1024];
-	reliableCommands_t	reliableCommands[128];
-	int				reliableSequence;
-	int				reliableAcknowledge;
-	int				reliableSent;
-	int				messageAcknowledge;
-	int				gamestateMessageNum;
-	int				challenge;
-	usercmd_t  	 	lastUsercmd;
-	int				lastClientCommand;
-	char			lastClientCommandString[1024];
-	gentity_t 		*gentity;
-	char 			name[32];
-	char			downloadName[64];
-	fileHandle_t	download;
-	int				downloadSize;
-	int				downloadCount;
-	int				downloadClientBlock;
-	int				downloadCurrentBlock;
-	int				downloadXmitBlock;
-	unsigned char	*downloadBlocks[MAX_DOWNLOAD_WINDOW];
-	int				downloadBlockSize[MAX_DOWNLOAD_WINDOW];
-	qboolean		downloadEOF;
-	int				downloadSendTime;
-#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-	char			wwwDownloadURL[256];
-	qboolean		wwwDownload;
-	qboolean		wwwDownloadStarted;
-	qboolean		wwwDlAck;
-	qboolean		wwwDl_failed;
-#endif
-	int				deltaMessage;
-	int				nextReliableTime;
-	int				lastPacketTime;
-	int				lastConnectTime;
-	int				nextSnapshotTime;
-	qboolean		rateDelayed;
-	int				timeoutCount;
-	char 			unknown317568[317568];
-	int				ping;
-	int				rate;
-	int				snapshotMsec;
-	int				pureAuthentic;
-	netchan_t		netchan;
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
-	char 			unknown32756[32756];
-#elif COD_VERSION == COD2_1_3
-	char 			unknown262132[262132];
-#endif
-	int 			guid;
-#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
-	char 			unknown10528[10528];
-#elif COD_VERSION == COD2_1_3
-	char 			unknown10592[10592];
-#endif
-} client_t;
-
 typedef struct
 {
 	netadr_t adr;
@@ -630,22 +565,6 @@ typedef struct
 	char unknown68[68];
 #endif
 } challenge_t;
-
-typedef struct
-{
-	qboolean	initialized;
-	int			time;
-	int			snapFlagServerBit;
-	client_t	*clients;
-	int			numSnapshotEntities;
-	int			nextSnapshotEntities;
-	int			unknown15[15];
-	int			nextHeartbeatTime;
-	int 		nextStatusResponseTime;
-	challenge_t	challenges[1024];
-	netadr_t	redirectAddress;
-	netadr_t	authorizeAddress;
-} serverStatic_t;
 
 typedef enum
 {
@@ -1014,7 +933,120 @@ struct gentity_s
 	vec4_t color;
 }; // verified
 
+#define MAX_DOWNLOAD_BLKSIZE 1024
+#define MAX_DOWNLOAD_WINDOW 8
+
+typedef struct
+{
+	playerState_t ps;
+	int	num_entities;
+	int	num_clients;
+	int	first_entity;
+	int	first_client;
+	unsigned int messageSent;
+	unsigned int messageAcked;
+	int	messageSize;
+} clientSnapshot_t;
+
+typedef struct client_s
+{
+	clientState_t	state;
+	int				unknown4;
+	int				unknown8;
+	char			userinfo[1024];
+	reliableCommands_t	reliableCommands[128];
+	int				reliableSequence;
+	int				reliableAcknowledge;
+	int				reliableSent;
+	int				messageAcknowledge;
+	int				gamestateMessageNum;
+	int				challenge;
+	usercmd_t  	 	lastUsercmd;
+	int				lastClientCommand;
+	char			lastClientCommandString[1024];
+	gentity_t 		*gentity;
+	char 			name[32];
+	char			downloadName[64];
+	fileHandle_t	download;
+	int				downloadSize;
+	int				downloadCount;
+	int				downloadClientBlock;
+	int				downloadCurrentBlock;
+	int				downloadXmitBlock;
+	unsigned char	*downloadBlocks[MAX_DOWNLOAD_WINDOW];
+	int				downloadBlockSize[MAX_DOWNLOAD_WINDOW];
+	qboolean		downloadEOF;
+	int				downloadSendTime;
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char			wwwDownloadURL[256];
+	qboolean		wwwDownload;
+	qboolean		wwwDownloadStarted;
+	qboolean		wwwDlAck;
+	qboolean		wwwDl_failed;
+#endif
+	int				deltaMessage;
+	int				nextReliableTime;
+	int				lastPacketTime;
+	int				lastConnectTime;
+	int				nextSnapshotTime;
+	qboolean		rateDelayed;
+	int				timeoutCount;
+	clientSnapshot_t frames[32];
+	int				ping;
+	int				rate;
+	int				snapshotMsec;
+	int				pureAuthentic;
+	netchan_t		netchan;
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
+	char 			unknown32756[32756];
+#elif COD_VERSION == COD2_1_3
+	char 			unknown262132[262132];
+#endif
+	int 			guid;
+#if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
+	char 			unknown10528[10528];
+#elif COD_VERSION == COD2_1_3
+	char 			unknown10592[10592];
+#endif
+} client_t;
+
+typedef struct
+{
+	qboolean	initialized;
+	int			time;
+	int			snapFlagServerBit;
+	client_t	*clients;
+	int			numSnapshotEntities;
+	int			nextSnapshotEntities;
+	int			unknown15[15];
+	int			nextHeartbeatTime;
+	int 		nextStatusResponseTime;
+	challenge_t	challenges[1024];
+	netadr_t	redirectAddress;
+	netadr_t	authorizeAddress;
+} serverStatic_t;
+
 #define g_entities ((gentity_t*)(gentities))
 #define g_clients ((gclient_t*)(playerStates))
+
+#define KEY_MASK_FORWARD        127
+#define KEY_MASK_MOVERIGHT      127
+#define KEY_MASK_BACK           129
+#define KEY_MASK_MOVELEFT       129
+
+#define KEY_MASK_FIRE           1
+#define KEY_MASK_MELEE			4
+#define KEY_MASK_USE            8
+#define KEY_MASK_RELOAD         16
+#define KEY_MASK_LEANLEFT       64
+#define KEY_MASK_LEANRIGHT      128
+#define KEY_MASK_PRONE          256
+#define KEY_MASK_CROUCH         512
+#define KEY_MASK_JUMP           1024
+#define KEY_MASK_ADS_MODE       4096
+#define KEY_MASK_MELEE_BREATH   32772
+#define KEY_MASK_HOLDBREATH     32768
+#define KEY_MASK_FRAG           65536
+#define KEY_MASK_SMOKE          131072
 
 #endif
