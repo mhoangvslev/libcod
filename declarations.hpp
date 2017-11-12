@@ -525,21 +525,29 @@ typedef struct usercmd_s
 } usercmd_t;
 
 #if COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2
-#define NETCHAN_UNSENTBUFFER_SIZE 0x4000
+#define MAX_MSGLEN 0x4000
 #elif COD_VERSION == COD2_1_3
-#define NETCHAN_UNSENTBUFFER_SIZE 0x20000
+#define MAX_MSGLEN 0x20000
 #endif
 
-#define NETCHAN_FRAGMENTBUFFER_SIZE 0x800
+typedef void netProfileInfo_t;
 
 typedef struct
 {
-	int	outgoingSequence;
-	netsrc_t sock;
-	int dropped;
-	int incomingSequence;
-	netadr_t remoteAddress;
-	unsigned short qport;
+	int			outgoingSequence;
+	netsrc_t	sock;
+	int			dropped;
+	int			incomingSequence;
+	netadr_t	remoteAddress;
+	int 		qport;
+	int			fragmentSequence;
+	int			fragmentLength;
+	byte		fragmentBuffer[MAX_MSGLEN];
+	qboolean	unsentFragments;
+	int			unsentFragmentStart;
+	int			unsentLength;
+	byte		unsentBuffer[MAX_MSGLEN];
+	netProfileInfo_t *netProfile;
 } netchan_t;
 
 typedef struct
@@ -560,9 +568,10 @@ typedef struct
 	qboolean connected;
 	int guid;
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-	char unknown68[68];
+	char pbguid[64];
+	int ipAuthorize;
 #endif
-} challenge_t;
+} challenge_t; // verified for 1.0, guessed for 1.2 and 1.3
 
 typedef enum
 {
@@ -595,7 +604,7 @@ typedef struct entityState_s
 	vec3_t origin2;
 	vec3_t angles2;
 	int otherEntityNum;
-	int otherEntityNum2;
+	int attackerEntityNum;
 	int groundEntityNum;
 	int constantLight;
 	int loopSound;
@@ -696,6 +705,20 @@ typedef enum
 	HE_TYPE_COUNT = 0xE,
 } he_type_t;
 
+typedef struct
+{
+	char r;
+	char g;
+	char b;
+	char a;
+} hudelem_colorsplit_t;
+
+typedef union
+{
+	hudelem_colorsplit_t split;
+	int rgba;
+} hudelem_color_t;
+
 typedef struct hudelem_s
 {
 	he_type_t type;
@@ -703,8 +726,34 @@ typedef struct hudelem_s
 	float y;
 	float z;
 	float fontScale;
-	char unknown[128 - 20];
-} hudelem_t; // size - 128, will find rest fields later
+	int font;
+	int alignOrg;
+	int alignScreen;
+	hudelem_color_t color;
+	hudelem_color_t fromColor;
+	int fadeStartTime;
+	int fadeTime;
+	int label;
+	int width;
+	int height;
+	int materialIndex;
+	int fromWidth;
+	int fromHeight;
+	int scaleStartTime;
+	int scaleTime;
+	float fromX;
+	float fromY;
+	int fromAlignOrg;
+	int fromAlignScreen;
+	int moveStartTime;
+	int moveTime;
+	int time;
+	int duration;
+	float value;
+	int text;
+	float sort;
+	hudelem_color_t glowColor;
+} hudelem_t; // verified
 
 typedef struct hudElemState_s
 {
@@ -822,7 +871,7 @@ typedef struct
 	int enterTime;
 	int voteCount;
 	int teamVoteCount;
-	float moveSpeedScaleMultiplier;
+	float moveSpeedScaleMultiplier; // ?
 	int viewmodelIndex;
 	qboolean noSpectate;
 	int teamInfo;
@@ -959,8 +1008,8 @@ typedef struct
 typedef struct client_s
 {
 	clientState_t	state;
-	int				unknown4;
-	int				unknown8;
+	int				gamestateSent;
+	int				unkClientStateVar;
 	char			userinfo[1024];
 	reliableCommands_t	reliableCommands[128];
 	int				reliableSequence;
@@ -1005,12 +1054,6 @@ typedef struct client_s
 	int				snapshotMsec;
 	int				pureAuthentic;
 	netchan_t		netchan;
-	byte			unsentBuffer[NETCHAN_UNSENTBUFFER_SIZE];
-	byte			fragmentBuffer[NETCHAN_FRAGMENTBUFFER_SIZE];
-	byte 			unknown[14360];
-#if COD_VERSION == COD2_1_3
-	byte 			unknown_1_3[114688];
-#endif
 	int 			guid;
 	short			clscriptid;
 	int				bot;
@@ -1019,10 +1062,23 @@ typedef struct client_s
 	int				unsentVoiceData;
 	byte			mutedClients[64];
 	byte			hasVoip;
-#if COD_VERSION == COD2_1_3
-	byte 			unknown_1_3_2[64];
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	char 			pbguid[64];
 #endif
 } client_t;
+
+typedef struct archivedSnapshot_s
+{
+	int start;
+	int size;
+} archivedSnapshot_t;
+
+typedef struct cachedClient_s
+{
+	int playerStateExists;
+	clientState_t *cs;
+	playerState_t *ps;
+} cachedClient_t;
 
 typedef struct
 {
@@ -1031,14 +1087,27 @@ typedef struct
 	int			snapFlagServerBit;
 	client_t	*clients;
 	int			numSnapshotEntities;
+	int			numSnapshotClients;
 	int			nextSnapshotEntities;
-	int			unknown15[15];
+	int			nextSnapshotClients;
+	entityState_t *snapshotEntities;
+	clientState_t *snapshotClients;
+	int 		archivedSnapshotEnabled;
+	int 		nextArchivedSnapshotFrames;
+	archivedSnapshot_t *archivedSnapshotFrames;
+	int 		*archivedSnapshotBuffer;
+	int 		nextArchivedSnapshotBuffer;
+	int			nextCachedSnapshotEntities;
+	int 		nextCachedSnapshotClients;
+	int 		nextCachedSnapshotFrames;
+	cachedClient_t cachedSnapshotClients;
 	int			nextHeartbeatTime;
 	int 		nextStatusResponseTime;
 	challenge_t	challenges[1024];
 	netadr_t	redirectAddress;
 	netadr_t	authorizeAddress;
-} serverStatic_t;
+	char 		netProfilingBuf[1504];
+} serverStatic_t; // verified
 
 #define g_entities ((gentity_t*)(gentities))
 #define g_clients ((gclient_t*)(playerStates))
