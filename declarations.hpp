@@ -15,6 +15,8 @@
 #define MAX_CLIENTS 64
 #define PACKET_BACKUP 32
 #define MAX_QPATH 64
+#define MAX_OSPATH 256
+#define FRAMETIME 50
 
 typedef unsigned char byte;
 typedef struct gclient_s gclient_t;
@@ -93,7 +95,7 @@ typedef enum
 typedef struct
 {
 	qboolean overflowed;
-	byte* data;
+	byte *data;
 	int maxsize;
 	int cursize;
 	int readcount;
@@ -673,9 +675,9 @@ typedef enum
 	STAT_HEALTH,
 	STAT_DEAD_YAW,
 	STAT_MAX_HEALTH,
-	STAT_UNKNOWN1,
-	STAT_UNKNOWN2,
-	STAT_UNKNOWN3
+	STAT_FRIENDLY_LOOKAT_CLIENTNUM,
+	STAT_FRIENDLY_LOOKAT_HEALTH,
+	STAT_SPAWN_COUNT
 } statIndex_t;
 
 typedef enum
@@ -1075,7 +1077,7 @@ typedef struct client_s
 	qboolean		downloadEOF;
 	int				downloadSendTime;
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-	char			wwwDownloadURL[256];
+	char			wwwDownloadURL[MAX_OSPATH];
 	qboolean		wwwDownload;
 	qboolean		wwwDownloadStarted;
 	qboolean		wwwDlAck;
