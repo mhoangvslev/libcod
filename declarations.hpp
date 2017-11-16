@@ -620,8 +620,8 @@ typedef struct entityState_s
 	trajectory_t apos;
 	int time;
 	int time2;
-	vec3_t origin2;
-	vec3_t angles2;
+	vec3_t origin;
+	vec3_t angles;
 	int otherEntityNum;
 	int attackerEntityNum;
 	int groundEntityNum;
@@ -780,6 +780,14 @@ typedef struct hudElemState_s
 	hudelem_t archival[31];
 } hudElemState_t;
 
+typedef struct
+{
+	float	yaw;
+	int	timer;
+	int	transIndex;
+	int	flags;
+} mantleState_t;
+
 typedef struct playerState_s
 {
 	int	commandTime;
@@ -826,28 +834,37 @@ typedef struct playerState_s
 	int adsDelayTime;
 	int	viewmodelIndex;
 	vec3_t viewangles;
-	char unk40[40];
+	int viewHeightTarget;
+	float viewHeightCurrent;
+	int viewHeightLerpTime;
+	int viewHeightLerpTarget;
+	int viewHeightLerpDown;
+	int unknown[5];
 	int	damageEvent;
 	int	damageYaw;
 	int	damagePitch;
 	int	damageCount;
 	int	stats[6];
 	int	ammo[128];
-	int	ammoclip[128];
-	// not confirmed below
-	unsigned int weapons[4];
-	unsigned int weaponsold[4];
-	unsigned int weaponrechamber[2];
-	// end of not confirmed
+	int	ammoclip[128]; // 836
+	unsigned int weapons[4]; // 1348
+	unsigned int weaponold[4];
+	unsigned int weaponrechamber[2]; // ?
 	vec3_t mins;
 	vec3_t maxs;
 	float proneDirection;
 	float proneDirectionPitch;
-	int unknown3[3];
-	ViewLockTypes_t	viewlocked;
-	int unknown;
+	float proneTorsoPitch;
+	ViewLockTypes_t viewlocked;
 	int viewlocked_entNum;
-	int unknown10[10];
+	int	cursorHint;
+	int	cursorHintString;
+	int	cursorHintEntIndex;
+	int unknown1;
+	vec3_t unkAngles;
+	float holdBreathScale;
+	int holdBreathTimer;
+	mantleState_t mantleState;
 	int entityEventSequence;
 	int	weapAnim;
 	float aimSpreadScale;
@@ -928,7 +945,9 @@ struct gclient_s
 	int playerTalkTime;
 	int rewardTime; // N/A
 	float antilagShootTime; // 10256
-	int unused_space[6];
+	int unknown_space[2];
+	int unknownClientEndFrameVar;
+	int unknown_space2[3];
 	gentity_t *lookAtEntity; // needs a NULL check, otherwise crash.
 	int activateEntNumber;
 	int activateTime;
@@ -936,11 +955,14 @@ struct gclient_s
 	int pingPlayerTime;
 	int damageFeedBackTime;
 	vec2_t damageFeedBackDir;
-	float weaponSwayDir; // 10316
-	int unused_space2[15];
+	vec3_t swayViewAngles; // 10316
+	vec3_t swayOffset;
+	vec3_t swayAngles;
+	int unknown_space3[7];
 	float weaponRecoil; // 10380
-	int unused_space3[4];
+	int unknown_space4[3];
 	int lastServerTime;
+	int lastActivateTime;
 }; // verified
 
 typedef int turretInfo_s;
@@ -1184,8 +1206,8 @@ typedef struct
 	SpawnVar spawnVars;
 	int savePersist;
 	struct gentity_s *droppedWeaponCue[32];
-	int fFogOpaqueDist;
-	int fFogOpaqueDistSqrd;
+	float fFogOpaqueDist;
+	float fFogOpaqueDistSqrd;
 	int remapCount;
 	int currentPlayerClone;
 	trigger_info_t pendingTriggerList[256];

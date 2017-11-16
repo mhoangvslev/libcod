@@ -669,7 +669,7 @@ static const Scr_AddObject_t Scr_AddObject = (Scr_AddObject_t)0x0808511E;
 static const Scr_AddObject_t Scr_AddObject = (Scr_AddObject_t)0x080851EA;
 #endif
 
-typedef gentity_t* (*G_TempEntity_t)(vec3_t origin, int event);
+typedef gentity_t * (*G_TempEntity_t)(vec3_t origin, int event);
 #if COD_VERSION == COD2_1_0
 static const G_TempEntity_t G_TempEntity = (G_TempEntity_t)0x0811CB34;
 #elif COD_VERSION == COD2_1_2
@@ -766,6 +766,15 @@ static const I_strupr_t I_strupr = (I_strupr_t)0x080B577E;
 static const I_strupr_t I_strupr = (I_strupr_t)0x080B7C12;
 #elif COD_VERSION == COD2_1_3
 static const I_strupr_t I_strupr = (I_strupr_t)0x080B7D56;
+#endif
+
+typedef gentity_t * (*G_Spawn_t)(void);
+#if COD_VERSION == COD2_1_0
+static const G_Spawn_t G_Spawn = (G_Spawn_t)0x0811C546;
+#elif COD_VERSION == COD2_1_2
+static const G_Spawn_t G_Spawn = (G_Spawn_t)0x0811E87A;
+#elif COD_VERSION == COD2_1_3
+static const G_Spawn_t G_Spawn = (G_Spawn_t)0x0811E9D6;
 #endif
 
 #endif
