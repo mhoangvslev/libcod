@@ -945,6 +945,11 @@ struct gclient_s
 
 typedef int turretInfo_s;
 
+typedef struct gitem_s
+{
+	u_int16_t classname;
+} gitem_t; // more stuff here
+
 struct gentity_s
 {
 	entityState_t s;
@@ -964,37 +969,32 @@ struct gentity_s
 	int spawnflags;
 	int flags;
 	int eventTime;
-	int tempEntity;
-	int dobj; // ? maybe not 384
+	qboolean freeAfterEvent; // 380
+	qboolean unlinkAfterEvent;
 	int clipmask;
-	int unknown; //  392
-	int pointContents;
+	int realClipmask;
+	int realContents; // 396
 	int nextthink; // 400
-	int damage;
+	int healthPoints;
+	int unknown;
+	int damage; // 412
 	int unknown2;
-	int damage2;
-	int unknownItemRelated;
 	int unknown3;
-	int unknownItemRelated2;
-	int item; // 428
+	float physicsBounce; // 424
+	gitem_t *item; // 428
 	int hurtTouchTime;
 	int useSharedNum;
-	int offsetTime;
-	int unknown4[9];
-	int think; // ?
-	float unknown5;
-	int unknown6;
-	int playerStatePrediction[3]; // 500
-	vec3_t lerpPosition; // 512
-	vec3_t moverOrigin; // 524
+	int attackerWeapon; // 440 ?
+	int unknown11[11];
+	int playerStatePrediction; // ?
+	vec3_t lerpOrigin; // 492
+	vec3_t lerpAngles; // 504
+	vec3_t moverOrigin; // 516
 	byte attachedModels[6]; // 528
-	byte free;
-	byte free2;
-	byte numAttachedModels; // 540
-	byte free3;
-	byte free4;
-	int animTree; // ?
-	vec4_t color;
+	u_int16_t attachedTagName; // 536 ?
+	u_int16_t numAttachedModels; // 538 ?
+	int animTree; // 540 ?
+	vec4_t color; // ?
 }; // verified
 
 #define MAX_DOWNLOAD_BLKSIZE 1024

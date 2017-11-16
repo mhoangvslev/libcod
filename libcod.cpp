@@ -1085,6 +1085,7 @@ public:
 
 		hook_gametype_scripts = new cHook(0x0810DDEE, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
+
 		hook_player_collision = new cHook(0x080F2F2E, (int)player_collision);
 		hook_player_collision->hook();
 		hook_player_eject = new cHook(0x080F474A, (int)player_eject);
@@ -1191,6 +1192,7 @@ public:
 #endif
 
 		cracking_hook_call(0x08082346, (int)hook_scriptError);
+
 		hook_gametype_scripts = new cHook(0x08110286, (int)hook_codscript_gametype_scripts);
 		hook_gametype_scripts->hook();
 
