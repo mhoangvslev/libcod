@@ -14,6 +14,7 @@
 
 #define MAX_CLIENTS 64
 #define PACKET_BACKUP 32
+#define MAX_QPATH 64
 
 typedef unsigned char byte;
 typedef struct gclient_s gclient_t;
@@ -1062,7 +1063,7 @@ typedef struct client_s
 	char			lastClientCommandString[1024];
 	gentity_t 		*gentity;
 	char 			name[32];
-	char			downloadName[64];
+	char			downloadName[MAX_QPATH];
 	fileHandle_t	download;
 	int				downloadSize;
 	int				downloadCount;
@@ -1233,6 +1234,10 @@ typedef enum
 
 #define MAX_CONFIGSTRINGS   2048
 #define MAX_MODELS          256
+#define GENTITYNUM_BITS     10
+#define MAX_GENTITIES       ( 1 << GENTITYNUM_BITS )
+#define MAX_ENT_CLUSTERS    16
+#define MAX_BPS_WINDOW 		20
 
 typedef struct
 {
@@ -1252,6 +1257,33 @@ typedef struct cmodel_s
 
 typedef struct
 {
+	int svFlags;
+	int clientMask[2];
+	vec3_t absmin;
+	vec3_t absmax;
+} archivedEntityShared_t;
+
+typedef struct archivedEntity_s
+{
+	entityState_t s;
+	archivedEntityShared_t r;
+} archivedEntity_t;
+
+typedef struct svEntity_s
+{
+	u_int16_t worldSector;
+	u_int16_t nextEntityInWorldSector;
+	archivedEntity_t baseline;
+	int numClusters;
+	int clusternums[MAX_ENT_CLUSTERS];
+	int	lastCluster;
+	int	linkcontents;
+	float linkmin[2];
+	float linkmax[2];
+} svEntity_t;
+
+typedef struct
+{
 	serverState_t state;
 	qboolean restarting;
 	int start_frameTime;
@@ -1260,7 +1292,26 @@ typedef struct
 	int unk; // ?
 	struct cmodel_s *models[MAX_MODELS]; // ?
 	char *configstrings[MAX_CONFIGSTRINGS];
-} server_t; // More stuff here
+	svEntity_t svEntities[MAX_GENTITIES];
+	char *entityParsePoint;
+	gentity_t *gentities;
+	int gentitySize;
+	int	num_entities;
+	playerState_t *gameClients;
+	int gameClientSize;
+	int	skelTimeStamp;
+	int	skelMemPos;
+	int	bpsWindow[MAX_BPS_WINDOW];
+	int	bpsWindowSteps;
+	int	bpsTotalBytes;
+	int	bpsMaxBytes;
+	int	ubpsWindow[MAX_BPS_WINDOW];
+	int	ubpsTotalBytes;
+	int	ubpsMaxBytes;
+	float ucompAve;
+	int	ucompNum;
+	char gametype[MAX_QPATH];
+} server_t; // verified
 
 typedef struct WeaponDef_t
 {
