@@ -253,7 +253,7 @@ scr_function_t scriptFunctions[] =
 	{NULL, NULL, 0} /* terminator */
 };
 
-xfunction_t Scr_GetCustomFunction(const char **fname, int *fdev)
+xfunction_t Scr_GetCustomFunction(const char **fname, qboolean *fdev)
 {
 	xfunction_t m = Scr_GetFunction(fname, fdev);
 
@@ -315,25 +315,23 @@ scr_method_t scriptMethods[] =
 	{"getIP", gsc_player_getip, 0},
 	{"getPing", gsc_player_getping, 0},
 	{"getSpectatorClient", gsc_player_spectatorclient_get, 0},
-	{"ClientCommand", gsc_player_ClientCommand, 0},
-	{"getLastConnectTime", gsc_player_getLastConnectTime, 0},
-	{"getLastMSG", gsc_player_getLastMSG, 0},
+	{"ClientCommand", gsc_player_clientcommand, 0},
+	{"getLastConnectTime", gsc_player_getlastconnecttime, 0},
+	{"getLastMSG", gsc_player_getlastmsg, 0},
 	{"getAddressType", gsc_player_addresstype, 0},
 	{"getClientState", gsc_player_getclientstate, 0},
 	{"renameClient", gsc_player_renameclient, 0},
 	{"setAlive", gsc_entity_setalive, 0},
 	{"setBounds", gsc_entity_setbounds, 0},
-	{"get_userinfo", gsc_get_userinfo, 0},
-	{"set_userinfo", gsc_set_userinfo, 0},
+	{"get_userinfo", gsc_player_get_userinfo, 0},
+	{"set_userinfo", gsc_player_set_userinfo, 0},
 	{"printOutOfBand", gsc_player_outofbandprint, 0},
 	{"connectionlessPacket", gsc_player_connectionlesspacket, 0},
 	{"clientuserinfochanged", gsc_player_clientuserinfochanged, 0},
-	{"resetNextReliableTime", gsc_player_resetNextReliableTime, 0},
+	{"resetNextReliableTime", gsc_player_resetnextreliabletime, 0},
 	{"setg_speed", gsc_player_setg_speed, 0},
 	{"setg_gravity", gsc_player_setg_gravity, 0},
 	{"setweaponfiremeleedelay", gsc_player_setweaponfiremeleedelay, 0},
-	{"disableitempickup", gsc_player_disable_item_pickup, 0},
-	{"enableitempickup", gsc_player_enable_item_pickup, 0},
 	{"setanim", gsc_player_set_anim, 0},
 	{"getjumpslowdowntimer", gsc_player_getjumpslowdowntimer, 0},
 	{"getcooktime", gsc_player_getcooktime, 0},
@@ -341,10 +339,8 @@ scr_method_t scriptMethods[] =
 	{"clienthasclientmuted", gsc_player_clienthasclientmuted, 0},
 	{"getlastgamestatesize", gsc_player_getlastgamestatesize, 0},
 	{"getfps", gsc_player_getfps, 0},
-	{"setmovespeedscale", gsc_player_setmovespeedscale, 0},
 	{"ismantling", gsc_player_ismantling, 0},
 	{"isonladder", gsc_player_isonladder, 0},
-	{"lookatkiller", gsc_player_lookatkiller, 0},
 #endif
 
 #if COMPILE_SQLITE == 1
@@ -359,7 +355,7 @@ scr_method_t scriptMethods[] =
 	{NULL, NULL, 0} /* terminator */
 };
 
-xmethod_t Scr_GetCustomMethod(const char **fname, int *fdev)
+xmethod_t Scr_GetCustomMethod(const char **fname, qboolean *fdev)
 {
 	xmethod_t m = Scr_GetMethod(fname, fdev);
 
@@ -581,7 +577,7 @@ int stackGetParamObject(int param, unsigned int *value)
 	if (var->type != STACK_OBJECT)
 		return 0;
 
-	*value = *(unsigned int *)var;
+	*value = var->u.pointerValue;
 
 	return 1;
 }

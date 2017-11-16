@@ -5,6 +5,16 @@
 #define qtrue 1
 #define qfalse 0
 
+#define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define VectorSubtract(a,b,c)	((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1],(c)[2]=(a)[2]-(b)[2])
+#define VectorAdd(a,b,c)		((c)[0]=(a)[0]+(b)[0],(c)[1]=(a)[1]+(b)[1],(c)[2]=(a)[2]+(b)[2])
+#define VectorCopy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2])
+#define	VectorScale(v, s, o)	((o)[0]=(v)[0]*(s),(o)[1]=(v)[1]*(s),(o)[2]=(v)[2]*(s))
+#define	VectorMA(v, s, b, o)	((o)[0]=(v)[0]+(b)[0]*(s),(o)[1]=(v)[1]+(b)[1]*(s),(o)[2]=(v)[2]+(b)[2]*(s))
+
+#define MAX_CLIENTS 64
+#define PACKET_BACKUP 32
+
 typedef unsigned char byte;
 typedef struct gclient_s gclient_t;
 typedef struct gentity_s gentity_t;
@@ -20,6 +30,15 @@ enum svc_ops_e
 	svc_snapshot,
 	svc_EOF
 };
+
+typedef enum
+{
+	TEAM_FREE,
+	TEAM_RED,
+	TEAM_BLUE,
+	TEAM_SPEC,
+	TEAM_NUM_TEAMS
+} team_t;
 
 typedef enum
 {
@@ -260,7 +279,7 @@ typedef struct scr_function_s
 {
 	const char      *name;
 	xfunction_t     call;
-	int             developer;
+	qboolean        developer;
 } scr_function_t;
 
 typedef void (*xmethod_t)(int);
@@ -269,7 +288,7 @@ typedef struct scr_method_s
 {
 	const char     *name;
 	xmethod_t      call;
-	int            developer;
+	qboolean       developer;
 } scr_method_t;
 
 typedef enum
@@ -770,14 +789,12 @@ typedef struct playerState_s
 	int pm_time;
 	vec3_t origin;
 	vec3_t velocity;
-	vec2_t oldVelocity;
+	vec2_t oldVelocity; // 48
+	int	weaponTime;
 	int weaponDelay;
-	// not confirmed below
 	int	grenadeTimeLeft;
 	int	throwBackGrenadeOwner;
 	int	throwBackGrenadeTimeLeft;
-	int	weaponRestrictKickTime;
-	// end of not confirmed
 	int	gravity;
 	float leanf;
 	int speed;
@@ -910,7 +927,7 @@ struct gclient_s
 	qboolean inactivityWarning;
 	int playerTalkTime;
 	int rewardTime; // N/A
-	float antilagShootTime;
+	float antilagShootTime; // 10256
 	int unused_space[6];
 	gentity_t *lookAtEntity; // needs a NULL check, otherwise crash.
 	int activateEntNumber;
@@ -1008,8 +1025,8 @@ typedef struct
 typedef struct client_s
 {
 	clientState_t	state;
-	int				gamestateSent;
-	int				unkClientStateVar;
+	int				unksnapshotvar;
+	int				unksnapshotvar2;
 	char			userinfo[1024];
 	reliableCommands_t	reliableCommands[128];
 	int				reliableSequence;
@@ -1042,13 +1059,13 @@ typedef struct client_s
 	qboolean		wwwDl_failed;
 #endif
 	int				deltaMessage;
-	int				nextReliableTime;
+	int				floodprotect;
 	int				lastPacketTime;
 	int				lastConnectTime;
 	int				nextSnapshotTime;
 	qboolean		rateDelayed;
 	int				timeoutCount;
-	clientSnapshot_t frames[32];
+	clientSnapshot_t frames[PACKET_BACKUP];
 	int				ping;
 	int				rate;
 	int				snapshotMsec;
@@ -1060,7 +1077,7 @@ typedef struct client_s
 	int				serverId;
 	voices_t		voicedata[40];
 	int				unsentVoiceData;
-	byte			mutedClients[64];
+	byte			mutedClients[MAX_CLIENTS];
 	byte			hasVoip;
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	char 			pbguid[64];
@@ -1109,8 +1126,141 @@ typedef struct
 	char 		netProfilingBuf[1504];
 } serverStatic_t; // verified
 
-#define g_entities ((gentity_t*)(gentities))
-#define g_clients ((gclient_t*)(playerStates))
+typedef struct
+{
+	const char *key;
+	const char *value;
+} keyValueStr_t;
+
+typedef struct
+{
+	byte spawnVarsValid;
+	int numSpawnVars;
+	keyValueStr_t spawnVars[64];
+	int numSpawnVarChars;
+	char spawnVarChars[2048];
+} SpawnVar;
+
+typedef struct
+{
+	u_int16_t entnum;
+	u_int16_t otherEntnum;
+	int useCount;
+	int otherUseCount;
+} trigger_info_t;
+
+typedef struct
+{
+	struct gclient_s *clients;
+	struct gentity_s *gentities;
+	int gentitySize;
+	int num_entities;
+	struct gentity_s *firstFreeEnt;
+	struct gentity_s *lastFreeEnt;
+	fileHandle_t logFile;
+	int initializing;
+	int clientIsSpawning;
+	objective_t objectives[16];
+	int maxclients;
+	int framenum;
+	int time;
+	int previousTime;
+	int frameTime;
+	int startTime;
+	int teamScores[TEAM_NUM_TEAMS];
+	int lastTeammateHealthTime;
+	qboolean bUpdateScoresForIntermission;
+	int manualNameChange;
+	int numConnectedClients;
+	int sortedClients[MAX_CLIENTS];
+	char voteString[1024];
+	char voteDisplayString[1024];
+	int voteTime; // 711
+	int voteExecuteTime;
+	int voteYes;
+	int voteNo;
+	int numVotingClients;
+	byte gap[2072];
+	SpawnVar spawnVars;
+	int savePersist;
+	struct gentity_s *droppedWeaponCue[32];
+	int fFogOpaqueDist;
+	int fFogOpaqueDistSqrd;
+	int remapCount;
+	int currentPlayerClone;
+	trigger_info_t pendingTriggerList[256];
+	trigger_info_t currentTriggerList[256];
+	int pendingTriggerListSize;
+	int currentTriggerListSize;
+	int finished;
+	int bPlayerIgnoreRadiusDamage;
+	int bPlayerIgnoreRadiusDamageLatched;
+	int registerWeapons;
+	int bRegisterItems;
+	int currentEntityThink;
+	void *openScriptIOFileHandles[1];
+	char *openScriptIOFileBuffers[1];
+} level_locals_t; // possibly more stuff here
+
+typedef enum
+{
+	SS_DEAD,
+	SS_LOADING,
+	SS_GAME
+} serverState_t;
+
+#define MAX_CONFIGSTRINGS   2048
+#define MAX_MODELS          256
+
+typedef struct
+{
+	int cluster;
+	int area;
+	int firstLeafBrush;
+	int numLeafBrushes;
+	int firstLeafSurface;
+	int numLeafSurfaces;
+} cLeaf_t;
+
+typedef struct cmodel_s
+{
+	vec3_t mins, maxs;
+	cLeaf_t leaf;
+} cmodel_t;
+
+typedef struct
+{
+	serverState_t state;
+	qboolean restarting;
+	int start_frameTime;
+	int	checksumFeed;
+	int timeResidual;
+	int unk; // ?
+	struct cmodel_s *models[MAX_MODELS]; // ?
+	char *configstrings[MAX_CONFIGSTRINGS];
+} server_t; // More stuff here
+
+typedef struct WeaponDef_t
+{
+	const char *szInternalName;
+	const char *szDisplayName;
+} WeaponDef_t; // Way too many stuff here
+
+typedef struct
+{
+	void *dummy;
+} animModelInfo_t; //Dummy
+
+typedef enum
+{
+	ANIM_BP_UNUSED,
+	ANIM_BP_LEGS,
+	ANIM_BP_TORSO,
+	ANIM_BP_BOTH,
+	NUM_ANIM_BODYPARTS
+} animBodyPart_t;
+
+#define KEY_MASK_NONE        	0
 
 #define KEY_MASK_FORWARD        127
 #define KEY_MASK_BACK           -127
@@ -1118,7 +1268,7 @@ typedef struct
 #define KEY_MASK_MOVELEFT       -127
 
 #define KEY_MASK_FIRE           1
-#define KEY_MASK_MELEE			4
+#define KEY_MASK_MELEE          4
 #define KEY_MASK_USE            8
 #define KEY_MASK_RELOAD         16
 #define KEY_MASK_LEANLEFT       64
@@ -1131,5 +1281,95 @@ typedef struct
 #define KEY_MASK_HOLDBREATH     32768
 #define KEY_MASK_FRAG           65536
 #define KEY_MASK_SMOKE          131072
+
+#define EF_VOTED 0x00100000
+#define EF_TALK 0x00200000
+#define EF_TAUNT 0x00400000
+#define EF_FIRING 0x00000020
+#define EF_MANTLE 0x00004000
+#define EF_CROUCHING 0x00000004
+#define EF_PRONE 0x00000008
+#define EF_DEAD 0x00020000
+#define EF_USETURRET 0x00000300
+#define EF_AIMDOWNSIGHT 0x00040000
+
+#define PMF_LADDER 32
+
+#if COD_VERSION == COD2_1_0
+static const int gentities_offset = 0x08665480;
+#elif COD_VERSION == COD2_1_2
+static const int gentities_offset = 0x08679380;
+#elif COD_VERSION == COD2_1_3
+static const int gentities_offset = 0x08716400;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int gclients_offset = 0x086F1480;
+#elif COD_VERSION == COD2_1_2
+static const int gclients_offset = 0x08705480;
+#elif COD_VERSION == COD2_1_3
+static const int gclients_offset = 0x087A2500;
+#endif
+
+#define g_entities ((gentity_t*)(gentities_offset))
+#define g_clients ((gclient_t*)(gclients_offset))
+
+#if COD_VERSION == COD2_1_0
+static const int varpub_offset = 0x08394000;
+#elif COD_VERSION == COD2_1_2
+static const int varpub_offset = 0x08396480;
+#elif COD_VERSION == COD2_1_3
+static const int varpub_offset = 0x08397500;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int vmpub_offset = 0x083D7600;
+#elif COD_VERSION == COD2_1_2
+static const int vmpub_offset = 0x083D7A00;
+#elif COD_VERSION == COD2_1_3
+static const int vmpub_offset = 0x083D8A80;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int sv_offset = 0x0842BC80;
+#elif COD_VERSION == COD2_1_2
+static const int sv_offset = 0x0843F180;
+#elif COD_VERSION == COD2_1_3
+static const int sv_offset = 0x08440200;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int svs_offset = 0x0841FB00;
+#elif COD_VERSION == COD2_1_2
+static const int svs_offset = 0x08422000;
+#elif COD_VERSION == COD2_1_3
+static const int svs_offset = 0x08423080;
+#endif
+
+#if COD_VERSION == COD2_1_0
+static const int level_offset = 0x0859B400;
+#elif COD_VERSION == COD2_1_2
+static const int level_offset = 0x085AF300;
+#elif COD_VERSION == COD2_1_3
+static const int level_offset = 0x0864C380;
+#endif
+
+#define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
+#define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
+#define sv (*((server_t*)( sv_offset )))
+#define svs (*((serverStatic_t*)( svs_offset )))
+#define level (*((level_locals_t*)( level_offset )))
+
+// Check for critical structure sizes and fail if not match
+#if COD_VERSION == COD2_1_0
+static_assert((sizeof(client_t) == 0x78F14), "ERROR: client_t size is invalid!");
+#elif COD_VERSION == COD2_1_2
+static_assert((sizeof(client_t) == 0x79064), "ERROR: client_t size is invalid!");
+#elif COD_VERSION == COD2_1_3
+static_assert((sizeof(client_t) == 0xB1064), "ERROR: client_t size is invalid!");
+#endif
+
+static_assert((sizeof(gentity_t) == 560), "ERROR: gentity_t size is invalid!");
+static_assert((sizeof(gclient_t) == 0x28A4), "ERROR: gclient_t size is invalid!");
 
 #endif

@@ -5,9 +5,6 @@
 #include <sqlite3.h>
 #include <pthread.h>
 
-#define INVALID_ENTITY -1
-#define INVALID_STATE 0
-
 #define MAX_SQLITE_FIELDS 128
 #define MAX_SQLITE_ROWS 128
 #define MAX_SQLITE_ROW_LENGTH 256
@@ -48,8 +45,8 @@ struct async_sqlite_task
 	char stringValue[COD2_MAX_STRINGLENGTH];
 	vec3_t vectorValue;
 	unsigned int objectValue;
-	int entityNum;
-	int entityState;
+	bool hasentity;
+	gentity_t *gentity;
 };
 
 struct sqlite_db_store
@@ -324,8 +321,8 @@ void gsc_async_sqlite_create_query()
 	newtask->save = true;
 	newtask->error = false;
 	newtask->hasargument = true;
-	newtask->entityNum = INVALID_ENTITY;
-	newtask->entityState = INVALID_STATE;
+	newtask->hasentity = false;
+	newtask->gentity = NULL;
 
 	int valueInt;
 	float valueFloat;
@@ -368,7 +365,7 @@ void gsc_async_sqlite_create_query()
 	else
 		first_async_sqlite_task = newtask;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_async_sqlite_create_query_nosave()
@@ -428,8 +425,8 @@ void gsc_async_sqlite_create_query_nosave()
 	newtask->save = false;
 	newtask->error = false;
 	newtask->hasargument = true;
-	newtask->entityNum = INVALID_ENTITY;
-	newtask->entityState = INVALID_STATE;
+	newtask->hasentity = false;
+	newtask->gentity = NULL;
 
 	int valueInt;
 	float valueFloat;
@@ -472,7 +469,7 @@ void gsc_async_sqlite_create_query_nosave()
 	else
 		first_async_sqlite_task = newtask;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_async_sqlite_create_entity_query(int entid)
@@ -532,8 +529,8 @@ void gsc_async_sqlite_create_entity_query(int entid)
 	newtask->save = true;
 	newtask->error = false;
 	newtask->hasargument = true;
-	newtask->entityNum = entid;
-	newtask->entityState = *(int *)(G_ENTITY(newtask->entityNum) + 1);
+	newtask->hasentity = true;
+	newtask->gentity = &g_entities[entid];
 
 	int valueInt;
 	float valueFloat;
@@ -576,7 +573,7 @@ void gsc_async_sqlite_create_entity_query(int entid)
 	else
 		first_async_sqlite_task = newtask;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_async_sqlite_create_entity_query_nosave(int entid)
@@ -636,8 +633,8 @@ void gsc_async_sqlite_create_entity_query_nosave(int entid)
 	newtask->save = false;
 	newtask->error = false;
 	newtask->hasargument = true;
-	newtask->entityNum = entid;
-	newtask->entityState = *(int *)(G_ENTITY(newtask->entityNum) + 1);
+	newtask->hasentity = true;
+	newtask->gentity = &g_entities[entid];
 
 	int valueInt;
 	float valueFloat;
@@ -680,7 +677,7 @@ void gsc_async_sqlite_create_entity_query_nosave(int entid)
 	else
 		first_async_sqlite_task = newtask;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_async_sqlite_checkdone()
@@ -698,62 +695,57 @@ void gsc_async_sqlite_checkdone()
 			{
 				if (task->save && task->callback)
 				{
-					if (task->entityNum != INVALID_ENTITY)
+					if (task->hasentity)
 					{
-						if (task->entityState != INVALID_STATE)
+						if (task->gentity != NULL)
 						{
-							int state = *(int *)(G_ENTITY(task->entityNum) + 1);
-
-							if (state != INVALID_STATE && state == task->entityState)
+							if (task->hasargument)
 							{
-								if (task->hasargument)
+								switch(task->valueType)
 								{
-									switch(task->valueType)
-									{
-									case INT_VALUE:
-										stackPushInt(task->intValue);
-										break;
+								case INT_VALUE:
+									stackPushInt(task->intValue);
+									break;
 
-									case FLOAT_VALUE:
-										stackPushFloat(task->floatValue);
-										break;
+								case FLOAT_VALUE:
+									stackPushFloat(task->floatValue);
+									break;
 
-									case STRING_VALUE:
-										stackPushString(task->stringValue);
-										break;
+								case STRING_VALUE:
+									stackPushString(task->stringValue);
+									break;
 
-									case VECTOR_VALUE:
-										stackPushVector(task->vectorValue);
-										break;
+								case VECTOR_VALUE:
+									stackPushVector(task->vectorValue);
+									break;
 
-									case OBJECT_VALUE:
-										stackPushObject(task->objectValue);
-										break;
+								case OBJECT_VALUE:
+									stackPushObject(task->objectValue);
+									break;
 
-									default:
-										stackPushUndefined();
-										break;
-									}
+								default:
+									stackPushUndefined();
+									break;
 								}
+							}
 
+							stackPushArray();
+
+							for (int i = 0; i < task->fields_size; i++)
+							{
 								stackPushArray();
 
-								for (int i = 0; i < task->fields_size; i++)
+								for (int x = 0; x < task->rows_size; x++)
 								{
-									stackPushArray();
-
-									for (int x = 0; x < task->rows_size; x++)
-									{
-										stackPushString(task->row[i][x]);
-										stackPushArrayLast();
-									}
-
+									stackPushString(task->row[i][x]);
 									stackPushArrayLast();
 								}
 
-								short ret = Scr_ExecEntThread(G_ENTITY(task->entityNum), task->callback, task->save + task->hasargument);
-								Scr_FreeThread(ret);
+								stackPushArrayLast();
 							}
+
+							short ret = Scr_ExecEntThread(task->gentity, task->callback, task->save + task->hasargument);
+							Scr_FreeThread(ret);
 						}
 					}
 					else
@@ -986,7 +978,7 @@ void gsc_sqlite_close()
 		}
 	}
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 #endif

@@ -4,7 +4,7 @@
 
 void gsc_bots_set_walkdir(int id)
 {
-	char* dir;
+	char *dir;
 
 	if ( ! stackGetParams("s", &dir))
 	{
@@ -13,25 +13,38 @@ void gsc_bots_set_walkdir(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_set_walkdir() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_set_walkdir() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_movement[64];
+	extern char bot_forwardmove[MAX_CLIENTS];
+	extern char bot_rightmove[MAX_CLIENTS];
 
 	if (strcmp(dir, "none") == 0)
-		bot_movement[id] = (0);
+	{
+		bot_forwardmove[id] = KEY_MASK_NONE;
+		bot_rightmove[id] = KEY_MASK_NONE;
+	}
 	else if (strcmp(dir, "forward") == 0)
-		bot_movement[id] = (127);
+		bot_forwardmove[id] = KEY_MASK_FORWARD;
 	else if (strcmp(dir, "back") == 0)
-		bot_movement[id] = (129);
+		bot_forwardmove[id] = KEY_MASK_BACK;
 	else if (strcmp(dir, "right") == 0)
-		bot_movement[id] = (127 << 8);
+		bot_rightmove[id] = KEY_MASK_MOVERIGHT;
 	else if (strcmp(dir, "left") == 0)
-		bot_movement[id] = (129 << 8);
+		bot_rightmove[id] = KEY_MASK_MOVELEFT;
 	else
 	{
 		stackError("gsc_bots_set_walkdir() invalid argument '%s'. Valid arguments are: 'none' 'forward' 'back' 'right' 'left'", dir);
@@ -39,12 +52,12 @@ void gsc_bots_set_walkdir(int id)
 		return;
 	}
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_set_lean(int id)
 {
-	char* lean;
+	char *lean;
 
 	if ( ! stackGetParams("s", &lean))
 	{
@@ -53,21 +66,30 @@ void gsc_bots_set_lean(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_set_lean() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_set_lean() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_lean[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (strcmp(lean, "none") == 0)
-		bot_lean[id] = (0);
+		bot_buttons[id] &= ~(KEY_MASK_LEANLEFT | KEY_MASK_LEANRIGHT);
 	else if (strcmp(lean, "left") == 0)
-		bot_lean[id] = (64);
+		bot_buttons[id] |= KEY_MASK_LEANLEFT;
 	else if (strcmp(lean, "right") == 0)
-		bot_lean[id] = (128);
+		bot_buttons[id] |= KEY_MASK_LEANRIGHT;
 	else
 	{
 		stackError("gsc_bots_set_lean() invalid argument '%s'. Valid arguments are: 'right' 'left'", lean);
@@ -75,12 +97,12 @@ void gsc_bots_set_lean(int id)
 		return;
 	}
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_set_stance(int id)
 {
-	char* stance;
+	char *stance;
 
 	if ( ! stackGetParams("s", &stance))
 	{
@@ -89,23 +111,32 @@ void gsc_bots_set_stance(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_set_stance() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_set_stance() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_stance[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (strcmp(stance, "stand") == 0)
-		bot_stance[id] = (0);
+		bot_buttons[id] &= ~(KEY_MASK_CROUCH | KEY_MASK_PRONE | KEY_MASK_JUMP);
 	else if (strcmp(stance, "crouch") == 0)
-		bot_stance[id] = (512);
+		bot_buttons[id] |= KEY_MASK_CROUCH;
 	else if (strcmp(stance, "prone") == 0)
-		bot_stance[id] = (256);
+		bot_buttons[id] |= KEY_MASK_PRONE;
 	else if (strcmp(stance, "jump") == 0)
-		bot_stance[id] = (1024);
+		bot_buttons[id] |= KEY_MASK_JUMP;
 	else
 	{
 		stackError("gsc_bots_set_stance() invalid argument '%s'. Valid arguments are: 'stand' 'crouch' 'prone' 'jump'", stance);
@@ -113,7 +144,7 @@ void gsc_bots_set_stance(int id)
 		return;
 	}
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_thrownade(int id)
@@ -127,21 +158,30 @@ void gsc_bots_thrownade(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_thrownade() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_thrownade() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_grenade[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (!grenade)
-		bot_grenade[id] = (0);
+		bot_buttons[id] &= ~KEY_MASK_FRAG;
 	else
-		bot_grenade[id] = (65536);
+		bot_buttons[id] |= KEY_MASK_FRAG;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_fireweapon(int id)
@@ -155,21 +195,30 @@ void gsc_bots_fireweapon(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_fireweapon() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_fireweapon() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_shoot[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (!shoot)
-		bot_shoot[id] = (0);
+		bot_buttons[id] &= ~KEY_MASK_FIRE;
 	else
-		bot_shoot[id] = (1);
+		bot_buttons[id] |= KEY_MASK_FIRE;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_meleeweapon(int id)
@@ -183,21 +232,30 @@ void gsc_bots_meleeweapon(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_meleeweapon() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_meleeweapon() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_melee[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (!melee)
-		bot_melee[id] = (0);
+		bot_buttons[id] &= ~KEY_MASK_MELEE;
 	else
-		bot_melee[id] = (32772);
+		bot_buttons[id] |= KEY_MASK_MELEE;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_reloadweapon(int id)
@@ -211,21 +269,30 @@ void gsc_bots_reloadweapon(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_reloadweapon() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_reloadweapon() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_reload[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (!reload)
-		bot_reload[id] = (0);
+		bot_buttons[id] &= ~KEY_MASK_RELOAD;
 	else
-		bot_reload[id] = (16);
+		bot_buttons[id] |= KEY_MASK_RELOAD;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_adsaim(int id)
@@ -239,21 +306,30 @@ void gsc_bots_adsaim(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_adsaim() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_adsaim() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_ads[64];
+	extern int bot_buttons[MAX_CLIENTS];
 
 	if (!ads)
-		bot_ads[id] = (0);
+		bot_buttons[id] &= ~KEY_MASK_ADS_MODE;
 	else
-		bot_ads[id] = (4096);
+		bot_buttons[id] |= KEY_MASK_ADS_MODE;
 
-	stackPushInt(1);
+	stackPushBool(qtrue);
 }
 
 void gsc_bots_switchtoweaponid(int id)
@@ -267,17 +343,27 @@ void gsc_bots_switchtoweaponid(int id)
 		return;
 	}
 
-	if (ADDRESSTYPE(id) != NA_BOT)
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_bots_switchtoweaponid() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	if (client->netchan.remoteAddress.type != NA_BOT)
 	{
 		stackError("gsc_bots_switchtoweaponid() player %i is not a bot", id);
 		stackPushUndefined();
 		return;
 	}
 
-	extern int bot_weapon[64];
+	extern int bot_weapon[MAX_CLIENTS];
 
-	bot_weapon[id] = (weaponid);
-	stackPushInt(1);
+	bot_weapon[id] = weaponid;
+
+	stackPushBool(qtrue);
 }
 
 #endif
