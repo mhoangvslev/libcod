@@ -461,6 +461,17 @@ int stackGetParams(const char *params, ...)
 			break;
 		}
 
+		case 'c':
+		{
+			unsigned int *tmp = va_arg(args, unsigned int *);
+			if ( ! stackGetParamConstString(i, tmp))
+			{
+				Com_DPrintf("\nstackGetParams() Param %i is not a const string\n", i);
+				errors++;
+			}
+			break;
+		}
+
 		default:
 			errors++;
 			Com_DPrintf("\nUnknown identifier [%s] passed to stackGetParams()\n", params[i]);
@@ -522,6 +533,22 @@ int stackGetParamString(int param, char **value)
 		return 0;
 
 	*value = SL_ConvertToString(var->u.stringValue);
+
+	return 1;
+}
+
+int stackGetParamConstString(int param, unsigned int *value)
+{
+	if (param >= Scr_GetNumParam())
+		return 0;
+
+	VariableValue *var;
+	var = &scrVmPub.top[-param];
+
+	if (var->type != STACK_STRING)
+		return 0;
+
+	*value = var->u.stringValue;
 
 	return 1;
 }

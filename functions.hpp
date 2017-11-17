@@ -66,7 +66,7 @@ static const Cmd_Argc_t Cmd_Argc = (Cmd_Argc_t)0x080601E8;
 static const Cmd_Argc_t Cmd_Argc = (Cmd_Argc_t)0x080601E0;
 #endif
 
-typedef int (*Scr_GetNumParam_t)();
+typedef int (*Scr_GetNumParam_t)(void);
 #if COD_VERSION == COD2_1_0
 static const Scr_GetNumParam_t Scr_GetNumParam = (Scr_GetNumParam_t)0x08084AEE;
 #elif COD_VERSION == COD2_1_2
