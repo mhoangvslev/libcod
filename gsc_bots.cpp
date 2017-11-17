@@ -2,7 +2,7 @@
 
 #if COMPILE_BOTS == 1
 
-void gsc_bots_set_walkdir(int id)
+void gsc_bots_set_walkdir(scr_entref_t id)
 {
 	char *dir;
 
@@ -55,7 +55,7 @@ void gsc_bots_set_walkdir(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_set_lean(int id)
+void gsc_bots_set_lean(scr_entref_t id)
 {
 	char *lean;
 
@@ -100,7 +100,7 @@ void gsc_bots_set_lean(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_set_stance(int id)
+void gsc_bots_set_stance(scr_entref_t id)
 {
 	char *stance;
 
@@ -147,7 +147,7 @@ void gsc_bots_set_stance(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_thrownade(int id)
+void gsc_bots_thrownade(scr_entref_t id)
 {
 	int grenade;
 
@@ -184,7 +184,7 @@ void gsc_bots_thrownade(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_fireweapon(int id)
+void gsc_bots_fireweapon(scr_entref_t id)
 {
 	int shoot;
 
@@ -221,7 +221,7 @@ void gsc_bots_fireweapon(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_meleeweapon(int id)
+void gsc_bots_meleeweapon(scr_entref_t id)
 {
 	int melee;
 
@@ -258,7 +258,7 @@ void gsc_bots_meleeweapon(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_reloadweapon(int id)
+void gsc_bots_reloadweapon(scr_entref_t id)
 {
 	int reload;
 
@@ -295,7 +295,7 @@ void gsc_bots_reloadweapon(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_adsaim(int id)
+void gsc_bots_adsaim(scr_entref_t id)
 {
 	int ads;
 
@@ -332,7 +332,7 @@ void gsc_bots_adsaim(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_bots_switchtoweaponid(int id)
+void gsc_bots_switchtoweaponid(scr_entref_t id)
 {
 	int weaponid;
 

@@ -371,7 +371,7 @@ void gsc_async_mysql_create_query_nosave()
 	stackPushBool(qtrue);
 }
 
-void gsc_async_mysql_create_entity_query(int entid)
+void gsc_async_mysql_create_entity_query(scr_entref_t entid)
 {
 	char *query;
 
@@ -467,7 +467,7 @@ void gsc_async_mysql_create_entity_query(int entid)
 	stackPushBool(qtrue);
 }
 
-void gsc_async_mysql_create_entity_query_nosave(int entid)
+void gsc_async_mysql_create_entity_query_nosave(scr_entref_t entid)
 {
 	char *query;
 

@@ -2,7 +2,7 @@
 
 #if COMPILE_PLAYER == 1
 
-void gsc_player_velocity_set(int id)
+void gsc_player_velocity_set(scr_entref_t id)
 {
 	vec3_t velocity;
 
@@ -26,7 +26,7 @@ void gsc_player_velocity_set(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_velocity_add(int id)
+void gsc_player_velocity_add(scr_entref_t id)
 {
 	vec3_t velocity;
 
@@ -50,7 +50,7 @@ void gsc_player_velocity_add(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_velocity_get(int id)
+void gsc_player_velocity_get(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -64,13 +64,13 @@ void gsc_player_velocity_get(int id)
 	stackPushVector(entity->client->ps.velocity);
 }
 
-void gsc_player_clientuserinfochanged(int id)
+void gsc_player_clientuserinfochanged(scr_entref_t id)
 {
 	ClientUserinfoChanged(id);
 	stackPushBool(qtrue);
 }
 
-void gsc_player_get_userinfo(int id)
+void gsc_player_get_userinfo(scr_entref_t id)
 {
 	char *key;
 
@@ -98,7 +98,7 @@ void gsc_player_get_userinfo(int id)
 		stackPushUndefined();
 }
 
-void gsc_player_set_userinfo(int id)
+void gsc_player_set_userinfo(scr_entref_t id)
 {
 	char *key, *value;
 
@@ -122,7 +122,7 @@ void gsc_player_set_userinfo(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_button_ads(int id)
+void gsc_player_button_ads(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -136,7 +136,7 @@ void gsc_player_button_ads(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_ADS_MODE ? qtrue : qfalse);
 }
 
-void gsc_player_button_left(int id)
+void gsc_player_button_left(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -150,7 +150,7 @@ void gsc_player_button_left(int id)
 	stackPushBool(client->lastUsercmd.rightmove == KEY_MASK_MOVELEFT ? qtrue : qfalse);
 }
 
-void gsc_player_button_right(int id)
+void gsc_player_button_right(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -164,7 +164,7 @@ void gsc_player_button_right(int id)
 	stackPushBool(client->lastUsercmd.rightmove == KEY_MASK_MOVERIGHT ? qtrue : qfalse);
 }
 
-void gsc_player_button_forward(int id)
+void gsc_player_button_forward(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -178,7 +178,7 @@ void gsc_player_button_forward(int id)
 	stackPushBool(client->lastUsercmd.forwardmove == KEY_MASK_FORWARD ? qtrue : qfalse);
 }
 
-void gsc_player_button_back(int id)
+void gsc_player_button_back(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -192,7 +192,7 @@ void gsc_player_button_back(int id)
 	stackPushBool(client->lastUsercmd.forwardmove == KEY_MASK_BACK ? qtrue : qfalse);
 }
 
-void gsc_player_button_leanleft(int id)
+void gsc_player_button_leanleft(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -206,7 +206,7 @@ void gsc_player_button_leanleft(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_LEANLEFT ? qtrue : qfalse);
 }
 
-void gsc_player_button_leanright(int id)
+void gsc_player_button_leanright(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -220,7 +220,7 @@ void gsc_player_button_leanright(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_LEANRIGHT ? qtrue : qfalse);
 }
 
-void gsc_player_button_reload(int id)
+void gsc_player_button_reload(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -234,7 +234,7 @@ void gsc_player_button_reload(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_RELOAD ? qtrue : qfalse);
 }
 
-void gsc_player_button_jump(int id)
+void gsc_player_button_jump(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -248,7 +248,7 @@ void gsc_player_button_jump(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_JUMP ? qtrue : qfalse);
 }
 
-void gsc_player_button_frag(int id)
+void gsc_player_button_frag(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -262,7 +262,7 @@ void gsc_player_button_frag(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_FRAG ? qtrue : qfalse);
 }
 
-void gsc_player_button_smoke(int id)
+void gsc_player_button_smoke(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -276,7 +276,7 @@ void gsc_player_button_smoke(int id)
 	stackPushBool(client->lastUsercmd.buttons & KEY_MASK_SMOKE ? qtrue : qfalse);
 }
 
-void gsc_player_stance_get(int id)
+void gsc_player_stance_get(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -295,7 +295,7 @@ void gsc_player_stance_get(int id)
 		stackPushString("stand");
 }
 
-void gsc_player_stance_set(int id)
+void gsc_player_stance_set(scr_entref_t id)
 {
 	char *stance;
 
@@ -334,7 +334,7 @@ void gsc_player_stance_set(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_spectatorclient_get(int id)
+void gsc_player_spectatorclient_get(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -351,7 +351,7 @@ void gsc_player_spectatorclient_get(int id)
 		stackPushEntity(&g_entities[entity->client->spectatorClient]);
 }
 
-void gsc_player_getip(int id)
+void gsc_player_getip(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -368,7 +368,7 @@ void gsc_player_getip(int id)
 	stackPushString(tmp);
 }
 
-void gsc_player_getping(int id)
+void gsc_player_getping(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -382,13 +382,13 @@ void gsc_player_getping(int id)
 	stackPushInt(client->ping);
 }
 
-void gsc_player_clientcommand(int id)
+void gsc_player_clientcommand(scr_entref_t id)
 {
 	ClientCommand(id);
 	stackPushBool(qtrue);
 }
 
-void gsc_player_getlastconnecttime(int id)
+void gsc_player_getlastconnecttime(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -402,7 +402,7 @@ void gsc_player_getlastconnecttime(int id)
 	stackPushInt(client->lastConnectTime);
 }
 
-void gsc_player_getlastmsg(int id)
+void gsc_player_getlastmsg(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -416,7 +416,7 @@ void gsc_player_getlastmsg(int id)
 	stackPushInt(svs.time - client->lastPacketTime);
 }
 
-void gsc_player_getclientstate(int id)
+void gsc_player_getclientstate(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -430,7 +430,7 @@ void gsc_player_getclientstate(int id)
 	stackPushInt(client->state);
 }
 
-void gsc_player_addresstype(int id)
+void gsc_player_addresstype(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -444,7 +444,7 @@ void gsc_player_addresstype(int id)
 	stackPushInt(client->netchan.remoteAddress.type);
 }
 
-void gsc_player_renameclient(int id)
+void gsc_player_renameclient(scr_entref_t id)
 {
 	char *name;
 
@@ -477,7 +477,7 @@ void gsc_player_renameclient(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_outofbandprint(int id)
+void gsc_player_outofbandprint(scr_entref_t id)
 {
 	char *cmd;
 
@@ -501,7 +501,7 @@ void gsc_player_outofbandprint(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_connectionlesspacket(int id)
+void gsc_player_connectionlesspacket(scr_entref_t id)
 {
 	char *cmd;
 
@@ -535,7 +535,7 @@ void gsc_player_connectionlesspacket(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_resetnextreliabletime(int id)
+void gsc_player_resetnextreliabletime(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -550,7 +550,7 @@ void gsc_player_resetnextreliabletime(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_ismantling(int id)
+void gsc_player_ismantling(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -567,7 +567,7 @@ void gsc_player_ismantling(int id)
 		stackPushBool(qfalse);
 }
 
-void gsc_player_isonladder(int id)
+void gsc_player_isonladder(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -584,7 +584,7 @@ void gsc_player_isonladder(int id)
 		stackPushBool(qfalse);
 }
 
-void gsc_player_getjumpslowdowntimer(int id)
+void gsc_player_getjumpslowdowntimer(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -598,7 +598,7 @@ void gsc_player_getjumpslowdowntimer(int id)
 	stackPushInt(entity->client->ps.pm_time);
 }
 
-void gsc_player_setg_speed(int id)
+void gsc_player_setg_speed(scr_entref_t id)
 {
 	int speed;
 
@@ -629,7 +629,7 @@ void gsc_player_setg_speed(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_setg_gravity(int id)
+void gsc_player_setg_gravity(scr_entref_t id)
 {
 	int gravity;
 
@@ -660,7 +660,7 @@ void gsc_player_setg_gravity(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_setweaponfiremeleedelay(int id)
+void gsc_player_setweaponfiremeleedelay(scr_entref_t id)
 {
 	int delay;
 
@@ -691,7 +691,7 @@ void gsc_player_setweaponfiremeleedelay(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_set_anim(int id)
+void gsc_player_set_anim(scr_entref_t id)
 {
 	char *animation;
 
@@ -712,7 +712,7 @@ void gsc_player_set_anim(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_getcooktime(int id)
+void gsc_player_getcooktime(scr_entref_t id)
 {
 	gentity_t *entity = &g_entities[id];
 
@@ -726,7 +726,7 @@ void gsc_player_getcooktime(int id)
 	stackPushInt(entity->client->ps.grenadeTimeLeft);
 }
 
-void gsc_entity_setalive(int id)
+void gsc_entity_setalive(scr_entref_t id)
 {
 	int isAlive;
 
@@ -743,7 +743,7 @@ void gsc_entity_setalive(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_entity_setbounds(int id)
+void gsc_entity_setbounds(scr_entref_t id)
 {
 	float width, height;
 
@@ -802,7 +802,7 @@ void gsc_kick_slot()
 	stackPushBool(qtrue);
 }
 
-void gsc_player_setguid(int id)
+void gsc_player_setguid(scr_entref_t id)
 {
 	int guid;
 
@@ -826,7 +826,7 @@ void gsc_player_setguid(int id)
 	stackPushBool(qtrue);
 }
 
-void gsc_player_clienthasclientmuted(int id)
+void gsc_player_clienthasclientmuted(scr_entref_t id)
 {
 	int id2;
 
@@ -847,7 +847,7 @@ void gsc_player_clienthasclientmuted(int id)
 	stackPushInt(SV_ClientHasClientMuted(id, id2));
 }
 
-void gsc_player_getlastgamestatesize(int id)
+void gsc_player_getlastgamestatesize(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{
@@ -860,7 +860,7 @@ void gsc_player_getlastgamestatesize(int id)
 	stackPushInt(gamestate_size[id]);
 }
 
-void gsc_player_getfps(int id)
+void gsc_player_getfps(scr_entref_t id)
 {
 	if (id > MAX_CLIENTS)
 	{

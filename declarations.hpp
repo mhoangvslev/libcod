@@ -21,6 +21,7 @@
 typedef unsigned char byte;
 typedef struct gclient_s gclient_t;
 typedef struct gentity_s gentity_t;
+typedef int scr_entref_t;
 
 enum svc_ops_e
 {
@@ -285,7 +286,7 @@ typedef struct scr_function_s
 	qboolean        developer;
 } scr_function_t;
 
-typedef void (*xmethod_t)(int);
+typedef void (*xmethod_t)(scr_entref_t);
 
 typedef struct scr_method_s
 {
