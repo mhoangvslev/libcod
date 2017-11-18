@@ -171,7 +171,6 @@ typedef struct cvar_s
 	struct cvar_s *hashNext;
 } cvar_t;
 
-
 #define	CVAR_ARCHIVE		1
 #define	CVAR_USERINFO		2
 #define	CVAR_SERVERINFO		4
@@ -206,11 +205,70 @@ union VariableUnion
 	unsigned int entityOffset;
 };
 
+union ObjectInfo_u
+{
+	u_int16_t size;
+	u_int16_t entnum;
+	u_int16_t nextEntId;
+	u_int16_t self;
+};
+
+struct ObjectInfo
+{
+	u_int16_t refCount;
+	union ObjectInfo_u u;
+};
+
+union VariableValueInternal_u
+{
+	u_int16_t next;
+	union VariableUnion u;
+	struct ObjectInfo o;
+};
+
+union VariableValueInternal_w
+{
+	unsigned int status;
+	unsigned int type;
+	unsigned int name;
+	unsigned int classnum;
+	unsigned int notifyName;
+	unsigned int waitTime;
+	unsigned int parentLocalId;
+};
+
+union VariableValueInternal_v
+{
+	u_int16_t next;
+	u_int16_t index;
+};
+
 typedef struct
 {
 	union VariableUnion u;
 	int type;
 } VariableValue;
+
+union Variable_u
+{
+	u_int16_t prev;
+	u_int16_t prevSibling;
+};
+
+struct Variable
+{
+	u_int16_t id;
+	union Variable_u u;
+};
+
+typedef struct
+{
+	struct Variable hash;
+	union VariableValueInternal_u u;
+	union VariableValueInternal_w w;
+	union VariableValueInternal_v v;
+	u_int16_t nextSibling;
+} VariableValueInternal;
 
 typedef struct
 {
@@ -276,8 +334,8 @@ typedef struct
 } scrVmPub_t;
 
 typedef int	fileHandle_t;
-
 typedef void (*xfunction_t)();
+typedef void (*xmethod_t)(scr_entref_t);
 
 typedef struct scr_function_s
 {
@@ -285,8 +343,6 @@ typedef struct scr_function_s
 	xfunction_t     call;
 	qboolean        developer;
 } scr_function_t;
-
-typedef void (*xmethod_t)(scr_entref_t);
 
 typedef struct scr_method_s
 {
@@ -1390,6 +1446,14 @@ static const int varpub_offset = 0x08397500;
 #endif
 
 #if COD_VERSION == COD2_1_0
+static const int varglob_offset = 0x08294000;
+#elif COD_VERSION == COD2_1_2
+static const int varglob_offset = 0x08296480;
+#elif COD_VERSION == COD2_1_3
+static const int varglob_offset = 0x08297500;
+#endif
+
+#if COD_VERSION == COD2_1_0
 static const int vmpub_offset = 0x083D7600;
 #elif COD_VERSION == COD2_1_2
 static const int vmpub_offset = 0x083D7A00;
@@ -1423,6 +1487,8 @@ static const int level_offset = 0x0864C380;
 
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
+#define scrVarGlob (((VariableValueInternal*)( varglob_offset )))
+#define scrVarGlob_high (((VariableValueInternal*)( varglob_offset + 16 * 32770 )))
 #define sv (*((server_t*)( sv_offset )))
 #define svs (*((serverStatic_t*)( svs_offset )))
 #define level (*((level_locals_t*)( level_offset )))
