@@ -1514,9 +1514,9 @@ static const int level_offset = 0x0864C380;
 #if COD_VERSION == COD2_1_0
 static const int itemlist_offset = 0x08164C20;
 #elif COD_VERSION == COD2_1_2
-static const int itemlist_offset = 0x0;
+static const int itemlist_offset = 0x081840A0;
 #elif COD_VERSION == COD2_1_3
-static const int itemlist_offset = 0x0;
+static const int itemlist_offset = 0x081850C0;
 #endif
 
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
