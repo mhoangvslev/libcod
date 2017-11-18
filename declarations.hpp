@@ -852,7 +852,7 @@ typedef struct playerState_s
 	int	ammo[128];
 	int	ammoclip[128]; // 836
 	unsigned int weapons[4]; // 1348
-	unsigned int weaponold[4];
+	unsigned int weaponsold[4];
 	unsigned int weaponrechamber[2]; // ?
 	vec3_t mins;
 	vec3_t maxs;
@@ -971,11 +971,6 @@ struct gclient_s
 
 typedef int turretInfo_s;
 
-typedef struct gitem_s
-{
-	u_int16_t classname;
-} gitem_t; // more stuff here
-
 struct gentity_s
 {
 	entityState_t s;
@@ -986,12 +981,13 @@ struct gentity_s
 	byte takedamage;
 	byte active;
 	byte nopickup;
-	byte handler;
+	byte model;
 	byte team;
-	u_int16_t classname;
+	byte handler;
+	byte pad;
+	u_int16_t classname; // 360
 	u_int16_t target;
 	u_int16_t targetname;
-	u_int16_t pad;
 	int spawnflags;
 	int flags;
 	int eventTime;
@@ -1007,7 +1003,7 @@ struct gentity_s
 	int unknown2;
 	int unknown3;
 	float physicsBounce; // 424
-	gitem_t *item; // 428
+	u_int16_t item; // 428 This is item id, not item pointer!
 	int hurtTouchTime;
 	int useSharedNum;
 	int attackerWeapon; // 440 ?
@@ -1321,11 +1317,6 @@ typedef struct WeaponDef_t
 	const char *szInternalName;
 	const char *szDisplayName;
 } WeaponDef_t; // Way too many stuff here
-
-typedef struct
-{
-	void *dummy;
-} animModelInfo_t; //Dummy
 
 typedef enum
 {
