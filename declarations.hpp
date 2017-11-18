@@ -1383,6 +1383,32 @@ typedef enum
 	NUM_ANIM_BODYPARTS
 } animBodyPart_t;
 
+// Idk real types but weapon seems correct
+typedef enum
+{
+	IT_BAD,
+	IT_WEAPON,
+	IT_AMMO,
+	IT_ARMOR,
+	IT_HEALTH,
+	IT_HOLDABLE,
+} itemType_t;
+
+typedef struct gitem_s
+{
+	char *classname; // ??? They don't set classname or what? Other fields work fine.
+	char *pickup_sound;
+	char *world_model;
+	int giTag; // ?
+	char *icon;
+	char *display_name; // Weapon string e.g WEAPON_STEN
+	int quantity; // ammo for weapons
+	itemType_t giType;
+	int giAmmoIndex;
+	int giClipIndex;
+	int giSharedAmmoCapIndex; // guessed
+} gitem_t;
+
 #define KEY_MASK_NONE        	0
 
 #define KEY_MASK_FORWARD        127
@@ -1485,6 +1511,14 @@ static const int level_offset = 0x085AF300;
 static const int level_offset = 0x0864C380;
 #endif
 
+#if COD_VERSION == COD2_1_0
+static const int itemlist_offset = 0x08164C20;
+#elif COD_VERSION == COD2_1_2
+static const int itemlist_offset = 0x0;
+#elif COD_VERSION == COD2_1_3
+static const int itemlist_offset = 0x0;
+#endif
+
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 #define scrVarGlob (((VariableValueInternal*)( varglob_offset )))
@@ -1492,6 +1526,7 @@ static const int level_offset = 0x0864C380;
 #define sv (*((server_t*)( sv_offset )))
 #define svs (*((serverStatic_t*)( svs_offset )))
 #define level (*((level_locals_t*)( level_offset )))
+#define bg_itemlist (((gitem_t*)( itemlist_offset )))
 
 // Check for critical structure sizes and fail if not match
 #if COD_VERSION == COD2_1_0
@@ -1504,5 +1539,6 @@ static_assert((sizeof(client_t) == 0xB1064), "ERROR: client_t size is invalid!")
 
 static_assert((sizeof(gentity_t) == 560), "ERROR: gentity_t size is invalid!");
 static_assert((sizeof(gclient_t) == 0x28A4), "ERROR: gclient_t size is invalid!");
+static_assert((sizeof(gitem_t) == 44), "ERROR: gitem_t size is invalid!");
 
 #endif
