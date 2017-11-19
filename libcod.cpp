@@ -140,9 +140,8 @@ gentity_t* fire_grenade(gentity_t *self, vec3_t start, vec3_t dir, int weapon, i
 
 	if (codecallback_fire_grenade)
 	{
-		int weapondef = BG_WeaponDefs(weapon);
-		char *weaponname = *(char**)weapondef;
-		stackPushString(weaponname);
+		WeaponDef_t *def = BG_WeaponDefs(weapon);
+		stackPushString(def->szInternalName);
 		stackPushEntity(grenade);
 		short ret = Scr_ExecEntThread(self, codecallback_fire_grenade, 2);
 		Scr_FreeThread(ret);
@@ -401,7 +400,7 @@ int hook_BG_IsWeaponValid(int a1, int a2)
 	if ( !(unsigned char)sub_80D9E84(a1 + 1348, a2) )
 		return 0;
 
-	int weapon = BG_WeaponDefs(a2);
+	int weapon = (int)BG_WeaponDefs(a2);
 
 	if ( !weapon )
 		return 0;

@@ -480,7 +480,7 @@ static const SV_WWWRedirectClient_t SV_WWWRedirectClient = (SV_WWWRedirectClient
 static const SV_WWWRedirectClient_t SV_WWWRedirectClient = (SV_WWWRedirectClient_t)0x0808FC0C;
 #endif
 
-typedef int (*BG_WeaponDefs_t)(int a1);
+typedef WeaponDef_t * (*BG_WeaponDefs_t)(unsigned int weaponIndex);
 #if COD_VERSION == COD2_1_0
 static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080E9270;
 #elif COD_VERSION == COD2_1_2
@@ -489,7 +489,7 @@ static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080EB860;
 static const BG_WeaponDefs_t BG_WeaponDefs = (BG_WeaponDefs_t)0x080EB9A4;
 #endif
 
-typedef int (*BG_GetNumWeapons_t)();
+typedef int (*BG_GetNumWeapons_t)(void);
 #if COD_VERSION == COD2_1_0
 static const BG_GetNumWeapons_t BG_GetNumWeapons = (BG_GetNumWeapons_t)0x080E9322;
 #elif COD_VERSION == COD2_1_2
