@@ -1368,11 +1368,374 @@ typedef struct
 	char gametype[MAX_QPATH];
 } server_t; // verified
 
+typedef enum weapType_t
+{
+	WEAPTYPE_BULLET = 0x0,
+	WEAPTYPE_GRENADE = 0x1,
+	WEAPTYPE_PROJECTILE = 0x2,
+	WEAPTYPE_BINOCULARS = 0x3,
+	WEAPTYPE_NUM = 0x4
+} weapType_t;
+
+typedef enum weapClass_t
+{
+	WEAPCLASS_RIFLE = 0x0,
+	WEAPCLASS_MG = 0x1,
+	WEAPCLASS_SMG = 0x2,
+	WEAPCLASS_SPREAD = 0x3,
+	WEAPCLASS_PISTOL = 0x4,
+	WEAPCLASS_GRENADE = 0x5,
+	WEAPCLASS_ROCKETLAUNCHER = 0x6,
+	WEAPCLASS_TURRET = 0x7,
+	WEAPCLASS_NON_PLAYER = 0x8,
+	WEAPCLASS_ITEM = 0x9,
+	WEAPCLASS_NUM = 0xA
+} weapClass_t;
+
+typedef enum ImpactType_t
+{
+	IMPACT_TYPE_NONE = 0x0,
+	IMPACT_TYPE_BULLET_SMALL = 0x1,
+	IMPACT_TYPE_BULLET_LARGE = 0x2,
+	IMPACT_TYPE_BULLET_AP = 0x3,
+	IMPACT_TYPE_SHOTGUN = 0x4,
+	IMPACT_TYPE_GRENADE_BOUNCE = 0x5,
+	IMPACT_TYPE_GRENADE_EXPLODE = 0x6,
+	IMPACT_TYPE_ROCKET_EXPLODE = 0x7,
+	IMPACT_TYPE_PROJECTILE_DUD = 0x8,
+	IMPACT_TYPE_COUNT = 0x9
+} ImpactType_t;
+
+typedef enum weapInventoryType_t
+{
+	WEAPINVENTORY_PRIMARY = 0x0,
+	WEAPINVENTORY_OFFHAND = 0x1,
+	WEAPINVENTORY_ITEM = 0x2,
+	WEAPINVENTORY_ALTMODE = 0x3,
+	WEAPINVENTORYCOUNT = 0x4
+} weapInventoryType_t;
+
+typedef enum OffhandClass_t
+{
+	OFFHAND_CLASS_NONE = 0x0,
+	OFFHAND_CLASS_FRAG_GRENADE = 0x1,
+	OFFHAND_CLASS_SMOKE_GRENADE = 0x2,
+	OFFHAND_CLASS_COUNT = 0x3
+} OffhandClass_t;
+
+typedef enum weapStance_t
+{
+	WEAPSTANCE_STAND = 0x0,
+	WEAPSTANCE_DUCK = 0x1,
+	WEAPSTANCE_PRONE = 0x2,
+	WEAPSTANCE_NUM = 0x3
+} weapStance_t;
+
+typedef enum weapOverlayReticle_t
+{
+	WEAPOVERLAYRETICLE_NONE = 0x0,
+	WEAPOVERLAYRETICLE_CROSSHAIR = 0x1,
+	WEAPOVERLAYRETICLE_NUM = 0x2
+} weapOverlayReticle_t;
+
+typedef enum weaponIconRatioType_t
+{
+	WEAPON_ICON_RATIO_1TO1 = 0x0,
+	WEAPON_ICON_RATIO_2TO1 = 0x1,
+	WEAPON_ICON_RATIO_4TO1 = 0x2,
+	WEAPON_ICON_RATIO_COUNT = 0x3
+} weaponIconRatioType_t;
+
+typedef enum weapProjExposion_t
+{
+	WEAPPROJEXP_GRENADE = 0x0,
+	WEAPPROJEXP_MOLOTOV = 0x1,
+	WEAPPROJEXP_ROCKET = 0x2,
+	WEAPPROJEXP_NONE = 0x3,
+	WEAPPROJEXP_NUM = 0x4
+} weapProjExposion_t;
+
+typedef const char FxEffectDef_t;
+typedef const char snd_alias_list_t;
+typedef const char Material_t;
+
 typedef struct WeaponDef_t
 {
 	const char *szInternalName;
 	const char *szDisplayName;
-} WeaponDef_t; // Way too many stuff here
+	const char *szOverlayName;
+	const char *szViewModelName;
+	const char *szHandModelName;
+	int unknown;
+	const char *szXAnims[22];
+	const char *szModeName;
+	int playerAnimType;
+	weapType_t weapType;
+	weapClass_t weapClass;
+	ImpactType_t impactType;
+	weapInventoryType_t inventoryType;
+	OffhandClass_t offhandClass; // ? not confirmed
+	weapStance_t stance; // ? not confirmed
+	FxEffectDef_t *viewFlashEffect;
+	FxEffectDef_t *worldFlashEffect;
+	snd_alias_list_t *pickupSound;
+	snd_alias_list_t *ammoPickupSound;
+	snd_alias_list_t *projectileSound;
+	snd_alias_list_t *pullbackSound;
+	snd_alias_list_t *fireSound;
+	snd_alias_list_t *fireSoundPlayer;
+	snd_alias_list_t *unknown4[4];
+	snd_alias_list_t *fireLastSound;
+	snd_alias_list_t *fireLastSoundPlayer;
+	snd_alias_list_t *meleeSwipeSound;
+	snd_alias_list_t *rechamberSound;
+	snd_alias_list_t *rechamberSoundPlayer;
+	snd_alias_list_t *reloadSound;
+	snd_alias_list_t *reloadSoundPlayer;
+	snd_alias_list_t *reloadEmptySound;
+	snd_alias_list_t *reloadEmptySoundPlayer;
+	snd_alias_list_t *reloadStartSound;
+	snd_alias_list_t *reloadStartSoundPlayer;
+	snd_alias_list_t *reloadEndSound;
+	snd_alias_list_t *reloadEndSoundPlayer;
+	snd_alias_list_t *altSwitchSound;
+	snd_alias_list_t *raiseSound;
+	snd_alias_list_t *putawaySound;
+	snd_alias_list_t *noteTrackSoundA;
+	snd_alias_list_t *noteTrackSoundB;
+	snd_alias_list_t *noteTrackSoundC;
+	snd_alias_list_t *noteTrackSoundD;
+	FxEffectDef_t *shellEjectEffect;
+	FxEffectDef_t *lastShotEjectEffect;
+	Material_t *reticleCenter;
+	Material_t *reticleSide;
+	int iReticleCenterSize;
+	int iReticleSideSize;
+	int iReticleMinOfs;
+	float vStandMove[3];
+	float vStandRot[3];
+	float vDuckedOfs[3];
+	float vDuckedMove[3];
+	float vDuckedRot[3];
+	float vProneOfs[3];
+	float vProneMove[3];
+	float vProneRot[3];
+	float fPosMoveRate;
+	float fPosProneMoveRate;
+	float fStandMoveMinSpeed;
+	float fDuckedMoveMinSpeed;
+	float fProneMoveMinSpeed;
+	float fPosRotRate;
+	float fPosProneRotRate;
+	float fStandRotMinSpeed;
+	float fDuckedRotMinSpeed;
+	float fProneRotMinSpeed;
+	const char *worldModel;
+	Material_t *hudIcon;
+	Material_t *modeIcon;
+	int iStartAmmo;
+	const char *szAmmoName;
+	int iAmmoIndex;
+	const char *szClipName;
+	int iClipIndex;
+	int iMaxAmmo;
+	int iClipSize;
+	int shotCount;
+	const char *szSharedAmmoCapName;
+	int iSharedAmmoCapIndex;
+	int iSharedAmmoCap;
+	int damage;
+	int playerDamage;
+	int iMeleeDamage;
+	int iDamageType;
+	int iFireDelay;
+	int iMeleeDelay;
+	int iFireTime;
+	int iRechamberTime;
+	int iRechamberBoltTime;
+	int iHoldFireTime;
+	int iMeleeTime;
+	int iReloadTime;
+	int iReloadEmptyTime;
+	int iReloadAddTime;
+	int iReloadStartTime;
+	int iReloadStartAddTime;
+	int iReloadEndTime;
+	int iDropTime;
+	int iRaiseTime;
+	int iAltDropTime;
+	int iAltRaiseTime;
+	int quickDropTime;
+	int quickRaiseTime;
+	int fuseTime;
+	float autoAimRange;
+	float aimAssistRange;
+	float aimAssistRangeAds;
+	float aimPadding;
+	float enemyCrosshairRange;
+	int crosshairColorChange;
+	float moveSpeedScale;
+	float fAdsZoomFov;
+	float fAdsZoomInFrac;
+	float fAdsZoomOutFrac;
+	Material_t *overlayMaterial;
+	weapOverlayReticle_t overlayReticle;
+	float overlayWidth;
+	float overlayHeight;
+	float fAdsBobFactor;
+	float fAdsViewBobMult;
+	float fHipSpreadStandMin;
+	float fHipSpreadDuckedMin;
+	float fHipSpreadProneMin;
+	float hipSpreadStandMax;
+	float hipSpreadDuckedMax;
+	float hipSpreadProneMax;
+	float fHipSpreadDecayRate;
+	float fHipSpreadFireAdd;
+	float fHipSpreadTurnAdd;
+	float fHipSpreadMoveAdd;
+	float fHipSpreadDuckedDecay;
+	float fHipSpreadProneDecay;
+	float fHipReticleSidePos;
+	int iAdsTransInTime;
+	int iAdsTransOutTime;
+	float fAdsIdleAmount;
+	float fHipIdleAmount;
+	float adsIdleSpeed;
+	float hipIdleSpeed;
+	float fIdleCrouchFactor;
+	float fIdleProneFactor;
+	float fGunMaxPitch;
+	float fGunMaxYaw;
+	float swayMaxAngle;
+	float swayLerpSpeed;
+	float swayPitchScale;
+	float swayYawScale;
+	float swayHorizScale;
+	float swayVertScale;
+	float swayShellShockScale;
+	float adsSwayMaxAngle;
+	float adsSwayLerpSpeed;
+	float adsSwayPitchScale;
+	float adsSwayYawScale;
+	float adsSwayHorizScale;
+	float adsSwayVertScale;
+	int bRifleBullet;
+	int armorPiercing;
+	int semiAuto;
+	int bBoltAction;
+	int aimDownSight;
+	int bRechamberWhileAds;
+	float adsViewErrorMin;
+	float adsViewErrorMax;
+	int bCookOffHold;
+	int bClipOnly;
+	int cancelAutoHolsterWhenEmpty; // ?
+	int suppressAmmoReserveDisplay; // ?
+	Material_t *killIcon;
+	weaponIconRatioType_t killIconRatio; // ?
+	int flipKillIcon;
+	int bNoPartialReload;
+	int bSegmentedReload;
+	int iReloadAmmoAdd;
+	int iReloadStartAdd;
+	const char *szAltWeaponName;
+	uint altWeaponIndex;
+	int iDropAmmoMin;
+	int iDropAmmoMax;
+	int iExplosionRadius;
+	int iExplosionInnerDamage;
+	int iExplosionOuterDamage;
+	int iProjectileSpeed;
+	int iProjectileSpeedUp;
+	const char *projectileModel;
+	weapProjExposion_t projExplosion;
+	FxEffectDef_t *projExplosionEffect;
+	snd_alias_list_t *projExplosionSound;
+	int bProjImpactExplode;
+	float parallelBounce[23];
+	float perpendicularBounce[23];
+	FxEffectDef_t *projTrailEffect;
+	int unknown2[4];
+	float fAdsAimPitch;
+	float fAdsCrosshairInFrac;
+	float fAdsCrosshairOutFrac;
+	int adsGunKickReducedKickBullets;
+	float adsGunKickReducedKickPercent;
+	float fAdsGunKickPitchMin;
+	float fAdsGunKickPitchMax;
+	float fAdsGunKickYawMin;
+	float fAdsGunKickYawMax;
+	float fAdsGunKickAccel;
+	float fAdsGunKickSpeedMax;
+	float fAdsGunKickSpeedDecay;
+	float fAdsGunKickStaticDecay;
+	float fAdsViewKickPitchMin;
+	float fAdsViewKickPitchMax;
+	float fAdsViewKickYawMin;
+	float fAdsViewKickYawMax;
+	float fAdsViewKickCenterSpeed;
+	float fAdsViewScatterMin;
+	float fAdsViewScatterMax;
+	float fAdsSpread;
+	int hipGunKickReducedKickBullets;
+	float hipGunKickReducedKickPercent;
+	float fHipGunKickPitchMin;
+	float fHipGunKickPitchMax;
+	float fHipGunKickYawMin;
+	float fHipGunKickYawMax;
+	float fHipGunKickAccel;
+	float fHipGunKickSpeedMax;
+	float fHipGunKickSpeedDecay;
+	float fHipGunKickStaticDecay;
+	float fHipViewKickPitchMin;
+	float fHipViewKickPitchMax;
+	float fHipViewKickYawMin;
+	float fHipViewKickYawMax;
+	float fHipViewKickCenterSpeed;
+	float fHipViewScatterMin;
+	float fHipViewScatterMax;
+	float fightDist;
+	float maxDist;
+	const char *aiVsAiAccuracyGraph;
+	const char *aiVsPlayerAccuracyGraph;
+	int accuracyGraphKnotCount[2];
+	int originalAccuracyGraphKnotCount[2];
+	int iPositionReloadTransTime;
+	float leftArc;
+	float rightArc;
+	float topArc;
+	float bottomArc;
+	float accuracy;
+	float aiSpread;
+	float playerSpread;
+	int minVertTurnSpeed;
+	int minHorTurnSpeed;
+	int maxVertTurnSpeed;
+	int maxHorTurnSpeed;
+	float pitchConvergenceTime;
+	float yawConvergenceTime;
+	float suppressTime;
+	float maxRange;
+	float fAnimHorRotateInc;
+	float fPlayerPositionDist;
+	const char *szUseHintString;
+	const char *dropHintString;
+	int iUseHintStringIndex;
+	int dropHintStringIndex;
+	float horizViewJitter;
+	float vertViewJitter;
+	const char *szScript;
+	float fOOPosAnimLength[2];
+	int minDamage;
+	int minPlayerDamage;
+	float fMaxDamageRange;
+	float fMinDamageRange;
+	int unknown5[4];
+	float locationDamageMultipliers[19];
+	const char *fireRumble;
+	const char *meleeImpactRumble;
+} WeaponDef_t;
 
 typedef enum
 {
@@ -1383,13 +1746,11 @@ typedef enum
 	NUM_ANIM_BODYPARTS
 } animBodyPart_t;
 
-// Idk real types but weapon seems correct
 typedef enum
 {
 	IT_BAD,
 	IT_WEAPON,
 	IT_AMMO,
-	IT_ARMOR,
 	IT_HEALTH,
 	IT_HOLDABLE,
 } itemType_t;
