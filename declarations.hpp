@@ -1770,6 +1770,100 @@ typedef struct gitem_s
 	int giSharedAmmoCapIndex; // guessed
 } gitem_t;
 
+typedef struct
+{
+	short emptystring;
+	short allies;
+	short axis;
+	short current;
+	short damage;
+	short death;
+	short dlight;
+	short done;
+	short empty;
+	short entity;
+	short failed;
+	short fraction;
+	short goal;
+	short grenade;
+	short info_notnull;
+	short invisible;
+	short key1;
+	short key2;
+	short killanimscript;
+	short left;
+	short movedone;
+	short noclass;
+	short normal;
+	short pistol;
+	short plane_waypoint;
+	short player;
+	short position;
+	short primary;
+	short primaryb;
+	short prone;
+	short right;
+	short rocket;
+	short rotatedone;
+	short script_brushmodel;
+	short script_model;
+	short script_origin;
+	short spectator;
+	short stand;
+	short surfacetype;
+	short target_script_trigger;
+	short tempEntity;
+	short touch;
+	short trigger;
+	short trigger_use;
+	short trigger_use_touch;
+	short trigger_damage;
+	short trigger_lookat;
+	short truck_cam;
+	short worldspawn;
+	short binocular_enter;
+	short binocular_exit;
+	short binocular_fire;
+	short binocular_release;
+	short binocular_drop;
+	short begin;
+	short intermission;
+	short menuresponse;
+	short playing;
+	short none;
+	short dead;
+	short auto_change;
+	short manual_change;
+	short freelook;
+	short call_vote;
+	short vote;
+	short snd_enveffectsprio_level;
+	short snd_enveffectsprio_shellshock;
+	short snd_channelvolprio_holdbreath;
+	short snd_channelvolprio_pain;
+	short snd_channelvolprio_shellshock;
+	short tag_flash;
+	short tag_flash_11;
+	short tag_flash_2;
+	short tag_flash_22;
+	short tag_brass;
+	short j_head;
+	short tag_weapon;
+	short tag_player;
+	short tag_camera;
+	short tag_aim;
+	short tag_aim_animated;
+	short tag_origin;
+	short tag_butt;
+	short tag_weapon_right;
+	short back_low;
+	short back_mid;
+	short back_up;
+	short neck;
+	short head;
+	short pelvis;
+} stringIndex_t;
+
 #define KEY_MASK_NONE        	0
 
 #define KEY_MASK_FORWARD        127
@@ -1909,6 +2003,14 @@ static const int itemlist_offset = 0x081840A0;
 static const int itemlist_offset = 0x081850C0;
 #endif
 
+#if COD_VERSION == COD2_1_0
+static const int const_offset = 0x087A22A0;
+#elif COD_VERSION == COD2_1_2
+static const int const_offset = 0x087B61A0;
+#elif COD_VERSION == COD2_1_3
+static const int const_offset = 0x08853220;
+#endif
+
 #define scrVarPub (*((scrVarPub_t*)( varpub_offset )))
 #define scrVmPub (*((scrVmPub_t*)( vmpub_offset )))
 #define scrVarGlob (((VariableValueInternal*)( varglob_offset )))
@@ -1917,6 +2019,7 @@ static const int itemlist_offset = 0x081850C0;
 #define svs (*((serverStatic_t*)( svs_offset )))
 #define level (*((level_locals_t*)( level_offset )))
 #define bg_itemlist (((gitem_t*)( itemlist_offset )))
+#define scr_const (*((stringIndex_t*)( const_offset )))
 
 // Check for critical structure sizes and fail if not match
 #if COD_VERSION == COD2_1_0
