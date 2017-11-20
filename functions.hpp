@@ -768,4 +768,31 @@ static const G_Spawn_t G_Spawn = (G_Spawn_t)0x0811E87A;
 static const G_Spawn_t G_Spawn = (G_Spawn_t)0x0811E9D6;
 #endif
 
+typedef void (*SV_LinkEntity_t)(gentity_t *ent);
+#if COD_VERSION == COD2_1_0
+static const SV_LinkEntity_t SV_LinkEntity = (SV_LinkEntity_t)0x0809A45E;
+#elif COD_VERSION == COD2_1_2
+static const SV_LinkEntity_t SV_LinkEntity = (SV_LinkEntity_t)0x0809C4F6;
+#elif COD_VERSION == COD2_1_3
+static const SV_LinkEntity_t SV_LinkEntity = (SV_LinkEntity_t)0x0809C63A;
+#endif
+
+typedef void (*SV_UnlinkEntity_t)(gentity_t *ent);
+#if COD_VERSION == COD2_1_0
+static const SV_UnlinkEntity_t SV_UnlinkEntity = (SV_UnlinkEntity_t)0x0809A3BA;
+#elif COD_VERSION == COD2_1_2
+static const SV_UnlinkEntity_t SV_UnlinkEntity = (SV_UnlinkEntity_t)0x0809C452;
+#elif COD_VERSION == COD2_1_3
+static const SV_UnlinkEntity_t SV_UnlinkEntity = (SV_UnlinkEntity_t)0x0809C596;
+#endif
+
+typedef void (*SV_SetBrushModel_t)(gentity_t *ent);
+#if COD_VERSION == COD2_1_0
+static const SV_SetBrushModel_t SV_SetBrushModel = (SV_SetBrushModel_t)0x0808FF44;
+#elif COD_VERSION == COD2_1_2
+static const SV_SetBrushModel_t SV_SetBrushModel = (SV_SetBrushModel_t)0x08091754;
+#elif COD_VERSION == COD2_1_3
+static const SV_SetBrushModel_t SV_SetBrushModel = (SV_SetBrushModel_t)0x08091858;
+#endif
+
 #endif

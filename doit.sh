@@ -120,6 +120,11 @@ if [ "$(< config.hpp grep '#define COMPILE_BOTS' | grep -o '[0-9]')" == "1" ]; t
 	$cc $options $constants -c gsc_bots.cpp -o objects_"$1"/gsc_bots.opp
 fi
 
+if [ "$(< config.hpp grep '#define COMPILE_ENTITY' | grep -o '[0-9]')" == "1" ]; then
+	echo "##### COMPILE $1 GSC_ENTITY.CPP #####"
+	$cc $options $constants -c gsc_entity.cpp -o objects_"$1"/gsc_entity.opp
+fi
+
 if [ "$(< config.hpp grep '#define COMPILE_EXEC' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_EXEC.CPP #####"
 	$cc $options $constants -c gsc_exec.cpp -o objects_"$1"/gsc_exec.opp

@@ -32,6 +32,10 @@
 #include "gsc_bots.hpp"
 #endif
 
+#if COMPILE_ENTITY == 1
+#include "gsc_entity.hpp"
+#endif
+
 #if COMPILE_EXEC == 1
 #include "gsc_exec.hpp"
 #endif

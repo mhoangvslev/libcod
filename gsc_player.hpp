@@ -48,10 +48,6 @@ void gsc_player_clienthasclientmuted(scr_entref_t id);
 void gsc_player_getlastgamestatesize(scr_entref_t id);
 void gsc_player_getfps(scr_entref_t id);
 
-// entity functions
-void gsc_entity_setalive(scr_entref_t id);
-void gsc_entity_setbounds(scr_entref_t id);
-
 // player functions without entity
 void gsc_kick_slot();
 

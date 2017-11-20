@@ -13,6 +13,8 @@
 !gsc.hpp
 !gsc_bots.cpp
 !gsc_bots.hpp
+!gsc_entity.cpp
+!gsc_entity.hpp
 !gsc_exec.cpp
 !gsc_exec.hpp
 !gsc_memory.cpp
