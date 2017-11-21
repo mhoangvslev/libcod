@@ -795,4 +795,13 @@ static const SV_SetBrushModel_t SV_SetBrushModel = (SV_SetBrushModel_t)0x0809175
 static const SV_SetBrushModel_t SV_SetBrushModel = (SV_SetBrushModel_t)0x08091858;
 #endif
 
+typedef void (*Scr_SetString_t)(unsigned short *strindexptr, unsigned const stringindex);
+#if COD_VERSION == COD2_1_0
+static const Scr_SetString_t Scr_SetString = (Scr_SetString_t)0x08079790;
+#elif COD_VERSION == COD2_1_2
+static const Scr_SetString_t Scr_SetString = (Scr_SetString_t)0x08079D14;
+#elif COD_VERSION == COD2_1_3
+static const Scr_SetString_t Scr_SetString = (Scr_SetString_t)0x08079DE0;
+#endif
+
 #endif

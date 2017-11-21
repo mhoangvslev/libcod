@@ -56,7 +56,7 @@ void gsc_player_velocity_get(scr_entref_t id)
 
 	if (entity->client == NULL)
 	{
-		stackError("gsc_player_velocity_add() entity %i is not a player", id);
+		stackError("gsc_player_velocity_get() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
@@ -340,7 +340,7 @@ void gsc_player_spectatorclient_get(scr_entref_t id)
 
 	if (entity->client == NULL)
 	{
-		stackError("gsc_player_stance_set() entity %i is not a player", id);
+		stackError("gsc_player_spectatorclient_get() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
@@ -708,7 +708,7 @@ void gsc_player_set_anim(scr_entref_t id)
 	if (strcmp(animation, "none") != 0)
 		animationIndex = BG_AnimationIndexForString(animation);
 
-	custom_animation[id] = (animationIndex);
+	custom_animation[id] = animationIndex;
 	stackPushBool(qtrue);
 }
 
@@ -776,7 +776,7 @@ void gsc_player_setguid(scr_entref_t id)
 
 	if (id > MAX_CLIENTS)
 	{
-		stackError("gsc_player_button_frag() entity %i is not a player", id);
+		stackError("gsc_player_setguid() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}
