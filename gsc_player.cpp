@@ -457,7 +457,7 @@ void gsc_player_renameclient(scr_entref_t id)
 
 	if (strlen(name) > 32)
 	{
-		stackError("gsc_player_renameclient() player name is longer than 32 characters", id);
+		stackError("gsc_player_renameclient() player name is longer than 32 characters");
 		stackPushUndefined();
 		return;
 	}
@@ -590,7 +590,7 @@ void gsc_player_getjumpslowdowntimer(scr_entref_t id)
 
 	if (entity->client == NULL)
 	{
-		stackError("gsc_player_isonladder() entity %i is not a player", id);
+		stackError("gsc_player_getjumpslowdowntimer() entity %i is not a player", id);
 		stackPushUndefined();
 		return;
 	}

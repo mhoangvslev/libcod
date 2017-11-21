@@ -671,10 +671,10 @@ int play_endframe(gentity_t *ent)
 	{
 		int num = ent - g_entities;
 
-		if (player_g_speed > 0)
+		if (player_g_speed[num] > 0)
 			ent->client->ps.speed = player_g_speed[num];
 
-		if (player_g_gravity > 0)
+		if (player_g_gravity[num] > 0)
 			ent->client->ps.gravity = player_g_gravity[num];
 	}
 
