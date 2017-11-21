@@ -283,6 +283,7 @@ typedef struct
 typedef struct
 {
 	const char *fieldBuffer;
+	struct HunkUser *programHunkUser;
 	u_int16_t canonicalStrCount;
 	byte developer;
 	byte developer_script;
@@ -304,11 +305,8 @@ typedef struct
 	unsigned int checksum;
 	unsigned int entId;
 	unsigned int entFieldName;
-	struct HunkUser *programHunkUser;
 	const char *programBuffer;
 	const char *endScriptBuffer;
-	u_int16_t saveIdMap[24574];
-	u_int16_t saveIdMapRev[24574];
 } scrVarPub_t;
 
 struct function_stack_t
@@ -1873,6 +1871,9 @@ typedef struct
 	short head;
 	short pelvis;
 } stringIndex_t;
+
+#define	SVF_NOCLIENT  0x00000001
+#define	SVF_BROADCAST 0x00000008
 
 #define KEY_MASK_NONE        	0
 
