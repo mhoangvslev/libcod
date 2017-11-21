@@ -37,6 +37,16 @@ enum svc_ops_e
 
 typedef enum
 {
+	ET_GENERAL = 0,
+	ET_PLAYER = 1,
+	ET_ITEM = 3,
+	ET_MISSILE = 4,
+	ET_INVISIBLE = 5,
+	ET_SCRIPTMOVER = 6
+} entityType_t;
+
+typedef enum
+{
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
