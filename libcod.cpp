@@ -15,6 +15,14 @@ cvar_t *sv_wwwDownload;
 cvar_t *cl_wwwDownload;
 #endif
 
+cvar_t *sv_cracked;
+cvar_t *sv_noauthorize;
+cvar_t *g_playerCollision;
+cvar_t *g_playerEject;
+cvar_t *sv_allowRcon;
+cvar_t *fs_library;
+cvar_t *sv_downloadMessage;
+
 void hook_sv_init(const char *format, ...)
 {
 	char s[COD2_MAX_STRINGLENGTH];
@@ -27,6 +35,23 @@ void hook_sv_init(const char *format, ...)
 	Com_Printf("%s", s);
 
 	/* Do stuff after sv has been initialized here */
+
+	// Register custom cvars
+	sv_cracked = Cvar_RegisterBool("sv_cracked", qfalse, CVAR_ARCHIVE);
+	sv_noauthorize = Cvar_RegisterBool("sv_noauthorize", qfalse, CVAR_ARCHIVE);
+	con_coloredPrints = Cvar_RegisterBool("con_coloredPrints", qtrue, CVAR_ARCHIVE);
+	g_playerCollision = Cvar_RegisterBool("g_playerCollision", qtrue, CVAR_ARCHIVE);
+	g_playerEject = Cvar_RegisterBool("g_playerEject", qtrue, CVAR_ARCHIVE);
+	sv_allowRcon = Cvar_RegisterBool("sv_allowRcon", qtrue, CVAR_ARCHIVE);
+	fs_library = Cvar_RegisterString("fs_library", "", CVAR_ARCHIVE);
+	sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", CVAR_ARCHIVE);
+
+	// Force download on clients
+	cl_allowDownload = Cvar_RegisterBool("cl_allowDownload", qtrue, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
+
+#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+	cl_wwwDownload = Cvar_RegisterBool("cl_wwwDownload", qtrue, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
+#endif
 
 	sv_maxclients = Cvar_FindVar("sv_maxclients");
 	sv_allowDownload = Cvar_FindVar("sv_allowDownload");
@@ -85,7 +110,6 @@ int hook_codscript_gametype_scripts()
 }
 
 cHook *hook_player_collision;
-cvar_t *g_playerCollision;
 int player_collision(int a1)
 {
 	hook_player_collision->unhook();
@@ -106,7 +130,6 @@ int player_collision(int a1)
 }
 
 cHook *hook_player_eject;
-cvar_t *g_playerEject;
 int player_eject(int a1)
 {
 	hook_player_eject->unhook();
@@ -185,7 +208,6 @@ void hook_ClientCommand(int clientNum)
 	Scr_FreeThread(ret);
 }
 
-cvar_t *sv_noauthorize;
 int hook_isLanAddress(netadr_t adr)
 {
 	if (sv_noauthorize->boolean)
@@ -194,7 +216,6 @@ int hook_isLanAddress(netadr_t adr)
 	return Sys_IsLANAddress(adr);
 }
 
-cvar_t *sv_cracked;
 const char* hook_AuthorizeState(int arg)
 {
 	const char *s = Cmd_Argv(arg);
@@ -218,7 +239,6 @@ void hook_ClientUserinfoChanged(int clientNum)
 	Scr_FreeThread(ret);
 }
 
-cvar_t *sv_downloadMessage;
 void custom_SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 {
 	int curindex;
@@ -840,7 +860,6 @@ bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
 	return SVC_RateLimit( bucket, burst, period );
 }
 
-cvar_t *sv_allowRcon;
 void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 {
 	if (!sv_allowRcon->boolean)
@@ -939,7 +958,6 @@ void hook_SVC_Status(netadr_t from)
 }
 #endif
 
-cvar_t *fs_library;
 void manymaps_prepare(const char *mapname, int read)
 {
 	char library_path[512], map_check[512];
@@ -1049,6 +1067,9 @@ class cCallOfDuty2Pro
 public:
 	cCallOfDuty2Pro()
 	{
+		// dont inherit lib of parent
+		unsetenv("LD_PRELOAD");
+
 		// otherwise the printf()'s are printed at crash/end on older os/compiler versions
 		setbuf(stdout, NULL);
 
@@ -1232,24 +1253,6 @@ public:
 
 #endif
 
-		// Register custom cvars
-		sv_cracked = Cvar_RegisterBool("sv_cracked", qfalse, CVAR_ARCHIVE);
-		sv_noauthorize = Cvar_RegisterBool("sv_noauthorize", qfalse, CVAR_ARCHIVE);
-		con_coloredPrints = Cvar_RegisterBool("con_coloredPrints", qtrue, CVAR_ARCHIVE);
-		g_playerCollision = Cvar_RegisterBool("g_playerCollision", qtrue, CVAR_ARCHIVE);
-		g_playerEject = Cvar_RegisterBool("g_playerEject", qtrue, CVAR_ARCHIVE);
-		sv_allowRcon = Cvar_RegisterBool("sv_allowRcon", qtrue, CVAR_ARCHIVE);
-		fs_library = Cvar_RegisterString("fs_library", "", CVAR_ARCHIVE);
-		sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", CVAR_ARCHIVE);
-
-		// Force download on clients
-		cl_allowDownload = Cvar_RegisterBool("cl_allowDownload", qtrue, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
-
-#if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
-		cl_wwwDownload = Cvar_RegisterBool("cl_wwwDownload", qtrue, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
-#endif
-
-		setenv("LD_PRELOAD", "", 1); // dont inherit lib of parent
 		printf("> [PLUGIN LOADED]\n");
 	}
 
