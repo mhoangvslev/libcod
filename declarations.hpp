@@ -144,14 +144,12 @@ typedef union
 typedef struct cvar_s
 {
 	char *name;
-	char *description;
-	short int flags;
+	unsigned short flags;
 	byte type;
 	byte modified;
 	union
 	{
 		float floatval;
-		float value;
 		int integer;
 		char* string;
 		byte boolean;
