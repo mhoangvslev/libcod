@@ -834,4 +834,18 @@ void gsc_player_getfps(scr_entref_t id)
 	stackPushInt(clientfps[id]);
 }
 
+void gsc_player_isbot(scr_entref_t id)
+{
+	if (id > MAX_CLIENTS)
+	{
+		stackError("gsc_player_isbot() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	client_t *client = &svs.clients[id];
+
+	stackPushBool(client->bot);
+}
+
 #endif
