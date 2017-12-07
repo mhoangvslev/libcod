@@ -81,7 +81,7 @@ void gsc_player_get_userinfo(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_get_userinfo() entity %i is not a player", id);
 		stackPushUndefined();
@@ -109,7 +109,7 @@ void gsc_player_set_userinfo(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_set_userinfo() entity %i is not a player", id);
 		stackPushUndefined();
@@ -124,7 +124,7 @@ void gsc_player_set_userinfo(scr_entref_t id)
 
 void gsc_player_button_ads(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_ads() entity %i is not a player", id);
 		stackPushUndefined();
@@ -138,7 +138,7 @@ void gsc_player_button_ads(scr_entref_t id)
 
 void gsc_player_button_left(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_left() entity %i is not a player", id);
 		stackPushUndefined();
@@ -152,7 +152,7 @@ void gsc_player_button_left(scr_entref_t id)
 
 void gsc_player_button_right(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_right() entity %i is not a player", id);
 		stackPushUndefined();
@@ -166,7 +166,7 @@ void gsc_player_button_right(scr_entref_t id)
 
 void gsc_player_button_forward(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_forward() entity %i is not a player", id);
 		stackPushUndefined();
@@ -180,7 +180,7 @@ void gsc_player_button_forward(scr_entref_t id)
 
 void gsc_player_button_back(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_back() entity %i is not a player", id);
 		stackPushUndefined();
@@ -194,7 +194,7 @@ void gsc_player_button_back(scr_entref_t id)
 
 void gsc_player_button_leanleft(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_leanleft() entity %i is not a player", id);
 		stackPushUndefined();
@@ -208,7 +208,7 @@ void gsc_player_button_leanleft(scr_entref_t id)
 
 void gsc_player_button_leanright(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_leanright() entity %i is not a player", id);
 		stackPushUndefined();
@@ -222,7 +222,7 @@ void gsc_player_button_leanright(scr_entref_t id)
 
 void gsc_player_button_reload(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_reload() entity %i is not a player", id);
 		stackPushUndefined();
@@ -236,7 +236,7 @@ void gsc_player_button_reload(scr_entref_t id)
 
 void gsc_player_button_jump(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_jump() entity %i is not a player", id);
 		stackPushUndefined();
@@ -250,7 +250,7 @@ void gsc_player_button_jump(scr_entref_t id)
 
 void gsc_player_button_frag(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_frag() entity %i is not a player", id);
 		stackPushUndefined();
@@ -264,7 +264,7 @@ void gsc_player_button_frag(scr_entref_t id)
 
 void gsc_player_button_smoke(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_button_smoke() entity %i is not a player", id);
 		stackPushUndefined();
@@ -353,7 +353,7 @@ void gsc_player_spectatorclient_get(scr_entref_t id)
 
 void gsc_player_getip(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getip() entity %i is not a player", id);
 		stackPushUndefined();
@@ -370,7 +370,7 @@ void gsc_player_getip(scr_entref_t id)
 
 void gsc_player_getping(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getping() entity %i is not a player", id);
 		stackPushUndefined();
@@ -390,7 +390,7 @@ void gsc_player_clientcommand(scr_entref_t id)
 
 void gsc_player_getlastconnecttime(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getlastconnecttime() entity %i is not a player", id);
 		stackPushUndefined();
@@ -404,7 +404,7 @@ void gsc_player_getlastconnecttime(scr_entref_t id)
 
 void gsc_player_getlastmsg(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getlastmsg() entity %i is not a player", id);
 		stackPushUndefined();
@@ -418,7 +418,7 @@ void gsc_player_getlastmsg(scr_entref_t id)
 
 void gsc_player_getclientstate(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getclientstate() entity %i is not a player", id);
 		stackPushUndefined();
@@ -432,7 +432,7 @@ void gsc_player_getclientstate(scr_entref_t id)
 
 void gsc_player_addresstype(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_addresstype() entity %i is not a player", id);
 		stackPushUndefined();
@@ -462,7 +462,7 @@ void gsc_player_renameclient(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_renameclient() entity %i is not a player", id);
 		stackPushUndefined();
@@ -488,7 +488,7 @@ void gsc_player_outofbandprint(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_outofbandprint() entity %i is not a player", id);
 		stackPushUndefined();
@@ -512,7 +512,7 @@ void gsc_player_connectionlesspacket(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_connectionlesspacket() entity %i is not a player", id);
 		stackPushUndefined();
@@ -537,7 +537,7 @@ void gsc_player_connectionlesspacket(scr_entref_t id)
 
 void gsc_player_resetnextreliabletime(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_resetnextreliabletime() entity %i is not a player", id);
 		stackPushUndefined();
@@ -609,7 +609,7 @@ void gsc_player_setg_speed(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_setg_speed() entity %i is not a player", id);
 		stackPushUndefined();
@@ -640,7 +640,7 @@ void gsc_player_setg_gravity(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_setg_gravity() entity %i is not a player", id);
 		stackPushUndefined();
@@ -738,7 +738,7 @@ void gsc_kick_slot()
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_kick_slot() entity %i is not a player", id);
 		stackPushUndefined();
@@ -774,7 +774,7 @@ void gsc_player_setguid(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_setguid() entity %i is not a player", id);
 		stackPushUndefined();
@@ -798,7 +798,7 @@ void gsc_player_clienthasclientmuted(scr_entref_t id)
 		return;
 	}
 
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_clienthasclientmuted() entity %i is not a player", id);
 		stackPushUndefined();
@@ -810,7 +810,7 @@ void gsc_player_clienthasclientmuted(scr_entref_t id)
 
 void gsc_player_getlastgamestatesize(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getlastgamestatesize() entity %i is not a player", id);
 		stackPushUndefined();
@@ -823,7 +823,7 @@ void gsc_player_getlastgamestatesize(scr_entref_t id)
 
 void gsc_player_getfps(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_getfps() entity %i is not a player", id);
 		stackPushUndefined();
@@ -836,7 +836,7 @@ void gsc_player_getfps(scr_entref_t id)
 
 void gsc_player_isbot(scr_entref_t id)
 {
-	if (id > MAX_CLIENTS)
+	if (id >= MAX_CLIENTS)
 	{
 		stackError("gsc_player_isbot() entity %i is not a player", id);
 		stackPushUndefined();
