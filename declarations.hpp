@@ -55,6 +55,7 @@ typedef enum
 {
 	ET_GENERAL = 0,
 	ET_PLAYER = 1,
+	ET_CORPSE = 2,
 	ET_ITEM = 3,
 	ET_MISSILE = 4,
 	ET_INVISIBLE = 5,
@@ -2050,6 +2051,7 @@ static const int const_offset = 0x08853220;
 #define scr_const (*((stringIndex_t*)( const_offset )))
 
 // Check for critical structure sizes and fail if not match
+#if __GNUC__ >= 6
 #if COD_VERSION == COD2_1_0
 static_assert((sizeof(client_t) == 0x78F14), "ERROR: client_t size is invalid!");
 #elif COD_VERSION == COD2_1_2
@@ -2061,5 +2063,6 @@ static_assert((sizeof(client_t) == 0xB1064), "ERROR: client_t size is invalid!")
 static_assert((sizeof(gentity_t) == 560), "ERROR: gentity_t size is invalid!");
 static_assert((sizeof(gclient_t) == 0x28A4), "ERROR: gclient_t size is invalid!");
 static_assert((sizeof(gitem_t) == 44), "ERROR: gitem_t size is invalid!");
+#endif
 
 #endif
