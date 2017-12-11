@@ -1796,6 +1796,77 @@ typedef struct gitem_s
 	int giSharedAmmoCapIndex; // guessed
 } gitem_t;
 
+typedef struct XBoneInfo_s
+{
+	float bounds[2][3];
+	float offset[3];
+	float radiusSquared;
+} XBoneInfo_t;
+
+typedef struct XModelCollSurf_s
+{
+	float mins[3];
+	float maxs[3];
+	int boneIdx;
+	int contents;
+	int surfFlags;
+} XModelCollSurf_t;
+
+typedef struct XModel_s
+{
+	char numBones;
+	char numRootBones;
+	u_int16_t *boneNames;
+	char *parentList;
+	byte unk[72];
+	XModelCollSurf_t *collSurfs; // 84
+	int numCollSurfs; // 88
+	int contents; // 92
+	XBoneInfo_t *boneInfo; // 96
+	vec3_t mins; // 100
+	vec3_t maxs;
+	short numLods; // 124
+	short collLod;
+	void *skins; // 128 unknown
+	int memUsage; // 132
+	const char *name; // 136
+	char flags; // 140
+	char bad; // 141
+} XModel_t;
+
+typedef struct DObjSkeletonPartMatrix_s
+{
+	float p1[4];
+	float p2[4];
+} DObjSkeletonPartMatrix_t;
+
+typedef struct DSkelPartBits_s
+{
+	int anim[4];
+	int control[4];
+	int skel[4];
+} DSkelPartBits_t;
+
+typedef struct DSkel_s
+{
+	DSkelPartBits_t *partBits;
+	int timeStamp;
+	DObjSkeletonPartMatrix_t *mat;
+} DSkel_t;
+
+typedef struct DObj_s
+{
+	int *tree;
+	DSkel_t skel;
+	unsigned short duplicateParts; // 16
+	int unk2;
+	byte numModels; // 24
+	byte numBones; // 25
+	byte duplicatePartsSize; // 26
+	byte pad;
+	XModel_t *models; // 28
+} DObj_t;
+
 typedef struct
 {
 	short emptystring;
@@ -2025,14 +2096,6 @@ static const int level_offset = 0x0864C380;
 #endif
 
 #if COD_VERSION == COD2_1_0
-static const int itemlist_offset = 0x08164C20;
-#elif COD_VERSION == COD2_1_2
-static const int itemlist_offset = 0x081840A0;
-#elif COD_VERSION == COD2_1_3
-static const int itemlist_offset = 0x081850C0;
-#endif
-
-#if COD_VERSION == COD2_1_0
 static const int const_offset = 0x087A22A0;
 #elif COD_VERSION == COD2_1_2
 static const int const_offset = 0x087B61A0;
@@ -2047,7 +2110,6 @@ static const int const_offset = 0x08853220;
 #define sv (*((server_t*)( sv_offset )))
 #define svs (*((serverStatic_t*)( svs_offset )))
 #define level (*((level_locals_t*)( level_offset )))
-#define bg_itemlist (((gitem_t*)( itemlist_offset )))
 #define scr_const (*((stringIndex_t*)( const_offset )))
 
 // Check for critical structure sizes and fail if not match
