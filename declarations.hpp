@@ -1812,6 +1812,17 @@ typedef struct XModelCollSurf_s
 	int surfFlags;
 } XModelCollSurf_t;
 
+typedef struct XModelHighMipBounds_s
+{
+	float mins[3];
+	float maxs[3];
+} XModelHighMipBounds_t;
+
+typedef struct XModelStreamInfo_s
+{
+	XModelHighMipBounds_t *highMipBounds;
+} XModelStreamInfo_t;
+
 typedef struct XModel_s
 {
 	char numBones;
@@ -1827,7 +1838,7 @@ typedef struct XModel_s
 	vec3_t maxs;
 	short numLods; // 124
 	short collLod;
-	void *skins; // 128 unknown
+	XModelStreamInfo_t streamInfo; // 128
 	int memUsage; // 132
 	const char *name; // 136
 	char flags; // 140
@@ -2125,6 +2136,7 @@ static_assert((sizeof(client_t) == 0xB1064), "ERROR: client_t size is invalid!")
 static_assert((sizeof(gentity_t) == 560), "ERROR: gentity_t size is invalid!");
 static_assert((sizeof(gclient_t) == 0x28A4), "ERROR: gclient_t size is invalid!");
 static_assert((sizeof(gitem_t) == 44), "ERROR: gitem_t size is invalid!");
+static_assert((sizeof(XModel_t) == 144), "ERROR: XModel_t size is invalid!");
 #endif
 
 #endif
