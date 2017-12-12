@@ -867,4 +867,13 @@ static const DObjSkelExists_t DObjSkelExists = (DObjSkelExists_t)0x080BA836;
 static const DObjSkelExists_t DObjSkelExists = (DObjSkelExists_t)0x080BA97A;
 #endif
 
+typedef void (*BG_EvaluateTrajectory_t)(const trajectory_t *tr, int atTime, vec3_t result);
+#if COD_VERSION == COD2_1_0
+static const BG_EvaluateTrajectory_t BG_EvaluateTrajectory = (BG_EvaluateTrajectory_t)0x080DCEB0;
+#elif COD_VERSION == COD2_1_2
+static const BG_EvaluateTrajectory_t BG_EvaluateTrajectory = (BG_EvaluateTrajectory_t)0x080DF490;
+#elif COD_VERSION == COD2_1_3
+static const BG_EvaluateTrajectory_t BG_EvaluateTrajectory = (BG_EvaluateTrajectory_t)0x080DF5D4;
+#endif
+
 #endif
