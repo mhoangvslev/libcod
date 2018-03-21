@@ -181,6 +181,9 @@ void hook_ClientCommand(int clientNum)
 		return;
 	}
 
+	if (!Scr_IsSystemActive())
+		return;
+
 	stackPushArray();
 	int args = Cmd_Argc();
 	for (int i = 0; i < args; i++)
@@ -233,6 +236,9 @@ void hook_ClientUserinfoChanged(int clientNum)
 		ClientUserinfoChanged(clientNum);
 		return;
 	}
+
+	if (!Scr_IsSystemActive())
+		return;
 
 	stackPushInt(clientNum); // one parameter is required
 	short ret = Scr_ExecEntThread(&g_entities[clientNum], codecallback_userinfochanged, 1);
@@ -465,6 +471,9 @@ void hook_SV_ResetPureClient_f(client_t *cl)
 
 	if (codecallback_vid_restart)
 	{
+		if (!Scr_IsSystemActive())
+			return;
+
 		if (cl->gentity == NULL)
 			return;
 
