@@ -465,6 +465,9 @@ void hook_SV_ResetPureClient_f(client_t *cl)
 
 	if (codecallback_vid_restart)
 	{
+		if (cl->gentity == NULL)
+			return;
+
 		stackPushInt(cl - svs.clients);
 		short ret = Scr_ExecEntThread(cl->gentity, codecallback_vid_restart, 1);
 		Scr_FreeThread(ret);
