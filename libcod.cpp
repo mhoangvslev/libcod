@@ -93,6 +93,7 @@ int codecallback_vid_restart = 0;
 
 int codecallback_meleebutton = 0;
 int codecallback_usebutton = 0;
+int codecallback_attackbutton = 0;
 
 cHook *hook_gametype_scripts;
 int hook_codscript_gametype_scripts()
@@ -106,6 +107,7 @@ int hook_codscript_gametype_scripts()
 
 	codecallback_meleebutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_MeleeButton", 0);
 	codecallback_usebutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_UseButton", 0);
+	codecallback_attackbutton = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_AttackButton", 0);
 
 	int (*sig)();
 	*(int *)&sig = hook_gametype_scripts->from;
@@ -705,6 +707,15 @@ int play_movement(client_t *cl, usercmd_t *ucmd)
 		if(codecallback_usebutton)
 		{
 			short ret = Scr_ExecEntThread(cl->gentity, codecallback_usebutton, 0);
+			Scr_FreeThread(ret);
+		}
+	}
+
+	if(ucmd->buttons & KEY_MASK_FIRE && !(previousbuttons[clientnum] & KEY_MASK_FIRE))
+	{
+		if(codecallback_attackbutton)
+		{
+			short ret = Scr_ExecEntThread(cl->gentity, codecallback_attackbutton, 0);
 			Scr_FreeThread(ret);
 		}
 	}
