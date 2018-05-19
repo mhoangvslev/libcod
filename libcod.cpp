@@ -1011,7 +1011,8 @@ void hook_SVC_Status(netadr_t from)
 
 void manymaps_prepare(const char *mapname, int read)
 {
-	char library_path[512], map_check[512];
+	char map_check[1024];
+	char library_path[512];
 
 	cvar_t *fs_homepath = Cvar_FindVar("fs_homepath");
 	cvar_t *fs_game = Cvar_FindVar("fs_game");
@@ -1086,7 +1087,8 @@ void manymaps_prepare(const char *mapname, int read)
 
 	if (map_exists)
 	{
-		char src[512], dst[512];
+		char src[1024];
+		char dst[512];
 
 		snprintf(src, sizeof(src), "%s/%s.iwd", library_path, mapname);
 		snprintf(dst, sizeof(dst), "%s/%s/%s.iwd", fs_homepath->string, fs_game->string, mapname);
