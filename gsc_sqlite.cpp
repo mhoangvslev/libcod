@@ -125,6 +125,7 @@ void *async_sqlite_query_handler(void* dummy)
 
 			if (!task->done)
 			{
+				task->timeout = Sys_MilliSeconds();
 				task->result = sqlite3_prepare_v2(task->db, task->query, COD2_MAX_STRINGLENGTH, &task->statement, 0);
 
 				while (task->result != SQLITE_OK)
@@ -188,8 +189,13 @@ void *async_sqlite_query_handler(void* dummy)
 									if (task->rows_size > MAX_SQLITE_ROWS - 1)
 										continue;
 
-									strncpy(task->row[task->fields_size][task->rows_size], (const char *)sqlite3_column_text(task->statement, i), MAX_SQLITE_ROW_LENGTH - 1);
-									task->row[task->fields_size][task->rows_size][MAX_SQLITE_ROW_LENGTH - 1] = '\0';
+									const unsigned char *text = sqlite3_column_text(task->statement, i);
+
+									if (text != NULL)
+									{
+										strncpy(task->row[task->fields_size][task->rows_size], reinterpret_cast<const char*>(text), MAX_SQLITE_ROW_LENGTH - 1);
+										task->row[task->fields_size][task->rows_size][MAX_SQLITE_ROW_LENGTH - 1] = '\0';
+									}
 
 									task->rows_size++;
 								}
@@ -737,8 +743,11 @@ void gsc_async_sqlite_checkdone()
 
 								for (int x = 0; x < task->rows_size; x++)
 								{
-									stackPushString(task->row[i][x]);
-									stackPushArrayLast();
+									if (task->row[i][x] != NULL)
+									{
+										stackPushString(task->row[i][x]);
+										stackPushArrayLast();
+									}
 								}
 
 								stackPushArrayLast();
@@ -917,8 +926,13 @@ void gsc_sqlite_query()
 
 			for (int i = 0; i < sqlite3_column_count(statement); i++)
 			{
-				stackPushString((const char *)sqlite3_column_text(statement, i));
-				stackPushArrayLast();
+				const unsigned char *text = sqlite3_column_text(statement, i);
+
+				if (text != NULL)
+				{
+					stackPushString(reinterpret_cast<const char*>(text));
+					stackPushArrayLast();
+				}
 			}
 
 			stackPushArrayLast();
