@@ -12,6 +12,7 @@ mysql_variant=0
 pthread_link=""
 sqlite_found=0
 sqlite_libpath=""
+sqlite_libpath2=""
 sqlite_link=""
 
 if [ "$1" != "clean" ]; then
@@ -55,11 +56,12 @@ if [ "$1" != "clean" ]; then
 	MACHINE_TYPE=$(uname -m)
 	if [ ${MACHINE_TYPE} == 'x86_64' ]; then
 		sqlite_libpath="/usr/lib32/libsqlite3.so"
+		sqlite_libpath2="/usr/lib/i386-linux-gnu/libsqlite3.so"
 	else
 		sqlite_libpath="/usr/lib/libsqlite3.so"
 	fi
 
-	if [ -e $sqlite_libpath ]; then
+	if [ -e $sqlite_libpath ] || [ -e $sqlite_libpath2 ]; then
 		sqlite_found=1
 	else
 		sed -i "/#define COMPILE_SQLITE 1/c\\#define COMPILE_SQLITE 0" config.hpp
