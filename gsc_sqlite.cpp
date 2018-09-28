@@ -180,14 +180,14 @@ void *async_sqlite_query_handler(void* dummy)
 							if (task->save && task->callback)
 							{
 								if (task->fields_size > MAX_SQLITE_FIELDS - 1)
-									continue;
+									break;
 
 								task->rows_size = 0;
 
 								for (int i = 0; i < sqlite3_column_count(task->statement); i++)
 								{
 									if (task->rows_size > MAX_SQLITE_ROWS - 1)
-										continue;
+										break;
 
 									const unsigned char *text = sqlite3_column_text(task->statement, i);
 
