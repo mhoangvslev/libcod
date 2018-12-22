@@ -1,7 +1,7 @@
 The Call of Duty extension *libcod* is adding new server-side functions to:
 
  - Call Of Duty 2 1.0
- - Call Of Duty 2 1.2
+ - Call Of Duty 2 1.2c (1.2a not supported)
  - Call Of Duty 2 1.3
 
 Requirements:
