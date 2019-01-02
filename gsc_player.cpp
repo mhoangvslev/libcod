@@ -848,4 +848,34 @@ void gsc_player_isbot(scr_entref_t id)
 	stackPushBool(client->bot);
 }
 
+void gsc_player_disableitempickup(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_disableitempickup() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	extern int player_disableitempickup[MAX_CLIENTS];
+
+	player_disableitempickup[id] = 1;
+	stackPushBool(qtrue);
+}
+
+void gsc_player_enableitempickup(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_enableitempickup() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	extern int player_disableitempickup[MAX_CLIENTS];
+
+	player_disableitempickup[id] = 0;
+	stackPushBool(qtrue);
+}
+
 #endif

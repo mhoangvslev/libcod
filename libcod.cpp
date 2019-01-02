@@ -117,6 +117,27 @@ int hook_codscript_gametype_scripts()
 	return ret;
 }
 
+int player_disableitempickup[MAX_CLIENTS] = {0};
+cHook *hook_touch_item_auto;
+int touch_item_auto(gentity_t *ent, gentity_t *other, int touch)
+{
+	hook_touch_item_auto->unhook();
+
+	int (*sig)(gentity_t *ent, gentity_t *other, int touch);
+	*(int *)&sig = hook_touch_item_auto->from;
+
+	int ret;
+
+	if (!player_disableitempickup[other->s.number])
+		ret = sig(ent, other, touch);
+	else
+		ret = 0;
+
+	hook_touch_item_auto->hook();
+
+	return ret;
+}
+
 cHook *hook_player_collision;
 int player_collision(int a1)
 {
@@ -1174,6 +1195,8 @@ public:
 		hook_play_endframe->hook();
 		hook_set_anim = new cHook(0x080D69B2, (int)set_anim);
 		hook_set_anim->hook();
+		hook_touch_item_auto = new cHook(0x081037F0, (int)touch_item_auto);
+		hook_touch_item_auto->hook();
 #endif
 
 		cracking_hook_function(0x080E97F0, (int)hook_BG_IsWeaponValid);
@@ -1230,6 +1253,8 @@ public:
 		hook_play_endframe->hook();
 		hook_set_anim = new cHook(0x080D8F92, (int)set_anim);
 		hook_set_anim->hook();
+		hook_touch_item_auto = new cHook(0x08105B24, (int)touch_item_auto);
+		hook_touch_item_auto->hook();
 #endif
 
 		cracking_hook_function(0x080EBDE0, (int)hook_BG_IsWeaponValid);
@@ -1286,6 +1311,8 @@ public:
 		hook_play_endframe->hook();
 		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
 		hook_set_anim->hook();
+		hook_touch_item_auto = new cHook(0x08105C80, (int)touch_item_auto);
+		hook_touch_item_auto->hook();
 #endif
 
 		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
