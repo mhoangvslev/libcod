@@ -30,6 +30,15 @@ static const GetArraySize_t GetArraySize = (GetArraySize_t)0x0807CF30;
 static const GetArraySize_t GetArraySize = (GetArraySize_t)0x0807CFFC;
 #endif
 
+typedef int (*GetVarType_t)(unsigned int a1);
+#if COD_VERSION == COD2_1_0
+static const GetVarType_t GetVarType = (GetVarType_t)0x0807DF7C;
+#elif COD_VERSION == COD2_1_2
+static const GetVarType_t GetVarType = (GetVarType_t)0x0807E500;
+#elif COD_VERSION == COD2_1_3
+static const GetVarType_t GetVarType = (GetVarType_t)0x0807E5CC;
+#endif
+
 typedef char * (*SL_ConvertToString_t)(unsigned int index);
 #if COD_VERSION == COD2_1_0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078896;

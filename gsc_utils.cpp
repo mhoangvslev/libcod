@@ -23,15 +23,21 @@ void gsc_utils_getarraykeys()
 		return;
 	}
 
-	unsigned int next = GetNextVariable(arrIndex);
+	unsigned int index = arrIndex;
+	unsigned int name;
 
 	stackPushArray();
 
 	for (int i = 0; i < arraysize; i++)
 	{
-		stackPushString(SL_ConvertToString(GetVariableName(next)));
-		stackPushArrayLast();
-		next = GetNextVariable(next);
+		index = GetNextVariable(index);
+		name = GetVariableName(index);
+
+		if (name < 0x10000)
+		{
+			stackPushString(SL_ConvertToString(name));
+			stackPushArrayLast();
+		}
 	}
 }
 
