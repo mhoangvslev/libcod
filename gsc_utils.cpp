@@ -849,4 +849,18 @@ void gsc_utils_vectorscale()
 	stackPushVector(out);
 }
 
+void gsc_utils_remove_file()
+{
+	char *filename;
+
+	if (!stackGetParams("s", &filename))
+	{
+		stackError("gsc_utils_remove_file() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	stackPushInt(remove( filename ));
+}
+
 #endif

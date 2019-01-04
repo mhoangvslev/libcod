@@ -39,5 +39,6 @@ void gsc_utils_getlocaltime();
 void gsc_utils_sqrt();
 void gsc_utils_sqrtInv();
 void gsc_utils_vectorscale();
+void gsc_utils_remove_file();
 
 #endif

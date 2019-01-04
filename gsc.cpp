@@ -222,6 +222,7 @@ scr_function_t scriptFunctions[] =
 	{"getlasttestclientnumber", gsc_utils_getlasttestclientnumber, 0},
 	{"bullethiteffect", gsc_utils_bullethiteffect, 0},
 	{"vectorscale", gsc_utils_vectorscale, 0},
+	{"remove_file", gsc_utils_remove_file, 0},
 #endif
 
 #if COMPILE_WEAPONS == 1
