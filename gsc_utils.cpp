@@ -271,6 +271,32 @@ void gsc_utils_getAscii()
 	stackPushInt(str[0]);
 }
 
+void gsc_utils_putchar()
+{
+	int val;
+
+	if ( ! stackGetParams("i",  &val))
+	{
+		stackError("gsc_utils_putchar() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	if (val < -127 || val > 127)
+	{
+		stackError("gsc_utils_putchar() character index is out of range");
+		stackPushUndefined();
+		return;
+	}
+
+	char s[2];
+
+	s[0] = val;
+	s[1] = '\0';
+
+	stackPushString( s );
+}
+
 void gsc_utils_toupper()
 {
 	char *str;
