@@ -39,6 +39,26 @@ typedef struct gclient_s gclient_t;
 typedef struct gentity_s gentity_t;
 typedef int scr_entref_t;
 
+typedef enum
+{
+	MOD_UNKNOWN,
+	MOD_PISTOL_BULLET,
+	MOD_RIFLE_BULLET,
+	MOD_GRENADE,
+	MOD_GRENADE_SPLASH,
+	MOD_PROJECTILE,
+	MOD_PROJECTILE_SPLASH,
+	MOD_MELEE,
+	MOD_HEAD_SHOT,
+	MOD_CRUSH,
+	MOD_TELEFRAG,
+	MOD_FALLING,
+	MOD_SUICIDE,
+	MOD_TRIGGER_HURT,
+	MOD_EXPLOSIVE,
+	MOD_BAD
+} meansOfDeath_t;
+
 enum svc_ops_e
 {
 	svc_nop,
