@@ -228,7 +228,9 @@ scr_function_t scriptFunctions[] =
 
 #if COMPILE_WEAPONS == 1
 	{"getweaponmaxammo", gsc_weapons_getweaponmaxammo, 0},
+	{"setweaponmaxammo", gsc_weapons_setweaponmaxammo, 0},
 	{"getweaponclipsize", gsc_weapons_getweaponclipsize, 0},
+	{"setweaponclipsize", gsc_weapons_setweaponclipsize, 0},
 	{"getweapondamage", gsc_weapons_getweapondamage, 0},
 	{"setweapondamage", gsc_weapons_setweapondamage, 0},
 	{"getweaponmeleedamage", gsc_weapons_getweaponmeleedamage, 0},
