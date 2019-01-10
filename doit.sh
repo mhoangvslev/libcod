@@ -18,12 +18,13 @@ sqlite_link=""
 if [ "$1" != "clean" ]; then
 	read -rsp $'\nChoose Your MySQL variant:\n
 	0. MySQL disabled. (default)\n
-	1. Default MySQL variant: A classic MySQL implentation
-	made by kung and izno.
+	1. Classic MySQL variant (recommended):
+	A default MySQL implementation.
 	Multiple connections, multiple threads,
 	good for servers that use
 	remote MySQL sessions, IRC stuff, and etc.\n
-	2. VoroN\'s MySQL variant. My own MySQL implentation.
+	2. VoroN\'s MySQL variant (experimental):
+	Optional experimental implementation.
 	Native callbacks, native arguments,
 	single connection, single thread,
 	good for local MySQL session,
@@ -178,13 +179,14 @@ fi
 
 if [ -d extra ]; then
 	echo "##### COMPILE $1 EXTRAS #####"
-	cd extra
+	(
+	cd extra || return
 	for F in *.cpp;
 	do
 		echo "###### COMPILE $1 EXTRA: $F #####"
 		$cc $options $constants -c "$F" -o ../objects_"$1"/"${F%.cpp}".opp;
 	done
-	cd ..
+	)
 fi
 
 echo "##### COMPILE $1 LIBCOD.CPP #####"
