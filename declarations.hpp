@@ -1081,12 +1081,12 @@ struct gentity_s
 	turretInfo_s *pTurretInfo;
 	byte physicsObject; // 352
 	byte takedamage; // 353
-	byte nopickup; // 354
-	byte active; // 355
+	byte active; // 354
+	byte nopickup; // 355 ?
 	byte model; // 356
-	byte dobjbits; // 357 ??? BG_UpdatePlayerDObj()
+	byte dobjbits; // 357 ?
 	byte handler; // 358
-	byte team; // 359 e.g setteamfortrigger()
+	byte team; // 359
 	u_int16_t classname; // 360
 	u_int16_t target;
 	u_int16_t targetname;
@@ -1100,27 +1100,27 @@ struct gentity_s
 	int framenum; // 392
 	gentity_t *parent; // 396
 	int nextthink; // 400
-	int healthPoints;
-	int unknown;
+	int healthPoints; // 404
+	int reservedHealth; // 408 ?
 	int damage; // 412
-	int unknown2;
-	int unknown3;
-	int threshold; // 424
-	int accumulate; // 428
-	int hurtTouchTime;
-	int useSharedNum;
-	int unk2;
-	int unk3;
-	vec3_t vPos1;
-	vec3_t vPos2;
-	vec3_t vPos3;
-	int unk4;
-	int playerStatePrediction; // ?
-	vec3_t lerpOrigin; // 492
-	vec3_t lerpAngles; // 504
-	vec3_t moverOrigin; // 516 // ?
+	int splashDamage; // 416 ?
+	int splashRadius; // 420 ?
+	float pfDecelTimeMove; // 424
+	float pfDecelTimeRotate; // 428
+	float pfSpeedMove; // 432
+	float pfSpeedRotate; // 436
+	float pfMidTimeMove; // 440
+	float pfMidTimeRotate; // 444
+	vec3_t vPos1Move; // 448 ?
+	vec3_t vPos2Move; // 460
+	vec3_t vPos3Move; // 472
+	vec3_t vPos1Rotate; // 484 ?
+	vec3_t vPos2Rotate; // 496
+	vec3_t vPos3Rotate; // 508
+	int moverState; // 520 ?
+	gentity_t** linkedEntities; // 524 ??
 	byte attachedModels[6]; // 528
-	u_int16_t attachedTagName; // 536 ?
+	u_int16_t attachedModelsIndexes; // 536 ?
 	u_int16_t numAttachedModels; // 538 ?
 	int animTree; // 540 ?
 	vec4_t color; // ?
