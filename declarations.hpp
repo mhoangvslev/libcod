@@ -1077,43 +1077,48 @@ struct gentity_s
 {
 	entityState_t s;
 	entityShared_t r;
-	struct gclient_s *client;
+	struct gclient_s *client; // 344
 	turretInfo_s *pTurretInfo;
 	byte physicsObject; // 352
-	byte takedamage;
-	byte active;
-	byte nopickup;
-	byte model;
-	byte team;
-	byte handler;
-	byte pad;
+	byte takedamage; // 353
+	byte nopickup; // 354
+	byte active; // 355
+	byte model; // 356
+	byte dobjbits; // 357 ??? BG_UpdatePlayerDObj()
+	byte handler; // 358
+	byte team; // 359 e.g setteamfortrigger()
 	u_int16_t classname; // 360
 	u_int16_t target;
 	u_int16_t targetname;
+	u_int16_t padding;
 	int spawnflags;
 	int flags;
 	int eventTime;
 	qboolean freeAfterEvent; // 380
-	qboolean unlinkAfterEvent;
-	int clipmask;
-	int realClipmask;
-	int realContents; // 396
+	qboolean unlinkAfterEvent; // 384
+	int clipmask; // 388
+	int framenum; // 392
+	gentity_t *parent; // 396
 	int nextthink; // 400
 	int healthPoints;
 	int unknown;
 	int damage; // 412
 	int unknown2;
 	int unknown3;
-	float physicsBounce; // 424
-	u_int16_t item; // 428 This is item id, not item pointer!
+	int threshold; // 424
+	int accumulate; // 428
 	int hurtTouchTime;
 	int useSharedNum;
-	int attackerWeapon; // 440 ?
-	int unknown11[11];
+	int unk2;
+	int unk3;
+	vec3_t vPos1;
+	vec3_t vPos2;
+	vec3_t vPos3;
+	int unk4;
 	int playerStatePrediction; // ?
 	vec3_t lerpOrigin; // 492
 	vec3_t lerpAngles; // 504
-	vec3_t moverOrigin; // 516
+	vec3_t moverOrigin; // 516 // ?
 	byte attachedModels[6]; // 528
 	u_int16_t attachedTagName; // 536 ?
 	u_int16_t numAttachedModels; // 538 ?
@@ -2103,6 +2108,15 @@ typedef struct
 #define TOOL_DRAWTOGGLE         0x2
 #define TOOL_ORIGIN             0x4
 #define TOOL_RADIALNORMALS      0x8
+
+#define MASK_ALL                ( -1 )
+#define MASK_SOLID              ( CONTENTS_SOLID )
+#define MASK_PLAYERSOLID        ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY )
+#define MASK_DEADSOLID          ( CONTENTS_SOLID | CONTENTS_PLAYERCLIP )
+#define MASK_WATER              ( CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME )
+#define MASK_OPAQUE             ( CONTENTS_SOLID | CONTENTS_LAVA )
+#define MASK_SHOT               ( CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_CORPSE )
+#define MASK_MISSILESHOT        ( MASK_SHOT | CONTENTS_MISSILECLIP )
 
 #if COD_VERSION == COD2_1_0
 static const int gentities_offset = 0x08665480;
