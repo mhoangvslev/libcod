@@ -1011,4 +1011,21 @@ void gsc_sqlite_close()
 	stackPushBool(qtrue);
 }
 
+void gsc_sqlite_escape_string()
+{
+	char *string;
+
+	if ( ! stackGetParams("s", &string))
+	{
+		stackError("gsc_sqlite_escape_string() argument is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	char *result = sqlite3_mprintf("%q", string);
+
+	stackPushString(result);
+	sqlite3_free(result);
+}
+
 #endif

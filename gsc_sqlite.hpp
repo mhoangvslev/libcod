@@ -7,6 +7,7 @@
 void gsc_sqlite_open();
 void gsc_sqlite_query();
 void gsc_sqlite_close();
+void gsc_sqlite_escape_string();
 
 void gsc_async_sqlite_initialize();
 void gsc_async_sqlite_create_query();
