@@ -59,11 +59,12 @@ struct sqlite_db_store
 async_sqlite_task *first_async_sqlite_task = NULL;
 sqlite_db_store *first_sqlite_db_store = NULL;
 pthread_mutex_t async_sqlite_mutex_lock;
+pthread_mutex_t async_sqlite_server_spawn;
 int async_sqlite_initialized = 0;
 
 void free_sqlite_db_stores_and_tasks()
 {
-	pthread_mutex_lock(&async_sqlite_mutex_lock);
+	pthread_mutex_lock(&async_sqlite_server_spawn);
 
 	async_sqlite_task *current = first_async_sqlite_task;
 
@@ -107,7 +108,7 @@ void free_sqlite_db_stores_and_tasks()
 		delete store;
 	}
 
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
+	pthread_mutex_unlock(&async_sqlite_server_spawn);
 }
 
 void *async_sqlite_query_handler(void* dummy)
@@ -115,6 +116,7 @@ void *async_sqlite_query_handler(void* dummy)
 	while(1)
 	{
 		pthread_mutex_lock(&async_sqlite_mutex_lock);
+		pthread_mutex_lock(&async_sqlite_server_spawn);
 
 		async_sqlite_task *current = first_async_sqlite_task;
 
@@ -228,6 +230,7 @@ void *async_sqlite_query_handler(void* dummy)
 		}
 
 		pthread_mutex_unlock(&async_sqlite_mutex_lock);
+		pthread_mutex_unlock(&async_sqlite_server_spawn);
 
 		usleep(10000);
 	}
@@ -241,7 +244,14 @@ void gsc_async_sqlite_initialize()
 	{
 		if (pthread_mutex_init(&async_sqlite_mutex_lock, NULL) != 0)
 		{
-			stackError("gsc_async_sqlite_initialize() server spawn mutex initialization failed!");
+			stackError("gsc_async_sqlite_initialize() failed to initialize async_sqlite_mutex_lock mutex!");
+			stackPushUndefined();
+			return;
+		}
+
+		if (pthread_mutex_init(&async_sqlite_server_spawn, NULL) != 0)
+		{
+			stackError("gsc_async_sqlite_initialize() failed to initialize async_sqlite_server_spawn mutex!");
 			stackPushUndefined();
 			return;
 		}
