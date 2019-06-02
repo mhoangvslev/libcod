@@ -39,6 +39,15 @@ static const GetVarType_t GetVarType = (GetVarType_t)0x0807E500;
 static const GetVarType_t GetVarType = (GetVarType_t)0x0807E5CC;
 #endif
 
+typedef short (*BigShort_t)(short l);
+#if COD_VERSION == COD2_1_0
+static const BigShort_t BigShort = (BigShort_t)0x080B4F9A;
+#elif COD_VERSION == COD2_1_2
+static const BigShort_t BigShort = (BigShort_t)0x080B742E;
+#elif COD_VERSION == COD2_1_3
+static const BigShort_t BigShort = (BigShort_t)0x080B7572;
+#endif
+
 typedef char * (*SL_ConvertToString_t)(unsigned int index);
 #if COD_VERSION == COD2_1_0
 static const SL_ConvertToString_t SL_ConvertToString = (SL_ConvertToString_t)0x08078896;
