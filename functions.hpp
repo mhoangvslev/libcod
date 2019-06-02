@@ -183,6 +183,15 @@ static const Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117C8E;
 static const Scr_GetMethod_t Scr_GetMethod = (Scr_GetMethod_t)0x08117DEA;
 #endif
 
+typedef void (*Cvar_SetString_t)(cvar_t* var, char const* string);
+#if COD_VERSION == COD2_1_0
+static const Cvar_SetString_t Cvar_SetString = (Cvar_SetString_t)0x080B2560;
+#elif COD_VERSION == COD2_1_2
+static const Cvar_SetString_t Cvar_SetString = (Cvar_SetString_t)0x080B493C;
+#elif COD_VERSION == COD2_1_3
+static const Cvar_SetString_t Cvar_SetString = (Cvar_SetString_t)0x080B4A80;
+#endif
+
 typedef cvar_t* (*Cvar_FindVar_t)(const char *var_name);
 #if COD_VERSION == COD2_1_0
 static const Cvar_FindVar_t Cvar_FindVar = (Cvar_FindVar_t)0x080B0AE4;

@@ -9,6 +9,7 @@ cvar_t *con_coloredPrints;
 cvar_t *cl_allowDownload;
 cvar_t *sv_timeout;
 cvar_t *sv_zombietime;
+cvar_t *dedicated;
 
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 cvar_t *sv_wwwDownload;
@@ -22,6 +23,10 @@ cvar_t *g_playerEject;
 cvar_t *sv_allowRcon;
 cvar_t *fs_library;
 cvar_t *sv_downloadMessage;
+
+#define MAX_MASTER_SERVERS 5
+#define PORT_MASTER 20710
+cvar_t *sv_master[MAX_MASTER_SERVERS];
 
 void hook_sv_init(const char *format, ...)
 {
@@ -46,6 +51,12 @@ void hook_sv_init(const char *format, ...)
 	fs_library = Cvar_RegisterString("fs_library", "", CVAR_ARCHIVE);
 	sv_downloadMessage = Cvar_RegisterString("sv_downloadMessage", "", CVAR_ARCHIVE);
 
+	sv_master[0] = Cvar_RegisterString("sv_master1", "cod2master.activision.com", CVAR_ARCHIVE);
+	sv_master[1] = Cvar_RegisterString("sv_master2", "master.cod2.ru", CVAR_ARCHIVE);
+	sv_master[2] = Cvar_RegisterString("sv_master3", "", CVAR_ARCHIVE);
+	sv_master[3] = Cvar_RegisterString("sv_master4", "", CVAR_ARCHIVE);
+	sv_master[4] = Cvar_RegisterString("sv_master5", "", CVAR_ARCHIVE);
+
 	// Force download on clients
 	cl_allowDownload = Cvar_RegisterBool("cl_allowDownload", qtrue, CVAR_ARCHIVE | CVAR_SYSTEMINFO);
 
@@ -60,6 +71,7 @@ void hook_sv_init(const char *format, ...)
 	rcon_password = Cvar_FindVar("rcon_password");
 	sv_timeout = Cvar_FindVar("sv_timeout");
 	sv_zombietime = Cvar_FindVar("sv_zombietime");
+	dedicated = Cvar_FindVar("dedicated");
 
 #if COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
 	sv_wwwDownload = Cvar_FindVar("sv_wwwDownload");
@@ -84,6 +96,110 @@ void hook_sv_spawnserver(const char *format, ...)
 	free_sqlite_db_stores_and_tasks();
 #endif
 
+}
+
+#define	HEARTBEAT_MSEC	180000
+#define	STATUS_MSEC		600000
+void custom_SV_MasterHeartbeat(const char *game)
+{
+	static netadr_t	adr[MAX_MASTER_SERVERS];
+	char heartbeat[32];
+	int	i;
+
+	if ( dedicated->integer != 2 )
+	{
+		return;	// only dedicated servers send heartbeats
+	}
+
+	// if not time yet, don't send anything
+	if ( svs.time >= svs.nextHeartbeatTime )
+	{
+		svs.nextHeartbeatTime = svs.time + HEARTBEAT_MSEC;
+
+		// send to group masters
+		for ( i = 0 ; i < MAX_MASTER_SERVERS ; i++ )
+		{
+			if ( !sv_master[i]->string[0] )
+			{
+				continue;
+			}
+
+			// see if we haven't already resolved the name
+			// do it when needed
+			if ( sv_master[i]->modified || !adr[i].type )
+			{
+				sv_master[i]->modified = qfalse;
+
+				Com_Printf( "Resolving %s\n", sv_master[i]->string );
+				if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) )
+				{
+					// if the address failed to resolve, clear it
+					// so we don't take repeated dns hits
+					Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
+					Cvar_SetString(sv_master[i], "");
+					sv_master[i]->modified = qfalse;
+					continue;
+				}
+				if ( !strstr( ":", sv_master[i]->string ) )
+				{
+					adr[i].port = BigShort( PORT_MASTER );
+				}
+				Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
+				            adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
+				            BigShort( adr[i].port ) );
+			}
+
+			if (strlen(sv_master[i]->string))
+			{
+				Com_Printf( "Sending heartbeat to %s\n", sv_master[i]->string );
+				sprintf(heartbeat, "heartbeat %s\n", game);
+				NET_OutOfBandPrint( NS_SERVER, adr[i], heartbeat );
+			}
+		}
+	}
+
+	// if not time yet, don't send anything
+	if ( svs.time >= svs.nextStatusResponseTime )
+	{
+		svs.nextStatusResponseTime = svs.time + STATUS_MSEC;
+
+		// send to group masters
+		for ( i = 0 ; i < MAX_MASTER_SERVERS ; i++ )
+		{
+			if ( !sv_master[i]->string[0] )
+			{
+				continue;
+			}
+
+			// see if we haven't already resolved the name
+			// do it when needed
+			if ( sv_master[i]->modified || !adr[i].type )
+			{
+				sv_master[i]->modified = qfalse;
+
+				Com_Printf( "Resolving %s\n", sv_master[i]->string );
+				if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) )
+				{
+					// if the address failed to resolve, clear it
+					// so we don't take repeated dns hits
+					Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
+					Cvar_SetString(sv_master[i], "");
+					sv_master[i]->modified = qfalse;
+					continue;
+				}
+				if ( !strstr( ":", sv_master[i]->string ) )
+				{
+					adr[i].port = BigShort( PORT_MASTER );
+				}
+				Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", sv_master[i]->string,
+				            adr[i].ip[0], adr[i].ip[1], adr[i].ip[2], adr[i].ip[3],
+				            BigShort( adr[i].port ) );
+			}
+
+			if (strlen(sv_master[i]->string))
+				SVC_Status(adr[i]);
+		}
+	}
 }
 
 int codecallback_playercommand = 0;
@@ -1206,6 +1322,7 @@ public:
 		cracking_hook_function(0x0808EEEC, (int)hook_SV_ResetPureClient_f);
 		cracking_hook_function(0x0809443E, (int)custom_SV_CalcPings);
 		cracking_hook_function(0x080945AC, (int)custom_SV_CheckTimeouts);
+		cracking_hook_function(0x08094F02, (int)custom_SV_MasterHeartbeat);
 
 #if COMPILE_BOTS == 1
 		cracking_hook_function(0x0809479A, (int)custom_SV_BotUserMove);
@@ -1264,6 +1381,7 @@ public:
 		cracking_hook_function(0x08090726, (int)hook_SV_ResetPureClient_f);
 		cracking_hook_function(0x0809630E, (int)custom_SV_CalcPings);
 		cracking_hook_function(0x080964C4, (int)custom_SV_CheckTimeouts);
+		cracking_hook_function(0x08096E1A, (int)custom_SV_MasterHeartbeat);
 
 #if COMPILE_BOTS == 1
 		cracking_hook_function(0x080966B2, (int)custom_SV_BotUserMove);
@@ -1322,6 +1440,7 @@ public:
 		cracking_hook_function(0x080907BA, (int)hook_SV_ResetPureClient_f);
 		cracking_hook_function(0x080963C8, (int)custom_SV_CalcPings);
 		cracking_hook_function(0x0809657E, (int)custom_SV_CheckTimeouts);
+		cracking_hook_function(0x08096ED6, (int)custom_SV_MasterHeartbeat);
 
 #if COMPILE_BOTS == 1
 		cracking_hook_function(0x0809676C, (int)custom_SV_BotUserMove);
