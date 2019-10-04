@@ -58,7 +58,6 @@ struct sqlite_db_store
 
 async_sqlite_task *first_async_sqlite_task = NULL;
 sqlite_db_store *first_sqlite_db_store = NULL;
-pthread_mutex_t async_sqlite_mutex_lock;
 pthread_mutex_t async_sqlite_server_spawn;
 int async_sqlite_initialized = 0;
 
@@ -115,7 +114,6 @@ void *async_sqlite_query_handler(void* dummy)
 {
 	while(1)
 	{
-		pthread_mutex_lock(&async_sqlite_mutex_lock);
 		pthread_mutex_lock(&async_sqlite_server_spawn);
 
 		async_sqlite_task *current = first_async_sqlite_task;
@@ -229,7 +227,6 @@ void *async_sqlite_query_handler(void* dummy)
 			}
 		}
 
-		pthread_mutex_unlock(&async_sqlite_mutex_lock);
 		pthread_mutex_unlock(&async_sqlite_server_spawn);
 
 		usleep(10000);
@@ -242,13 +239,6 @@ void gsc_async_sqlite_initialize()
 {
 	if (!async_sqlite_initialized)
 	{
-		if (pthread_mutex_init(&async_sqlite_mutex_lock, NULL) != 0)
-		{
-			stackError("gsc_async_sqlite_initialize() failed to initialize async_sqlite_mutex_lock mutex!");
-			stackPushUndefined();
-			return;
-		}
-
 		if (pthread_mutex_init(&async_sqlite_server_spawn, NULL) != 0)
 		{
 			stackError("gsc_async_sqlite_initialize() failed to initialize async_sqlite_server_spawn mutex!");
@@ -299,7 +289,6 @@ void gsc_async_sqlite_create_query()
 		return;
 	}
 
-	pthread_mutex_trylock(&async_sqlite_mutex_lock);
 	async_sqlite_task *current = first_async_sqlite_task;
 
 	int task_count = 0;
@@ -310,7 +299,6 @@ void gsc_async_sqlite_create_query()
 		{
 			stackError("gsc_async_sqlite_create_query() exceeded async task limit");
 			stackPushUndefined();
-			pthread_mutex_unlock(&async_sqlite_mutex_lock);
 			return;
 		}
 
@@ -384,7 +372,6 @@ void gsc_async_sqlite_create_query()
 		first_async_sqlite_task = newtask;
 
 	stackPushBool(qtrue);
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
 }
 
 void gsc_async_sqlite_create_query_nosave()
@@ -406,7 +393,6 @@ void gsc_async_sqlite_create_query_nosave()
 		return;
 	}
 
-	pthread_mutex_trylock(&async_sqlite_mutex_lock);
 	async_sqlite_task *current = first_async_sqlite_task;
 
 	int task_count = 0;
@@ -417,7 +403,6 @@ void gsc_async_sqlite_create_query_nosave()
 		{
 			stackError("gsc_async_sqlite_create_query_nosave() exceeded async task limit");
 			stackPushUndefined();
-			pthread_mutex_unlock(&async_sqlite_mutex_lock);
 			return;
 		}
 
@@ -491,7 +476,6 @@ void gsc_async_sqlite_create_query_nosave()
 		first_async_sqlite_task = newtask;
 
 	stackPushBool(qtrue);
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
 }
 
 void gsc_async_sqlite_create_entity_query(scr_entref_t entid)
@@ -513,7 +497,6 @@ void gsc_async_sqlite_create_entity_query(scr_entref_t entid)
 		return;
 	}
 
-	pthread_mutex_trylock(&async_sqlite_mutex_lock);
 	async_sqlite_task *current = first_async_sqlite_task;
 
 	int task_count = 0;
@@ -524,7 +507,6 @@ void gsc_async_sqlite_create_entity_query(scr_entref_t entid)
 		{
 			stackError("gsc_async_sqlite_create_entity_query() exceeded async task limit");
 			stackPushUndefined();
-			pthread_mutex_unlock(&async_sqlite_mutex_lock);
 			return;
 		}
 
@@ -598,7 +580,6 @@ void gsc_async_sqlite_create_entity_query(scr_entref_t entid)
 		first_async_sqlite_task = newtask;
 
 	stackPushBool(qtrue);
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
 }
 
 void gsc_async_sqlite_create_entity_query_nosave(scr_entref_t entid)
@@ -620,7 +601,6 @@ void gsc_async_sqlite_create_entity_query_nosave(scr_entref_t entid)
 		return;
 	}
 
-	pthread_mutex_trylock(&async_sqlite_mutex_lock);
 	async_sqlite_task *current = first_async_sqlite_task;
 
 	int task_count = 0;
@@ -631,7 +611,6 @@ void gsc_async_sqlite_create_entity_query_nosave(scr_entref_t entid)
 		{
 			stackError("gsc_async_sqlite_create_entity_query_nosave() exceeded async task limit");
 			stackPushUndefined();
-			pthread_mutex_unlock(&async_sqlite_mutex_lock);
 			return;
 		}
 
@@ -705,13 +684,10 @@ void gsc_async_sqlite_create_entity_query_nosave(scr_entref_t entid)
 		first_async_sqlite_task = newtask;
 
 	stackPushBool(qtrue);
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
 }
 
 void gsc_async_sqlite_checkdone()
 {
-	pthread_mutex_trylock(&async_sqlite_mutex_lock);
-
 	async_sqlite_task *current = first_async_sqlite_task;
 
 	while (current != NULL)
@@ -843,8 +819,6 @@ void gsc_async_sqlite_checkdone()
 			delete task;
 		}
 	}
-
-	pthread_mutex_unlock(&async_sqlite_mutex_lock);
 }
 
 void gsc_sqlite_open()
