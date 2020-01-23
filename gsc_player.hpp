@@ -50,6 +50,7 @@ void gsc_player_getfps(scr_entref_t id);
 void gsc_player_isbot(scr_entref_t id);
 void gsc_player_disableitempickup(scr_entref_t id);
 void gsc_player_enableitempickup(scr_entref_t id);
+void gsc_player_getcurrentoffhandslotammo(scr_entref_t id);
 
 // player functions without entity
 void gsc_kick_slot();

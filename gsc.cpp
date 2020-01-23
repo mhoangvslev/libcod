@@ -352,6 +352,7 @@ scr_method_t scriptMethods[] =
 	{"isbot", gsc_player_isbot, 0},
 	{"disableitempickup", gsc_player_disableitempickup, 0},
 	{"enableitempickup", gsc_player_enableitempickup, 0},
+	{"getcurrentoffhandslotammo", gsc_player_getcurrentoffhandslotammo, 0},
 #endif
 
 #if COMPILE_SQLITE == 1

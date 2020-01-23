@@ -878,4 +878,18 @@ void gsc_player_enableitempickup(scr_entref_t id)
 	stackPushBool(qtrue);
 }
 
+void gsc_player_getcurrentoffhandslotammo(scr_entref_t id)
+{
+	if (id >= MAX_CLIENTS)
+	{
+		stackError("gsc_player_getcurrentoffhandslotammo() entity %i is not a player", id);
+		stackPushUndefined();
+		return;
+	}
+
+	playerState_t *ps = SV_GameClientNum(id);
+
+	stackPushInt(ps->ammoclip[ps->offHandIndex - 1]);
+}
+
 #endif
