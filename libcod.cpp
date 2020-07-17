@@ -202,6 +202,8 @@ void custom_SV_MasterHeartbeat(const char *game)
 	}
 }
 
+int codecallback_remotecommand = 0;
+
 int codecallback_playercommand = 0;
 int codecallback_userinfochanged = 0;
 int codecallback_fire_grenade = 0;
@@ -215,6 +217,8 @@ cHook *hook_gametype_scripts;
 int hook_codscript_gametype_scripts()
 {
 	hook_gametype_scripts->unhook();
+
+	codecallback_remotecommand = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_RemoteCommand", 0);
 
 	codecallback_playercommand = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_PlayerCommand", 0);
 	codecallback_userinfochanged = Scr_GetFunctionHandle("maps/mp/gametypes/_callbacksetup", "CodeCallback_UserInfoChanged", 0);
@@ -1072,17 +1076,19 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 	}
 
-#if COD_VERSION == COD2_1_0
-	int lasttime_offset = 0x0848B674;
-#elif COD_VERSION == COD2_1_2
-	int lasttime_offset = 0x0849EB74;
-#elif COD_VERSION == COD2_1_3
-	int lasttime_offset = 0x0849FBF4;
-#endif
+	if (codecallback_remotecommand)
+	{
+		stackPushInt((int)msg);
+		stackPushString((char *)msg->data);
+		stackPushString(NET_AdrToString(from));
+	
+		short ret = Scr_ExecThread(codecallback_remotecommand, 3);
+		Scr_FreeThread(ret);
+		
+		return;
+	}
 
-	*(int *)lasttime_offset = 0;
-
-	SVC_RemoteCommand(from, msg);
+	RemoteCommand(from, message);
 }
 
 void hook_SV_GetChallenge(netadr_t from)
