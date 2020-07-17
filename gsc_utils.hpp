@@ -5,6 +5,7 @@
 #include "gsc.hpp"
 
 void gsc_utils_printf();
+void gsc_utils_outofbandprint();
 void gsc_utils_getarraykeys();
 void gsc_utils_getAscii();
 void gsc_utils_toupper();

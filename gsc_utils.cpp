@@ -187,6 +187,23 @@ void gsc_utils_printf()
 	stackPushBool(qtrue);
 }
 
+void gsc_utils_outofbandprint()
+{
+	char * address;
+	char * msg;
+
+	if (!stackGetParams("ss", &address, &msg))
+	{
+		stackError("gsc_utils_outofbandprint() one or more arguments is undefined or has a wrong type");
+		stackPushUndefined();
+		return;
+	}
+
+	netadr_t from;
+	NET_StringToAdr(address, &from);
+	NET_OutOfBandPrint(NS_SERVER, from, msg);
+}
+
 void gsc_utils_sprintf()
 {
 	char result[COD2_MAX_STRINGLENGTH];
