@@ -1088,7 +1088,7 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		return;
 	}
 
-	RemoteCommand(from, message);
+	RemoteCommand(from, msg);
 }
 
 void hook_SV_GetChallenge(netadr_t from)

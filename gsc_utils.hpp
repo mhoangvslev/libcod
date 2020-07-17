@@ -43,6 +43,6 @@ void gsc_utils_vectorscale();
 void gsc_utils_remove_file();
 void gsc_utils_putchar();
 void gsc_utils_remotecommand();
-void RemoteCommand();
+void RemoteCommand(netadr_t from, msg_t *msg);
 
 #endif
