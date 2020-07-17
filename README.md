@@ -44,6 +44,7 @@ Engine fixes:
 Credits to CoD4x developer for many function/typedef references, thanks!
 	
 Community / Help: http://killtube.org/forum.php
+Function documentation: https://github.com/M-itch/codscriptdoc
 
 CoD1 users:
 Libcod support for CoD1 was very basic and without almost all functions and it's been dropped.
