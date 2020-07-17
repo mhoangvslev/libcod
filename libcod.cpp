@@ -1076,7 +1076,11 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 	}
 
-	if (codecallback_remotecommand)
+	if (!Scr_IsSystemActive() || !codecallback_remotecommand)
+	{
+		RemoteCommand(from, msg);
+	}
+	else
 	{
 		stackPushInt((int)msg);
 		stackPushString((char *)msg->data);
@@ -1084,11 +1088,7 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 	
 		short ret = Scr_ExecThread(codecallback_remotecommand, 3);
 		Scr_FreeThread(ret);
-		
-		return;
 	}
-
-	RemoteCommand(from, msg);
 }
 
 void hook_SV_GetChallenge(netadr_t from)
