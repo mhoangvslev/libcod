@@ -1288,7 +1288,8 @@ public:
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BFCA, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808AD00, (int)hook_findMap);
+		cracking_hook_call(0x0808AD00, (int)hook_findMap); // rcon map
+		cracking_hook_call(0x08090A2F, (int)hook_findMap); // GSC map and mapexists function
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
@@ -1347,7 +1348,8 @@ public:
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D22E, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
+		cracking_hook_call(0x0808BCFC, (int)hook_findMap); // rcon map
+		cracking_hook_call(0x0809223F, (int)hook_findMap); // GSC map and mapexists function
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
@@ -1406,7 +1408,8 @@ public:
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D2FA, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
+		cracking_hook_call(0x0808BDC8, (int)hook_findMap); // rcon map
+		cracking_hook_call(0x08092343, (int)hook_findMap); // GSC map and mapexists function
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
