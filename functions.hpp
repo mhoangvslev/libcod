@@ -273,6 +273,15 @@ static const SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasCl
 static const SV_ClientHasClientMuted_t SV_ClientHasClientMuted = (SV_ClientHasClientMuted_t)0x0809C1FA;
 #endif
 
+typedef int (*SV_MapExists_t)(const char *mapname);
+#if COD_VERSION == COD2_1_0
+static const SV_MapExists_t SV_MapExists = (SV_MapExists_t)0x080909EE;
+#elif COD_VERSION == COD2_1_2
+static const SV_MapExists_t SV_MapExists = (SV_MapExists_t)0x080921FE;
+#elif COD_VERSION == COD2_1_3
+static const SV_MapExists_t SV_MapExists = (SV_MapExists_t)0x08092302;
+#endif
+
 typedef void (*Info_SetValueForKey_t)(char *s, const char *key, const char *value);
 #if COD_VERSION == COD2_1_0
 static const Info_SetValueForKey_t Info_SetValueForKey = (Info_SetValueForKey_t)0x080B5FF6;

@@ -1247,7 +1247,7 @@ void manymaps_prepare(const char *mapname, int read)
 	}
 }
 
-int hook_rcon_findMap(const char *qpath, void **buffer)
+int hook_findMap(const char *qpath, void **buffer)
 {
 	int read = FS_ReadFile(qpath, buffer);
 	manymaps_prepare(Cmd_Argv(1), read);
@@ -1258,21 +1258,30 @@ int hook_rcon_findMap(const char *qpath, void **buffer)
 		return FS_ReadFile(qpath, buffer);
 }
 
-int hook_gsc_findMap(const char *qpath, void **buffer)
+bool hook_SV_MapExists(const char *mapname)
 {
-	char qpathTmp[1024];
-	snprintf(qpathTmp, sizeof(qpathTmp), "%s", qpath);
+	bool map_exists = SV_MapExists(mapname);
 
-	char *mapname = strtok(qpathTmp, "/."); // maps/mp/%s.%s
-	mapname = strtok(NULL, "/.");
-	mapname = strtok(NULL, "/.");
+	if (map_exists)
+	{
+		return map_exists;
+	}
+	else 
+	{
+		char map_check[1024];
+		char library_path[512];
 
-	int read = FS_ReadFile(qpath, buffer);
-	manymaps_prepare(mapname, read);
-	if (read != -1)
-		return read;
-	else
-		return FS_ReadFile(qpath, buffer);
+		cvar_t *fs_homepath = Cvar_FindVar("fs_homepath");
+		cvar_t *fs_game = Cvar_FindVar("fs_game");
+		if (strlen(fs_library->string))
+			strncpy(library_path, fs_library->string, sizeof(library_path));
+		else
+			snprintf(library_path, sizeof(library_path), "%s/%s/Library", fs_homepath->string, fs_game->string);
+
+		snprintf(map_check, sizeof(map_check), "%s/%s.iwd", library_path, mapname);
+
+		return access(map_check, F_OK) != -1;
+	}
 }
 
 class cCallOfDuty2Pro
@@ -1305,8 +1314,9 @@ public:
 		cracking_hook_call(0x0808F281, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808C8C0, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808BFCA, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808AD00, (int)hook_rcon_findMap);
-		cracking_hook_call(0x08090A2F, (int)hook_gsc_findMap);
+		cracking_hook_call(0x0808AD00, (int)hook_findMap);
+		cracking_hook_call(0x08114655, (int)hook_SV_MapExists); // GSC map function
+		cracking_hook_call(0x08114940, (int)hook_SV_MapExists); // GSC mapexists function
 		cracking_hook_call(0x0808F134, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x0807059F, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x080707C3, (int)Scr_GetCustomMethod);
@@ -1365,8 +1375,9 @@ public:
 		cracking_hook_call(0x08090B0C, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DA52, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D22E, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808BCFC, (int)hook_rcon_findMap);
-		cracking_hook_call(0x0809223F, (int)hook_gsc_findMap);
+		cracking_hook_call(0x0808BCFC, (int)hook_findMap);
+		cracking_hook_call(0x08116981, (int)hook_SV_MapExists); // GSC map function
+		cracking_hook_call(0x08116C6C, (int)hook_SV_MapExists); // GSC mapexists function
 		cracking_hook_call(0x080909BE, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070B1B, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070D3F, (int)Scr_GetCustomMethod);
@@ -1425,8 +1436,9 @@ public:
 		cracking_hook_call(0x08090BA0, (int)hook_ClientCommand);
 		cracking_hook_call(0x0808DB12, (int)hook_AuthorizeState);
 		cracking_hook_call(0x0808D2FA, (int)hook_isLanAddress);
-		cracking_hook_call(0x0808BDC8, (int)hook_rcon_findMap);
-		cracking_hook_call(0x08092343, (int)hook_gsc_findMap);
+		cracking_hook_call(0x0808BDC8, (int)hook_findMap);
+		cracking_hook_call(0x08116ADD, (int)hook_SV_MapExists); // GSC map function
+		cracking_hook_call(0x08116DC8, (int)hook_SV_MapExists); // GSC mapexists function
 		cracking_hook_call(0x08090A52, (int)hook_ClientUserinfoChanged);
 		cracking_hook_call(0x08070BE7, (int)Scr_GetCustomFunction);
 		cracking_hook_call(0x08070E0B, (int)Scr_GetCustomMethod);
