@@ -1064,7 +1064,8 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		return;
 	}
 
-	if ( !strlen( rcon_password->string ) || strcmp(Cmd_Argv(1), rcon_password->string) != 0 )
+	bool badRconPassword = !strlen( rcon_password->string ) || strcmp(Cmd_Argv(1), rcon_password->string) != 0;
+	if (badRconPassword)
 	{
 		static leakyBucket_t bucket;
 
@@ -1076,7 +1077,7 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 	}
 
-	if (strcmp(Cmd_Argv(2), "map") == 0 || strcmp(Cmd_Argv(2), "devmap") == 0 || !Scr_IsSystemActive() || !codecallback_remotecommand)
+	if (!codecallback_remotecommand || badRconPassword || !Scr_IsSystemActive() || strcmp(Cmd_Argv(2), "map") == 0 || strcmp(Cmd_Argv(2), "devmap") == 0)
 	{
 		RemoteCommand(from, msg);
 	}
