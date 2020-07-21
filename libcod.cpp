@@ -1076,14 +1076,24 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		}
 	}
 
-	if (!Scr_IsSystemActive() || !codecallback_remotecommand)
+	if (strcmp(Cmd_Argv(2), "map") == 0 || strcmp(Cmd_Argv(2), "devmap") == 0 || !Scr_IsSystemActive() || !codecallback_remotecommand)
 	{
 		RemoteCommand(from, msg);
 	}
 	else
 	{
 		stackPushInt((int)msg);
-		stackPushString((char *)msg->data);
+
+		stackPushArray();
+		int args = Cmd_Argc();
+		for (int i = 2; i < args; i++)
+		{
+			char tmp[COD2_MAX_STRINGLENGTH];
+			SV_Cmd_ArgvBuffer(i, tmp, sizeof(tmp));
+			stackPushString(tmp);
+			stackPushArrayLast();
+		}
+
 		stackPushString(NET_AdrToString(from));
 	
 		short ret = Scr_ExecThread(codecallback_remotecommand, 3);
