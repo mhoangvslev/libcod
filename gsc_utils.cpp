@@ -206,7 +206,7 @@ void gsc_utils_outofbandprint()
 
 void gsc_utils_sprintf()
 {
-	char result[COD2_MAX_STRINGLENGTH];
+	char result[MAX_STRINGLENGTH];
 	char *str;
 
 	if (!stackGetParams("s", &str))

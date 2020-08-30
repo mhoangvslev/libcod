@@ -84,6 +84,9 @@ elif [ "$1" == "cod2_1_2" ]; then
 elif [ "$1" == "cod2_1_3" ]; then
 	constants="-D COD_VERSION=COD2_1_3"
 
+elif [ "$1" == "coduo_1_51" ]; then
+	constants="-D COD_VERSION=CODUO_1_51"
+
 elif [ "$1" == "" ]; then
 	echo "##### Please specify a command line option #####"
 	exit 0
@@ -92,6 +95,28 @@ else
 	echo "##### Unrecognized command line option $1 #####"
 	exit 0
 fi
+
+promt_add_feature() {
+	copt=""
+	while [[ "$copt" != "y" && "$copt" != "n" ]]; do
+		echo "Do you want to add $1? (y/n) "; 
+		read copt;
+	done 
+
+	if [ "$copt" == "y" ]; then
+		sed -i "s/#define $1 [0-9]/#define $1 1/g" config.hpp
+	else
+		sed -i "s/#define $1 [0-9]/#define $1 0/g" config.hpp
+	fi
+}
+
+promt_add_feature "COMPILE_BOTS"
+promt_add_feature "COMPILE_ENTITY"
+promt_add_feature "COMPILE_EXEC"
+promt_add_feature "COMPILE_MEMORY"
+promt_add_feature "COMPILE_PLAYER"
+promt_add_feature "COMPILE_UTILS"
+promt_add_feature "COMPILE_WEAPONS"
 
 if [ -f extra/functions.hpp ]; then
 	constants+=" -D EXTRA_FUNCTIONS_INC"
@@ -117,6 +142,9 @@ $cc $options $constants -c cracking.cpp -o objects_"$1"/cracking.opp
 
 echo "##### COMPILE $1 GSC.CPP #####"
 $cc $options $constants -c gsc.cpp -o objects_"$1"/gsc.opp
+
+exit 0
+
 
 if [ "$(< config.hpp grep '#define COMPILE_BOTS' | grep -o '[0-9]')" == "1" ]; then
 	echo "##### COMPILE $1 GSC_BOTS.CPP #####"

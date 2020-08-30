@@ -30,7 +30,7 @@ cvar_t *sv_master[MAX_MASTER_SERVERS];
 
 void hook_sv_init(const char *format, ...)
 {
-	char s[COD2_MAX_STRINGLENGTH];
+	char s[MAX_STRINGLENGTH];
 	va_list va;
 
 	va_start(va, format);
@@ -81,7 +81,7 @@ void hook_sv_init(const char *format, ...)
 
 void hook_sv_spawnserver(const char *format, ...)
 {
-	char s[COD2_MAX_STRINGLENGTH];
+	char s[MAX_STRINGLENGTH];
 	va_list va;
 
 	va_start(va, format);
@@ -337,7 +337,7 @@ void hook_ClientCommand(int clientNum)
 	int args = Cmd_Argc();
 	for (int i = 0; i < args; i++)
 	{
-		char tmp[COD2_MAX_STRINGLENGTH];
+		char tmp[MAX_STRINGLENGTH];
 		SV_Cmd_ArgvBuffer(i, tmp, sizeof(tmp));
 		if(i == 1 && tmp[0] >= 20 && tmp[0] <= 22)
 		{
@@ -398,7 +398,7 @@ void custom_SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 {
 	int curindex;
 	int iwdFile;
-	char errorMessage[COD2_MAX_STRINGLENGTH];
+	char errorMessage[MAX_STRINGLENGTH];
 
 	if (cl->state == CS_ACTIVE)
 		return; // Client already in game
@@ -600,10 +600,10 @@ char *custom_va(const char *format, ...)
 	*(int *)(v1 + 2048) = v3 - 2 * *(int *)(v1 + 2048);
 
 	va_start(va, format);
-	vsnprintf(s, COD2_MAX_STRINGLENGTH, format, va);
+	vsnprintf(s, MAX_STRINGLENGTH, format, va);
 	va_end(va);
 
-	s[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	s[MAX_STRINGLENGTH - 1] = '\0';
 
 	return s;
 }
@@ -779,7 +779,7 @@ void hook_scriptError(int a1, int a2, int a3, void *a4)
 int gamestate_size[MAX_CLIENTS] = {0};
 void hook_gamestate_info(const char *format, ...)
 {
-	char s[COD2_MAX_STRINGLENGTH];
+	char s[MAX_STRINGLENGTH];
 	va_list va;
 
 	va_start(va, format);
@@ -1089,7 +1089,7 @@ void hook_SVC_RemoteCommand(netadr_t from, msg_t *msg)
 		int args = Cmd_Argc();
 		for (int i = 2; i < args; i++)
 		{
-			char tmp[COD2_MAX_STRINGLENGTH];
+			char tmp[MAX_STRINGLENGTH];
 			SV_Cmd_ArgvBuffer(i, tmp, sizeof(tmp));
 			stackPushString(tmp);
 			stackPushArrayLast();
@@ -1312,6 +1312,8 @@ public:
 		printf("> [LIBCOD] Compiled for: CoD2 1.2\n");
 #elif COD_VERSION == COD2_1_3
 		printf("> [LIBCOD] Compiled for: CoD2 1.3\n");
+#elif COD_VERSION == CODUO_1_51
+		printf("> [LIBCOD] Compiled for: CoDUO 1.51\n");
 #endif
 
 		printf("> [LIBCOD] Compiled %s %s using GCC %s\n", __DATE__, __TIME__, __VERSION__);
@@ -1502,8 +1504,67 @@ public:
 		cracking_hook_call(0x08095E1D, (int)hook_SVC_RemoteCommand);
 #endif
 
+#elif COD_VERSION == CODUO_1_51
+
+		cracking_hook_call(0x08071B38, (int)hook_sv_init);
+		cracking_hook_call(0x08091CF2, (int)hook_sv_spawnserver);
+		cracking_hook_call(0x0808D622, (int)hook_ClientCommand);
+		cracking_hook_call(0x0808A2C9, (int)hook_AuthorizeState);
+		cracking_hook_call(0x08089950, (int)hook_isLanAddress);
+		cracking_hook_call(0x0808813E, (int)hook_findMap);
+		cracking_hook_call(0x0808F248, (int)hook_SV_MapExists); 
+		cracking_hook_call(0x0808D573, (int)hook_ClientUserinfoChanged); // Is client command in CoDUO
+		cracking_hook_call(0x0809E8ED, (int)Scr_GetCustomFunction);
+		cracking_hook_call(0x0809EB29, (int)Scr_GetCustomMethod);
+		//cracking_hook_call(0x0811098E, (int)Com_DPrintf);
+
+#if COMPILE_PLAYER == 1
+		cracking_hook_call(0x0808BEE6, (int)hook_gamestate_info);
 #endif
 
+		cracking_hook_call(0x080AE01E, (int)hook_scriptError); // Try 0x080AE84D if not
+
+		/*hook_gametype_scripts = new cHook(0x08110286, (int)hook_codscript_gametype_scripts);
+		hook_gametype_scripts->hook();
+
+		hook_player_collision = new cHook(0x080F5682, (int)player_collision);
+		hook_player_collision->hook();
+		hook_player_eject = new cHook(0x080F6E9E, (int)player_eject);
+		hook_player_eject->hook();
+		hook_fire_grenade = new cHook(0x0810E68E, (int)fire_grenade);
+		hook_fire_grenade->hook();
+
+#if COMPILE_PLAYER == 1
+		hook_play_movement = new cHook(0x08090DAC, (int)play_movement); // SV_ClientThink
+		hook_play_movement->hook();
+		hook_play_endframe = new cHook(0x080F7516, (int)play_endframe);
+		hook_play_endframe->hook();
+		hook_set_anim = new cHook(0x080D90D6, (int)set_anim);
+		hook_set_anim->hook();
+		hook_touch_item_auto = new cHook(0x08105C80, (int)touch_item_auto);
+		hook_touch_item_auto->hook();
+#endif
+
+		cracking_hook_function(0x080EBF24, (int)hook_BG_IsWeaponValid);
+		cracking_hook_function(0x0808FDC2, (int)custom_SV_WriteDownloadToClient);
+		cracking_hook_function(0x080B7FA6, (int)custom_va);
+		cracking_hook_function(0x08090534, (int)hook_SV_VerifyIwds_f);
+		cracking_hook_function(0x080907BA, (int)hook_SV_ResetPureClient_f);
+		cracking_hook_function(0x080963C8, (int)custom_SV_CalcPings);
+		cracking_hook_function(0x0809657E, (int)custom_SV_CheckTimeouts);
+		cracking_hook_function(0x08096ED6, (int)custom_SV_MasterHeartbeat);
+
+#if COMPILE_BOTS == 1
+		cracking_hook_function(0x0809676C, (int)custom_SV_BotUserMove);
+#endif
+
+#if COMPILE_RATELIMITER == 1
+		cracking_hook_call(0x08095C48, (int)hook_SVC_Info);
+		cracking_hook_call(0x08095B94, (int)hook_SVC_Status);
+		cracking_hook_call(0x08095CB2, (int)hook_SV_GetChallenge);
+		cracking_hook_call(0x08095E1D, (int)hook_SVC_RemoteCommand);
+#endif*/
+#endif
 		printf("> [PLUGIN LOADED]\n");
 	}
 

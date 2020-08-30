@@ -27,7 +27,7 @@ struct async_sqlite_task
 	async_sqlite_task *next;
 	sqlite3 *db;
 	sqlite3_stmt *statement;
-	char query[COD2_MAX_STRINGLENGTH];
+	char query[MAX_STRINGLENGTH];
 	char row[MAX_SQLITE_FIELDS][MAX_SQLITE_ROWS][MAX_SQLITE_ROW_LENGTH];
 	int result;
 	int timeout;
@@ -37,12 +37,12 @@ struct async_sqlite_task
 	bool done;
 	bool save;
 	bool error;
-	char errorMessage[COD2_MAX_STRINGLENGTH];
+	char errorMessage[MAX_STRINGLENGTH];
 	bool hasargument;
 	int valueType;
 	int intValue;
 	float floatValue;
-	char stringValue[COD2_MAX_STRINGLENGTH];
+	char stringValue[MAX_STRINGLENGTH];
 	vec3_t vectorValue;
 	unsigned int objectValue;
 	bool hasentity;
@@ -126,7 +126,7 @@ void *async_sqlite_query_handler(void* dummy)
 			if (!task->done)
 			{
 				task->timeout = Sys_MilliSeconds();
-				task->result = sqlite3_prepare_v2(task->db, task->query, COD2_MAX_STRINGLENGTH, &task->statement, 0);
+				task->result = sqlite3_prepare_v2(task->db, task->query, MAX_STRINGLENGTH, &task->statement, 0);
 
 				while (task->result != SQLITE_OK)
 				{
@@ -136,8 +136,8 @@ void *async_sqlite_query_handler(void* dummy)
 						{
 							task->error = true;
 
-							strncpy(task->errorMessage, sqlite3_errmsg(task->db), COD2_MAX_STRINGLENGTH - 1);
-							task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
+							strncpy(task->errorMessage, sqlite3_errmsg(task->db), MAX_STRINGLENGTH - 1);
+							task->errorMessage[MAX_STRINGLENGTH - 1] = '\0';
 
 							break;
 						}
@@ -146,13 +146,13 @@ void *async_sqlite_query_handler(void* dummy)
 					{
 						task->error = true;
 
-						strncpy(task->errorMessage, sqlite3_errmsg(task->db), COD2_MAX_STRINGLENGTH - 1);
-						task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
+						strncpy(task->errorMessage, sqlite3_errmsg(task->db), MAX_STRINGLENGTH - 1);
+						task->errorMessage[MAX_STRINGLENGTH - 1] = '\0';
 
 						break;
 					}
 
-					task->result = sqlite3_prepare_v2(task->db, task->query, COD2_MAX_STRINGLENGTH, &task->statement, 0);
+					task->result = sqlite3_prepare_v2(task->db, task->query, MAX_STRINGLENGTH, &task->statement, 0);
 				}
 
 				if (!task->error)
@@ -169,8 +169,8 @@ void *async_sqlite_query_handler(void* dummy)
 							{
 								task->error = true;
 
-								strncpy(task->errorMessage, sqlite3_errmsg(task->db), COD2_MAX_STRINGLENGTH - 1);
-								task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
+								strncpy(task->errorMessage, sqlite3_errmsg(task->db), MAX_STRINGLENGTH - 1);
+								task->errorMessage[MAX_STRINGLENGTH - 1] = '\0';
 
 								break;
 							}
@@ -207,8 +207,8 @@ void *async_sqlite_query_handler(void* dummy)
 						{
 							task->error = true;
 
-							strncpy(task->errorMessage, sqlite3_errmsg(task->db), COD2_MAX_STRINGLENGTH - 1);
-							task->errorMessage[COD2_MAX_STRINGLENGTH - 1] = '\0';
+							strncpy(task->errorMessage, sqlite3_errmsg(task->db), MAX_STRINGLENGTH - 1);
+							task->errorMessage[MAX_STRINGLENGTH - 1] = '\0';
 
 							break;
 						}
@@ -313,8 +313,8 @@ void gsc_async_sqlite_create_query()
 
 	newtask->db = (sqlite3 *)db;
 
-	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
-	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	strncpy(newtask->query, query, MAX_STRINGLENGTH - 1);
+	newtask->query[MAX_STRINGLENGTH - 1] = '\0';
 
 	int callback;
 
@@ -417,8 +417,8 @@ void gsc_async_sqlite_create_query_nosave()
 
 	newtask->db = (sqlite3 *)db;
 
-	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
-	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	strncpy(newtask->query, query, MAX_STRINGLENGTH - 1);
+	newtask->query[MAX_STRINGLENGTH - 1] = '\0';
 
 	int callback;
 
@@ -521,8 +521,8 @@ void gsc_async_sqlite_create_entity_query(scr_entref_t entid)
 
 	newtask->db = (sqlite3 *)db;
 
-	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
-	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	strncpy(newtask->query, query, MAX_STRINGLENGTH - 1);
+	newtask->query[MAX_STRINGLENGTH - 1] = '\0';
 
 	int callback;
 
@@ -625,8 +625,8 @@ void gsc_async_sqlite_create_entity_query_nosave(scr_entref_t entid)
 
 	newtask->db = (sqlite3 *)db;
 
-	strncpy(newtask->query, query, COD2_MAX_STRINGLENGTH - 1);
-	newtask->query[COD2_MAX_STRINGLENGTH - 1] = '\0';
+	strncpy(newtask->query, query, MAX_STRINGLENGTH - 1);
+	newtask->query[MAX_STRINGLENGTH - 1] = '\0';
 
 	int callback;
 
@@ -880,7 +880,7 @@ void gsc_sqlite_query()
 	int result;
 
 	timeout = Sys_MilliSeconds();
-	result = sqlite3_prepare_v2((sqlite3 *)db, query, COD2_MAX_STRINGLENGTH, &statement, 0);
+	result = sqlite3_prepare_v2((sqlite3 *)db, query, MAX_STRINGLENGTH, &statement, 0);
 
 	while (result != SQLITE_OK)
 	{
@@ -900,7 +900,7 @@ void gsc_sqlite_query()
 			return;
 		}
 
-		result = sqlite3_prepare_v2((sqlite3 *)db, query, COD2_MAX_STRINGLENGTH, &statement, 0);
+		result = sqlite3_prepare_v2((sqlite3 *)db, query, MAX_STRINGLENGTH, &statement, 0);
 	}
 
 	stackPushArray();

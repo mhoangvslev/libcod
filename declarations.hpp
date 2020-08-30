@@ -650,6 +650,8 @@ typedef struct usercmd_s
 #define MAX_MSGLEN 0x4000
 #elif COD_VERSION == COD2_1_3
 #define MAX_MSGLEN 0x20000
+#elif COD_VERSION == CODUO_1_51
+#define MAX_MSGLEN 0x8000
 #endif
 
 typedef void netProfileInfo_t;

@@ -4,8 +4,11 @@
 #define COD2_1_0 210
 #define COD2_1_2 212
 #define COD2_1_3 213
+#define CODUO_1_51 11751
 
-#define COD2_MAX_STRINGLENGTH 1024
+#if COD_VERSION == CODUO_1_51 || COD_VERSION == COD2_1_0 || COD_VERSION == COD2_1_2 || COD_VERSION == COD2_1_3
+#define MAX_STRINGLENGTH 1024
+#endif 
 
 /* default stuff */
 #include <stdio.h>
