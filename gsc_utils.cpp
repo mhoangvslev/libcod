@@ -850,6 +850,8 @@ void gsc_utils_getlasttestclientnumber()
 	int offset = 0x083E1E8C;
 #elif COD_VERSION == COD2_1_3
 	int offset = 0x083E2F0C;
+#elif COD_VERSION == CODUO_1_51
+    int offset = 0x080F4FD8;
 #endif
 
 	stackPushInt(*(int *)offset);
@@ -939,6 +941,8 @@ void RemoteCommand(netadr_t from, msg_t *msg)
 	int lasttime_offset = 0x0849EB74;
 #elif COD_VERSION == COD2_1_3
 	int lasttime_offset = 0x0849FBF4;
+#elif COD_VERSION == CODUO_1_51
+    int lasttime_offset = 0x080F5108;
 #endif
 
 	*(int *)lasttime_offset = 0;
