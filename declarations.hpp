@@ -2181,6 +2181,8 @@ static const int svs_offset = 0x0841FB00;
 static const int svs_offset = 0x08422000;
 #elif COD_VERSION == COD2_1_3
 static const int svs_offset = 0x08423080;
+#elif COD_VERSION == CODUO_1_51
+static const int svs_offset = 0x084F7000; 
 #endif
 
 #if COD_VERSION == COD2_1_0
